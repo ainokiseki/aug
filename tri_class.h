@@ -19,7 +19,7 @@ public:
         if (end == -1)end = n;
        
             long long index = n * (n - 1) * (n - 2) / 2 - (n - init) * (n - init - 1) * (n - init - 2) / 2;
-            cout << init << "\t" << end << "\tstart\n";
+            //cout << init << "\t" << end << "\tstart\n";
             for (int i = init; i < end; i++) {
                 for (int j = i + 1; j < n; ++j)
                 {
@@ -191,4 +191,38 @@ tri_update_u::~tri_update_u()
 {
 }
 
+
+class tri_calc_phi:public triple_loop
+{
+public:
+    tri_calc_phi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma,double*v,double*norm,double alpha,double*direction);
+    ~tri_calc_phi();
+    virtual void func(long long* idx, int three, long long index, double axbu) {
+        if(alpha>0&&direction!=NULL){
+            axbu-=alpha * direction[idx[0]];
+            axbu-=alpha * direction[idx[1]];
+            axbu-=alpha * direction[idx[2]];
+            axbu+=2*alpha * direction[idx[three]];
+        }
+        if (axbu > 0) {
+            *norm += axbu * axbu;
+        }
+    }
+
+    double*v;
+    double alpha;
+    double *direction;
+    double *norm;
+private:
+
+};
+
+tri_calc_phi::tri_calc_phi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma,double*v,double*norm,double alpha=0,double*direction=NULL) :
+    triple_loop(n, x, b, w, u, sigma),v(v),alpha(alpha),direction(direction),norm(norm)
+{
+
+}
+tri_calc_phi::~tri_calc_phi()
+{
+}
 

@@ -22,8 +22,6 @@ map<int, set<int> > g;
 
 
 
-
-double gamma = 2;
 double epsi = 0.01;
 
 //inline double sign(double x) {
@@ -133,9 +131,9 @@ void toc() {
 }
 int main()
 {
-
+    vector<double>test_norm;
     start = clock();
-    ifstream graph("graph4.txt", ios::in);
+    ifstream graph("graph1.txt", ios::in);
     ofstream prt_res("prt_res.txt", ios::out);
     int tmp_a, tmp_b;
     //build graph
@@ -205,8 +203,7 @@ int main()
     cout << "w:" << accumulate(w, w + var_num, 0.0) << endl;
     cout << "b:" << accumulate(b, b + var_num, 0.0)<<endl;
     tic();
-    for (int i = 0; i < var_num; i++)
-        prt_res << w[i] << "\t" << b[i] << endl;
+
     //map for y
     //u
     map<long long, double>u;
@@ -364,10 +361,12 @@ int main()
             double lx0 = calc_phi(x, b, w, u, v, n, sigma);
             double down=lx0+c1*alpha* inner_product(rhs, rhs + var_num,direction, 0.0);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
-
-            for (int i = 0; i < 10;i++) {
+            tic();
+            for (int i = 0; i < 20;i++) {
                 //cout << "start find step,alpha=" << alpha << endl;
+                //double norm=multi_calc_phi(n, x, b, w, &u, sigma, v,alpha,direction)(2);
                 double norm = calc_phi(x,b,w,alpha,direction,u,v,n,sigma);
+
                 //cout << "LX=" << norm << endl;
                 //norm(Ax-b+sigma*u)
                 if (norm <= down)
@@ -376,8 +375,9 @@ int main()
                 //p(z)
                 alpha *= 0.5;
             }
+            cout<<"time of phi"<<endl;
             tic();
-
+            return 0;
             for (int i = 0; i < var_num; i++)
                 x[i] += alpha * direction[i];
             delete[]direction;
@@ -437,8 +437,6 @@ int main()
     delete[]b;
     delete[]z;
     delete[]rhs;
-
-
 
 
     return 0;

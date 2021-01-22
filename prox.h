@@ -9,7 +9,7 @@ inline double sign(double x) {
 }
 
 
-long long ij(long long x, long long y, long long n) {
+inline long long ij(long long x, long long y, long long n) {
     long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
     if (res < 0)
         cout << "break\n";
@@ -203,7 +203,7 @@ double calc_phi(double* x, bool* b, double* w, double alpha, double* direction, 
     //norm(x+v/sig-z)
     norm = norm * sigma / 2;
     //cout << "norm1:" << norm << endl;
-    double nm2 = 0;
+
     for (int i = 0; i < var_num; i++) {
         double x_v = x[i] + alpha * direction[i] + v[i] / sigma;
         if (abs(x_v) < w[i] / sigma)
@@ -235,7 +235,7 @@ double calc_phi(double* x, bool* b, double* w, map<long long, double>& u, double
             norm += x_v * x_v * sigma / 2;
 
         else
-            norm += w[i] * w[i] / (sigma * 2) + w[i] * abs(x_v);
+            norm += w[i] * w[i] / (sigma * 2) + w[i] * abs(x_v - sign(x_v) * w[i] / sigma);
     }
     return norm;
 }
