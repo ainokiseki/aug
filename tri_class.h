@@ -53,7 +53,7 @@ public:
                 }
 
             }
-            cout << init <<"\t"<<end<<"\tfinished" << clock() << "\n";
+            //cout << init <<"\t"<<end<<"\tfinished" << clock() << "\n";
 
         
 	

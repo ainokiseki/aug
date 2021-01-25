@@ -51,7 +51,7 @@ multi::~multi()
 class multi_calc_phi
 {
 public:
-	multi_calc_phi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma, double* v, double alpha, double* direction) :
+	multi_calc_phi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma, double* v, double alpha=0, double* direction=NULL) :
 		sigma(sigma), v(v), n(n), x(x), b(b), w(w), u(u), alpha(alpha), direction(direction)
 	{
 	}

@@ -218,7 +218,7 @@ int main()
         cout << "start main loop, sigma="<<sigma<<"\n";
         toc();
         //main loop
-        for (int iter_1 = 0; iter_1 < 30;iter_1++) {//using ssn to find minimum of phi(x)
+        for (int iter_1 = 0; iter_1 < 50;iter_1++) {//using ssn to find minimum of phi(x)
             //calculate grad,hessie
             cout << "start find minimum of phi(x)," ;
             cout << "iter time:" << iter_1 << endl;
@@ -241,7 +241,7 @@ int main()
             //tri_rhs(n, x, b, w, &u, sigma, rhs, &aj1)();
             //multi_rhs ttt(n, x, b, w, &u, sigma, rhs, &aj1);
             multi tttt(n, x, b, w, &u, sigma, rhs, &aj1);
-            tttt(10);
+            tttt(8);
 
             //simul_loop(0, n, n, x, b, u, sigma, rhs,aj1);
             
@@ -358,14 +358,16 @@ int main()
             double alpha = 1;
             double c1 = 1e-4;
 
-            double lx0 = calc_phi(x, b, w, u, v, n, sigma);
+            //double lx0 = calc_phi(x, b, w, u, v, n, sigma);
+            double lx0 = multi_calc_phi(n, x, b, w, &u, sigma, v)(8);
+
             double down=lx0+c1*alpha* inner_product(rhs, rhs + var_num,direction, 0.0);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
             tic();
             for (int i = 0; i < 20;i++) {
                 //cout << "start find step,alpha=" << alpha << endl;
-                //double norm=multi_calc_phi(n, x, b, w, &u, sigma, v,alpha,direction)(2);
-                double norm = calc_phi(x,b,w,alpha,direction,u,v,n,sigma);
+                double norm=multi_calc_phi(n, x, b, w, &u, sigma, v,alpha,direction)(8);
+                //double norm = calc_phi(x,b,w,alpha,direction,u,v,n,sigma);
 
                 //cout << "LX=" << norm << endl;
                 //norm(Ax-b+sigma*u)
@@ -377,7 +379,7 @@ int main()
             }
             cout<<"time of phi"<<endl;
             tic();
-            return 0;
+
             for (int i = 0; i < var_num; i++)
                 x[i] += alpha * direction[i];
             delete[]direction;
