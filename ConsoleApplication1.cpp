@@ -10,7 +10,7 @@
 #include <iterator> 
 #include<math.h>
 #include<numeric>
-
+#include <omp.h>
 using namespace std;   
 typedef map<int, set<int> > mis;
 
@@ -20,7 +20,7 @@ map<int, set<int> > g;
 
 
 
-double gamma =10.0;
+double gmma =2;
 double epsi = 0.01;
 
 void prt(double* x, int var_num) {
@@ -37,7 +37,7 @@ inline long long ij2(long long x, long long y, long long n) {
 int main()
 {
 
-    ifstream graph("graph1.txt", ios::in);
+    ifstream graph("graph150.txt", ios::in);
     ofstream prt_res("prt_res.txt", ios::out);
     int tmp_a, tmp_b;
     //build graph
@@ -71,7 +71,7 @@ int main()
     int tmp_it = 0;
     double delta = 0.05;
     //calculate w
-    cout << gamma << endl;
+    cout << gmma << endl;
     for (int i = 0; i < n; i++)
     {
         int t_i = target[i];
@@ -112,10 +112,12 @@ int main()
     //default x
     double* x = new double[2*var_num];
     fill(x, x + var_num, 0.0);
-    fill( x + var_num,x+2*var_num, -1.0*gamma);
-    
-    for (int main_i = 0; main_i < 60; main_i++) {
+    fill( x + var_num,x+2*var_num, -1.0*gmma);
+
+
+    for (int main_i = 0; main_i < 6000; main_i++) {
         long long ct = 0;
+
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
                 for (int k = j + 1; k < n; k++) {
@@ -124,54 +126,36 @@ int main()
                     idx[0] = ij(i, j, n);
                     idx[1] = ij(i, k, n);
                     idx[2] = ij(j, k, n);
-                    for (int tmp = 0; tmp < 3; tmp++,ct++) {
+                    for (int tmp = 0; tmp < 3; tmp++, ct++) {
                         if (y.find(ct) != y.end())
                         {
                             //update x
-                            x[idx[0]] += y[ct] * gamma * w[idx[0]] * (tmp == 0 ? 1 : -1);
-                            x[idx[1]] += y[ct] * gamma * w[idx[1]] * (tmp == 1 ? 1 : -1);
-                            x[idx[2]] += y[ct] * gamma * w[idx[2]] * (tmp == 2 ? 1 : -1);
-                            
+                            x[idx[0]] += y[ct] * w[idx[0]] * (tmp == 0 ? 1 : -1);
+                            x[idx[1]] += y[ct] * w[idx[1]] * (tmp == 1 ? 1 : -1);
+                            x[idx[2]] += y[ct] * w[idx[2]] * (tmp == 2 ? 1 : -1);
                         }
                         //calculate theta
-                        
-                        int b_ijk = -2*b[idx[tmp]]+(b[idx[0]] + b[idx[1]] + b[idx[2]]);
+
+                        int b_ijk = -2 * b[idx[tmp]] + (b[idx[0]] + b[idx[1]] + b[idx[2]]);
                         double ax;
                         ax = 2 * x[idx[tmp]] - (x[idx[0]] + x[idx[1]] + x[idx[2]]);
-                        if (ax > b_ijk) {
+                        if (ax - b_ijk > 0) {
+
                             //cout << "wtf\n";
-                            double theta = (ax-b_ijk) / (gamma * (w[idx[0]] + w[idx[1]] + w[idx[2]]));
+                            double theta = (ax - b_ijk) / ( (w[idx[0]] + w[idx[1]] + w[idx[2]]));
                             //cout << "theta=" << theta << endl;
                             y[ct] = theta;
-                            x[idx[0]] -= y[ct] * gamma * w[idx[0]] * (tmp == 0 ? 1 : -1);
-                            x[idx[1]] -= y[ct] * gamma * w[idx[1]] * (tmp == 1 ? 1 : -1);
-                            x[idx[2]] -= y[ct] * gamma * w[idx[2]] * (tmp == 2 ? 1 : -1);
-                        }else {
-                            if(y.find(ct)!=y.end())
+                            x[idx[0]] -= y[ct] *  w[idx[0]] * (tmp == 0 ? 1 : -1);
+                            x[idx[1]] -= y[ct] *  w[idx[1]] * (tmp == 1 ? 1 : -1);
+                            x[idx[2]] -= y[ct] *  w[idx[2]] * (tmp == 2 ? 1 : -1);
+                        }
+                        else {
+                            if (y.find(ct) != y.end())
                                 y.erase(ct);
                         }
                     }
                 }
-            }
-        }
-
-        for (int i = 0; i < var_num; i++,ct++) {
             
-            if (y.find(ct) != y.end()) {
-                //update x
-                x[i] += y[ct]*gamma*w[i] ;
-                x[i + var_num] -= y[ct] *gamma*w[i];
-            }
-            if (x[i] >= x[i + var_num]) {
-                //update y
-                y[ct] = (x[i] - x[i + var_num]) / (gamma * ( w[i]+w[i]));
-                //correct x
-                x[i] -= y[ct]*gamma*w[i];
-                x[i+var_num]+= y[ct]*gamma*w[i];
-            }
-            else {
-                if (y.find(ct) != y.end())
-                y.erase(ct);
             }
         }
 
@@ -179,15 +163,16 @@ int main()
 
             if (y.find(ct) != y.end()) {
                 //update x
-                x[i] -= y[ct] * gamma * w[i];
-                x[i + var_num] -= y[ct] * gamma * w[i];
+                x[i] += y[ct]  * w[i];
+                x[i + var_num] -= y[ct] *  w[i];
             }
-            if (-x[i] >= x[i + var_num]) {
+            if (x[i] - x[i + var_num] >= 0) {
+
                 //update y
-                y[ct] = (-x[i] - x[i + var_num]) / (gamma * (w[i] + w[i]));
+                y[ct] = (x[i] - x[i + var_num]) / ( (2 * w[i]));
                 //correct x
-                x[i] += y[ct] * gamma * w[i];
-                x[i + var_num] += y[ct] * gamma * w[i];
+                x[i] -= y[ct] * w[i];
+                x[i + var_num] += y[ct]  * w[i];
             }
             else {
                 if (y.find(ct) != y.end())
@@ -195,7 +180,61 @@ int main()
             }
         }
 
+        for (int i = 0; i < var_num; i++, ct++) {
+
+            if (y.find(ct) != y.end()) {
+                //update x
+                x[i] -= y[ct]  * w[i];
+                x[i + var_num] -= y[ct]  * w[i];
+            }
+            if (-x[i] - x[i + var_num] >= 0) {
+                //update y
+
+
+                y[ct] = (-x[i] - x[i + var_num]) / ( (2 * w[i]));
+                //correct x
+                x[i] += y[ct] * w[i];
+                x[i + var_num] += y[ct]  * w[i];
+            }
+            else {
+                if (y.find(ct) != y.end())
+                    y.erase(ct);
+            }
+        }
+        
+        cout << "time:" << main_i << endl;
+
+        if (main_i % 100 == 0) {
+            bool flag = true;
+            for (int i = 0; i < n && flag; i++) {
+                for (int j = i + 1; j < n && flag; j++) {
+                    for (int k = j + 1; k < n && flag; k++) {
+
+                        long long idx[3];
+                        idx[0] = ij(i, j, n);
+                        idx[1] = ij(i, k, n);
+                        idx[2] = ij(j, k, n);
+                        for (int tmp = 0; tmp < 3; tmp++, ct++) {
+
+                            //calculate theta
+
+                            int b_ijk = -2 * b[idx[tmp]] + (b[idx[0]] + b[idx[1]] + b[idx[2]]);
+                            double ax;
+                            ax = 2 * x[idx[tmp]] - (x[idx[0]] + x[idx[1]] + x[idx[2]]);
+                            if (ax - b_ijk > 1e-6) {
+                                flag = false;
+                                goto X;
+                            }
+                        }
+                    }
+                }
+            }
+            X:
+            if (flag)
+                break;
+        }
     }
+
     double res = 0;
     for (int i = 0; i < var_num; i++) {
         res += abs(x[i + var_num])/w[i];

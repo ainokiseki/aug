@@ -14,6 +14,9 @@
 #include<future>
 #include"tri_class.h"
 #include"multi.h"
+#include<mutex>
+#include<chrono>
+#include<Eigen/Dense>
 using namespace std;
 typedef map<int, set<int> > mis;
 
@@ -101,7 +104,6 @@ void loop_update_aj(int* idx, int three, long long index, const double& axbu, co
         aj1.push_back(new tri(index, idx[0], idx[1], idx[2], three));
     }
     return;
-
 }
 void te(int n) {
     cout << n << endl;
@@ -117,24 +119,42 @@ void calc_z(double* x, double* z,double* w,double* v,double sigma, int n) {
             z[i] = 0;
         }
     }
-
     return;
 }
 time_t start, t_end;
-void tic() {
-    t_end = clock();
-    cout << "time:" << t_end - start << endl;
-    start = clock();
+
+
+
+void ipd(double*res,double*a,double*b,int n) {
+    double r = 0.0;
+    for (int i = 0; i < n; i++)
+        r += a[i] * b[i];
+    *res = r;
+    return;
 }
-void toc() {
-    start = clock();
+
+double multi_inner_product(double* a, double* b, int n) {
+    vector<std::thread>v;
+    double* res = new double[8];
+    for (int i = 0; i < 8; i++)
+        v.push_back(std::thread(ipd,res+i, a+i*n/8,b+i*n/8,n/8));
+    for (int i=0;i<8;i++)
+        v[i].join();
+    return accumulate(res, res + 8,0.0);
 }
+
+
 int main()
 {
+    std::chrono::high_resolution_clock::time_point ck,ck2;
+
+
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph1.txt", ios::in);
+    ifstream graph("graph300.txt", ios::in);
     ofstream prt_res("prt_res.txt", ios::out);
+    prt_res.setf(ios_base::scientific, ios_base::floatfield);
+    prt_res.precision(2);
     int tmp_a, tmp_b;
     //build graph
     int input_ct = 0;
@@ -202,7 +222,6 @@ int main()
 
     cout << "w:" << accumulate(w, w + var_num, 0.0) << endl;
     cout << "b:" << accumulate(b, b + var_num, 0.0)<<endl;
-    tic();
 
     //map for y
     //u
@@ -214,16 +233,18 @@ int main()
     std::fill(x, x + var_num, 0);
     double* rhs = new double[var_num];
     double sigma = 1;
+
     for (int iter_all = 0; iter_all < 1000;iter_all++) {
         cout << "start main loop, sigma="<<sigma<<"\n";
-        toc();
+        prt_res << "\nmain loop,time=" << iter_all+1 << endl;
+        prt_res << "iter_time\trhs\tcg\talpha\n" ;
         //main loop
-        for (int iter_1 = 0; iter_1 < 50;iter_1++) {//using ssn to find minimum of phi(x)
+        for (int iter_1 = 0; iter_1 < 150;iter_1++) {//using ssn to find minimum of phi(x)
             //calculate grad,hessie
             cout << "start find minimum of phi(x)," ;
             cout << "iter time:" << iter_1 << endl;
             long long index = 0;
-
+            prt_res << iter_1<<"\t";
             std::fill(rhs, rhs + var_num, 0);
             vector<tri*>aj1;
             double* aj2 = new double[var_num];
@@ -256,7 +277,7 @@ int main()
             //    }
             //}
             //tri_loop(n,  x,b,  u,  sigma,loop_update_rhs, rhs,aj1);
-            tic();
+
 
             //tri_loop(n, x, b, u, sigma, loop_update_aj, rhs, aj1);
             //tic();
@@ -274,16 +295,16 @@ int main()
                 }
 
             }
-            if (inner_product(rhs, rhs + var_num, rhs, 0.0) < 1e-10) {
+
+            if (inner_product(rhs, rhs + var_num, rhs, 0.0) < 1e-12) {
                 delete[]aj2;
                 for (int i = 0; i < aj1.size(); i++)
                     delete aj1[i];
 
                 break;
             }
-                
-            //cout << "rhs:" << accumulate(rhs, rhs + var_num, 0.0) << endl;
-            //cg
+            
+
             double* ap = new double[var_num];
             double* direction = new double[var_num];
             std::fill(direction, direction + var_num, 0);
@@ -291,32 +312,44 @@ int main()
             //std::fill(p,p+var_num,0);
             double* r = new double[var_num];
             copy(rhs, rhs + var_num, r);
+            copy(r, r + var_num, p);
             double r_old, r_new;
             r_old = 0;
             r_new = inner_product(r, r + var_num, r, 0.0);
             double r_norm = inner_product(rhs, rhs + var_num, rhs, 0.0);
+            prt_res << r_norm << "\t";
             //cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
             double a = min(r_norm, 20.0);
-            tic();
-            int maxit = max(50, n);
+
+            int maxit = max(50, (int)sqrt(cons_num));
+
+
             for (int i = 0; i < maxit ; i++) {
-                if (i == 0) {
-                    copy(r, r + var_num, p);
-                }
-                else {
-                    double beta = r_new / r_old;
-                    for (int j = 0; j < var_num; j++) {
-                        p[j] = beta * p[j] + r[j];
-                    }
-                }
+
                 std::fill(ap, ap + var_num, 0);
                 //debug
                 //for (int j = 0; j < var_num; j++)
                 //    p[j] = j;
                 //calculate A*p
-                calc_ap(ap, aj1,  p);
+                
+                calc_ap(ap, aj1, p);
+                //
+                //else {
+                //    vector<std::thread>tmp_v;
+                //    mutex*mu = new mutex;
+                //    multi_calc_ap mca = multi_calc_ap(&aj1, ap, p);
+                //    for (int j = 0; j < 4; j++)
+                //        tmp_v.push_back(thread(mca,j,4,mu));
+                //    for (int j = 0; j < 4; j++)
+                //        tmp_v[j].join();
+                //    delete mu;
+                //}
+
+
+
                 for (int j = 0; j < var_num; j++)
                     ap[j] = ap[j] * sigma + sigma * aj2[j]*p[j]+a*p[j];
+
                 //calculate finish!
                 
                 //for (int j = 0; j <var_num; j++)
@@ -325,6 +358,7 @@ int main()
                 //return 0;
 
                 double alpha = r_new / inner_product(p, p + var_num, ap, 0.0);
+                //$double alpha = r_new / multi_inner_product(p,ap,var_num);
                 //cout << "alpha:" << alpha << endl;
 
 
@@ -332,27 +366,111 @@ int main()
                     direction[j] += alpha * p[j];
                     r[j] -= alpha * ap[j];
                 }
+
                 r_old = r_new;
                 r_new = inner_product(r, r + var_num, r, 0.0);
+                //r_new = multi_inner_product(r,r,var_num);
+
                 //cout << "cg num:" << inner_product(p, p + var_num, ap, 0.0) << endl;
-                if (inner_product(p, p + var_num, ap, 0.0) < 1e-30) {
+                if (sqrt(inner_product(p, p + var_num, p, 0.0)) < 1e-8) {
                     cout << "cg finished,times=" << i << endl;
+                    prt_res << i << "\t";
                     //for (int j = 0; j < var_num; j++)
                     //    cout << direction[j] << endl;
                     //return 0;
                     break;
                 }
-                    
+
+                double beta = r_new / r_old;
+                for (int j = 0; j < var_num; j++) {
+                    p[j] = beta * p[j] + r[j];
+                }
+
+                //cout << i << "\t" << alpha << "\t" << beta << endl;
+
             }
-            tic();
+
+
+            //double* ap = new double[var_num];
+            //Eigen::VectorXd vdirection=Eigen::VectorXd::Zero(var_num);
+            //double* p = new double[var_num];
+            ////std::fill(p,p+var_num,0);
+            //Eigen::VectorXd r(var_num);
+            //for (int i = 0; i < var_num; i++)
+            //    r[i]= rhs[i];
+
+
+            //copy(rhs, rhs + var_num, p);
+            //double r_old, r_new;
+            //r_old = 0;
+            //r_new = r.dot(r);
+            //double r_norm = r_new;
+
+            ////cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+            //double a = min(r_norm, 20.0);
+            //int maxit = max(50, (int)sqrt(cons_num));
+            //Eigen::VectorXd vap(var_num);
+            //Eigen::VectorXd vp(var_num);
+            //for (int i = 0; i < maxit; i++) {
+
+            //    std::fill(ap, ap + var_num, 0);
+            //    //debug
+            //    //for (int j = 0; j < var_num; j++)
+            //    //    p[j] = j;
+            //    //calculate A*p
+
+            //    calc_ap(ap, aj1, p);
+
+
+            //    for (int j = 0; j < var_num; j++)
+            //        ap[j] = ap[j] * sigma + sigma * aj2[j] * p[j] + a * p[j];
+
+            //    for (int j = 0; j < var_num; j++)
+            //        vap[j]= ap[j];
+            //    for (int j = 0; j < var_num; j++)
+            //        vp[j]=p[j];
+            //    double alpha = r_new / vp.dot(vap);
+            //    //$double alpha = r_new / multi_inner_product(p,ap,var_num);
+            //    //cout << "alpha:" << alpha << endl;
+
+            //    vdirection += alpha * vp;
+            //    r -= alpha * vap;
+
+            //    r_old = r_new;
+
+            //    r_new = r.dot(r);
+            //    //r_new = multi_inner_product(r,r,var_num);
+
+            //    //cout << "cg num:" << inner_product(p, p + var_num, ap, 0.0) << endl;
+            //    if (vp.norm() < 1e-8) {
+            //        cout << "cg finished,times=" << i << endl;
+            //        prt_res << i << "\t";
+            //        //for (int j = 0; j < var_num; j++)
+            //        //    cout << direction[j] << endl;
+            //        //return 0;
+            //        break;
+            //    }
+
+            //    double beta = r_new / r_old;
+            //    vp = beta * vp + r;
+            //    //cout << i<<"\t"<<alpha << "\t" << beta << endl;
+            //    for (int j = 0; j < var_num; j++) {
+            //        p[j] = vp[j];
+            //    }
+            //}
+
+            //double* direction = new double[var_num];
+
+            //for (int i = 0; i < var_num; i++)
+            //    direction[i] = vdirection[i];
+
             for (int i = 0; i < var_num; i++)
                 direction[i] = -direction[i];
-
             delete[]ap;
 
             delete[]p;
-
             delete[]r;
+
             //cg end,result saved at direction
             //find step length
             double alpha = 1;
@@ -363,7 +481,8 @@ int main()
 
             double down=lx0+c1*alpha* inner_product(rhs, rhs + var_num,direction, 0.0);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
-            tic();
+            
+
             for (int i = 0; i < 20;i++) {
                 //cout << "start find step,alpha=" << alpha << endl;
                 double norm=multi_calc_phi(n, x, b, w, &u, sigma, v,alpha,direction)(8);
@@ -371,14 +490,16 @@ int main()
 
                 //cout << "LX=" << norm << endl;
                 //norm(Ax-b+sigma*u)
-                if (norm <= down)
+                if (norm <= down) {
                     cout << "alpha=" << alpha << endl;
                     break;
+                }
                 //p(z)
                 alpha *= 0.5;
             }
+            prt_res << alpha << "\n";
             cout<<"time of phi"<<endl;
-            tic();
+
 
             for (int i = 0; i < var_num; i++)
                 x[i] += alpha * direction[i];
@@ -402,14 +523,12 @@ int main()
         double kkt_y,kkt_z,kkt_u,kkt_v,kkt_x;
         kkt_y = kkt_u = kkt_v = kkt_x = kkt_z = 0;
 
-        cout << "start kkt\n";
-        tri_kkt(n, x, b, w, &u, sigma, kkt_y,kkt_u,y_norm)();
-        //tri_loop(n, x, b, u, sigma, loop_update_kkt, u, kkt);
 
         ////update u
         cout << "start u\n";
         tri_update_u(n, x, b, w, &u, sigma)();
         //tri_loop(n, x, b, u, sigma, loop_update_u, u,y_norm);
+        cout << "start x\n";
 
         cout << "size(u):" << u.size() << endl;
         //update v,z_norm
@@ -418,13 +537,29 @@ int main()
             v[i] += sigma * (x[i] - z[i]);
 
 
-
-
-
+        cout << "start kkt\n";
+        tri_kkt(n, x, b, w, &u, sigma, kkt_y, kkt_u, y_norm)();
+        //tri_loop(n, x, b, u, sigma, loop_update_kkt, u, kkt);
+        kkt_x = multi_calc_au(n, &u, v)();
+        kkt_y = sqrt(kkt_y) / (1 + sqrt(y_norm));
+        kkt_u = sqrt(kkt_u) / (1 + sqrt(y_norm));
+        for (int i = 0; i < var_num; i++)
+            kkt_v += (x[i] - z[i]) * (x[i] - z[i]);
+        kkt_v = sqrt(kkt_v) / (1+sqrt(inner_product(x,x + var_num, x, 0.0)));
+        for (int i = 0; i < var_num; i++)
+            kkt_z += (z[i] - sign(x[i]+v[i])*max(0.0,abs(x[i]+v[i])-w[i])) * (z[i] - sign(x[i] + v[i]) * max(0.0, abs(x[i] + v[i]) - w[i]));
+        kkt_z = sqrt(kkt_z) / (1 + sqrt(inner_product(z, z + var_num, x, 0.0)));
         sigma = min(sigma *2,1e7);
-        
-        cout << "kkt u:" << kkt_u  << "\ty:" << kkt_y <<"\t"<<y_norm<<endl;
-        if (max(kkt_u, kkt_y) < 1e-5)
+        cout << "kkt v:" << kkt_v << "\tz:" << kkt_z << endl;
+
+        cout << "kkt u:" << kkt_u  << "\ty:" << kkt_y <<"\tx:"<<kkt_x<<endl;
+
+        prt_res << "\n" << "kkt:" << max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x)) << endl;
+        double t_res = 0.0;
+        for (int i = 0; i < var_num; i++)
+            t_res += abs(x[i] * w[i]);
+        prt_res << "f(Ax-b)+p(x) \t" <<t_res << endl;
+        if (max(max(kkt_u, kkt_y),max(max(kkt_v,kkt_z),kkt_x)) < 1e-5)
             break;
 
     }

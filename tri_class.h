@@ -85,10 +85,7 @@ public:
     ~tri_rhs();
     double* rhs;
     vector<tri*>* aj1;
-    void init_var(double* rhs, vector<tri*>* aj1) {
-        rhs = rhs;
-        aj1 = aj1;
-    }
+
     virtual void func(long long* idx, int three, long long index, double axbu) {
 
         if (axbu > 0) {
@@ -132,11 +129,6 @@ public:
                     kkt_y += (*u)[index] * (*u)[index];
             }
         }
-
-
-
-
-
         if (axbu < 0) {
             y_norm += axbu * axbu;
         }
@@ -167,7 +159,7 @@ public:
     ~tri_update_u();
     virtual void func(long long* idx, int three, long long index, double axbu) {
 
-        if (axbu > 1e-8) {
+        if (axbu > 0) {
             (*u)[index] = sigma * axbu;
         }
         else {

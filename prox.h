@@ -3,6 +3,8 @@
 #include<map>
 #include<iostream>
 #include<time.h>
+#include<mutex>
+#include<Eigen/Dense>
 using namespace std;
 inline double sign(double x) {
     return (x > 0) - (x < 0);
@@ -135,6 +137,18 @@ void loop_update_lx(int* idx, int three, long long index, const double& axbu, co
 
 
 void calc_ap(double* ap, vector<tri*>& aj1, double* p) {
+    for (int i = 0; i < aj1.size(); i++) {
+        tri* tem = aj1[i];
+        double num = -(p[tem->idx[0]] + p[tem->idx[1]] + p[tem->idx[2]]) + 2 * p[tem->idx[tem->symbol]];
+        ap[tem->idx[0]] -= num;
+        ap[tem->idx[1]] -= num;
+        ap[tem->idx[2]] -= num;
+        ap[tem->idx[tem->symbol]] += 2 * num;
+    }
+    return;
+}
+
+void calc_ap(Eigen::VectorXd& ap, vector<tri*>& aj1, Eigen::VectorXd& p) {
     for (int i = 0; i < aj1.size(); i++) {
         tri* tem = aj1[i];
         double num = -(p[tem->idx[0]] + p[tem->idx[1]] + p[tem->idx[2]]) + 2 * p[tem->idx[tem->symbol]];
