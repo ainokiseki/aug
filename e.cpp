@@ -269,8 +269,7 @@ int main()
 
             //tri_rhs(n, x, b, w, &u, sigma, rhs, &aj1)();
             //multi_rhs ttt(n, x, b, w, &u, sigma, rhs, &aj1);
-            multi tttt(n, x, b, w, &u, sigma, rhs, &aj1);
-            tttt(8);
+
 
             //simul_loop(0, n, n, x, b, u, sigma, rhs,aj1);
 
