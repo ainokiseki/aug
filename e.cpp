@@ -122,8 +122,12 @@ void ipd(double* res, double* a, double* b, int n) {
     *res = r;
     return;
 }
-Eigen::VectorXd prox_p_star(Eigen::VectorXd &x,Eigen::VectorXd&w,double sigma ) {
-    
+inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x,Eigen::VectorXd w,double sigma ) {
+    Eigen::VectorXd res(x.size());
+    for (int i = 0; i < x.size(); i++) {
+        res[i] = min(abs(x[i]), w[i] / sigma) * sign(x[i]);
+    }
+    return res;
 }
 
 
@@ -236,7 +240,8 @@ int main()
 
             axbu.set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
             axbu();
-            rhs=sigma*rhs+
+            rhs = sigma * rhs + sigma*prox_p_star(x + v / sigma, w, sigma);
+
             //for (auto& i : rhs_t) {
             //    i = new double[var_num];
             //    std::fill(i,i + var_num, 0);
