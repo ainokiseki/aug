@@ -11,9 +11,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="prox.h">
-      <Filter>源文件</Filter>
-    </ClInclude>
     <ClInclude Include="tri_class.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -24,6 +21,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="cg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="prox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tri.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="func_eigen.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="axbu_eigen.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,6 +47,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="eigen_prox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="func_eigen.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="axbu_eigen.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

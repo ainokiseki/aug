@@ -21,22 +21,7 @@ inline long long ij2(long long x, long long y, long long n) {
     return n * (n - 1) / 2 - n - (n - x) * (n - 1 - x) / 2 + y - 1;
 }
 
-class tri
-{
-public:
-    long long index;
-    int symbol;
-    long long idx[3];
-    tri(long long x, long long y, long long z, long long w, int t) {
-        index = x;
-        idx[0] = y;
-        idx[1] = z;
-        idx[2] = w;
-        symbol = t;
-    }
-    ~tri() {}
 
-};
 
 
 template <typename T, typename A1, typename A2>

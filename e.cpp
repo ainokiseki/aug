@@ -23,7 +23,9 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <unsupported/Eigen/IterativeSolvers>
 #include"cg.h"
-#include "omp.h"
+#include "tri.h"
+#include"axbu_eigen.h"
+
 using namespace std;
 typedef map<int, set<int> > mis;
 
@@ -91,27 +93,8 @@ void loop_update_kkt(int* idx, int three, long long index, const double& axbu, c
 
 }
 
-void loop_update_rhs(int* idx, int three, long long index, double axbu, double sigma, double* rhs, vector<tri*> aj1) {
-    int ia[3];
-    ia[0] = ia[1] = ia[2] = -1;
-    ia[three] = 1;
-    if (axbu > 0) {
-        rhs[idx[0]] += ia[0] * axbu * sigma;
-        rhs[idx[1]] += ia[1] * axbu * sigma;
-        rhs[idx[2]] += ia[2] * axbu * sigma;
-        //aj1.push_back(new tri(index, idx[0], idx[1], idx[2], three));
-    }
-    return;
 
-}
-void loop_update_aj(int* idx, int three, long long index, const double& axbu, const double& sigma, double*& rhs, vector<tri*>& aj1) {
 
-    if (axbu > 0) {
-
-        aj1.push_back(new tri(index, idx[0], idx[1], idx[2], three));
-    }
-    return;
-}
 void te(int n) {
     cout << n << endl;
 }
@@ -139,22 +122,15 @@ void ipd(double* res, double* a, double* b, int n) {
     *res = r;
     return;
 }
-
-double multi_inner_product(double* a, double* b, int n) {
-    vector<std::thread>v;
-    double* res = new double[8];
-    for (int i = 0; i < 8; i++)
-        v.push_back(std::thread(ipd, res + i, a + i * n / 8, b + i * n / 8, n / 8));
-    for (int i = 0; i < 8; i++)
-        v[i].join();
-    return accumulate(res, res + 8, 0.0);
+Eigen::VectorXd prox_p_star(Eigen::VectorXd &x,Eigen::VectorXd&w,double sigma ) {
+    
 }
 
 
 int main()
 {
     std::chrono::high_resolution_clock::time_point ck, ck2;
-    omp_set_num_threads(8);
+
     ck = std::chrono::high_resolution_clock::now();
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
@@ -186,12 +162,14 @@ int main()
     cout << "n:" << n << endl;
     int var_num = n * (n - 1) / 2;
     long long cons_num = n * (n - 1) * (n - 2) / 6;
-    double* w = new double[var_num];
-    std::fill(w, w + var_num, 0);
-
-    bool* b = new bool[var_num];
-    double* z = new double[var_num];
-
+    
+    Eigen::VectorXd w = Eigen::VectorXd::Zero(var_num);
+    Eigen::VectorXd b = Eigen::VectorXd::Zero(var_num);
+    
+    Eigen::VectorXd z = Eigen::VectorXd::Zero(var_num);
+    Eigen::VectorXd v = Eigen::VectorXd::Zero(var_num);
+    Eigen::VectorXd x = Eigen::VectorXd::Zero(var_num);
+    Eigen::VectorXd rhs = Eigen::VectorXd::Zero(var_num);
     int tmp_it = 0;
     double delta = 0.05;
     //calculate w
@@ -228,18 +206,15 @@ int main()
         }
     }
 
-    cout << "w:" << accumulate(w, w + var_num, 0.0) << endl;
-    cout << "b:" << accumulate(b, b + var_num, 0.0) << endl;
+    cout << "w:" << w.sum() << endl;
+    cout << "b:" << b.sum() << endl;
 
     //map for y
     //u
     map<long long, double>u;
     //v
-    double* v = new double[var_num];
-    std::fill(v, v + var_num, 0);
-    double* x = new double[var_num];
-    std::fill(x, x + var_num, 0);
-    double* rhs = new double[var_num];
+
+
     double sigma = 1;
 
     for (int iter_all = 0; iter_all < 1000; iter_all++) {
@@ -247,16 +222,21 @@ int main()
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
         //main loop
+        axbu_eigen axbu(n, &x,&b, &u, sigma);
         for (int iter_1 = 0; iter_1 < 150; iter_1++) {//using ssn to find minimum of phi(x)
             //calculate grad,hessie
+            
             cout << "start find minimum of phi(x),";
             cout << "iter time:" << iter_1 << endl;
             long long index = 0;
             prt_res << iter_1 << "\t";
-            std::fill(rhs, rhs + var_num, 0);
+            rhs = Eigen::VectorXd::Zero(var_num);
             vector<tri*>aj1;
             double* aj2 = new double[var_num];
-            double* rhs_t[4];
+
+            axbu.set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+            axbu();
+            rhs=sigma*rhs+
             //for (auto& i : rhs_t) {
             //    i = new double[var_num];
             //    std::fill(i,i + var_num, 0);
