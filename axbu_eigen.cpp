@@ -1,13 +1,19 @@
 #include "axbu_eigen.h"
 
+inline long long ij(long long x, long long y, long long n) {
+	long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 
+	return res;
+}
 axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<long long, double>* u, double sigma) :
-	n(n), x(x), b(b), u(u), sigma(sigma)
+	n(n), x(x), b(b), u(u), sigma(sigma),f(NULL)
 {
 }
 
 axbu_eigen::~axbu_eigen()
 {
+	if (f)
+		delete f;
 }
 void axbu_eigen::operator() (){
 
@@ -36,11 +42,13 @@ void axbu_eigen::operator() (){
 			}
 		}
 	}
-	delete f;
+
 
 	return;
 
 }
 void axbu_eigen::set_function(func_eigen* func) {
+	if (f != NULL)
+		delete f;
 	f = func;
 }

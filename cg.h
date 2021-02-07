@@ -1,5 +1,6 @@
 #pragma once
-
+#include"tri.h"
+#include<vector>
 class MatrixReplacement;
 using Eigen::SparseMatrix;
 
@@ -35,18 +36,17 @@ public:
     }
 
     // Custom API:
-    MatrixReplacement(vector<tri*>* aj1,int var_num,double a,double* aj2,double sigma):aj1(aj1),var_num(var_num),a(a),sigma(sigma){
-        vaj2.resize(var_num);
-        for (int i = 0; i < var_num; i++)
-            vaj2[i] = aj2[i];
+    MatrixReplacement(std::vector<tri*>* aj1,int var_num,double a,Eigen::VectorXd* aj2,double sigma):aj1(aj1),var_num(var_num),a(a),sigma(sigma),aj2(aj2){
+
+
     }
 
-    vector<tri*>* aj1;
+    std::vector<tri*>* aj1;
     int var_num;
     double a;
 
     double sigma;
-    Eigen::VectorXd vaj2;
+    Eigen::VectorXd* aj2;
 };
 
 
@@ -86,7 +86,7 @@ namespace Eigen {
                     ap[tem->idx[tem->symbol]] += 2 * num;
 
                 }
-                dst = ap * lhs.sigma + lhs.sigma * (lhs.vaj2.array() * rhs.array()).matrix() + lhs.a * rhs;
+                dst = ap * lhs.sigma + lhs.sigma * (lhs.aj2->array() * rhs.array()).matrix() + lhs.a * rhs;
 
                 //int thnum = 4;
                 //Eigen::VectorXd* ap = new  Eigen::VectorXd[thnum];

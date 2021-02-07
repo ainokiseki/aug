@@ -157,14 +157,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cg.h" />
-    <ClInclude Include="multi_tri.h" />
+    <ClInclude Include="multi_tri.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="prox.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="axbu_eigen.h" />
     <ClInclude Include="tri.h" />
-    <ClInclude Include="tri_class.h" />
-    <ClInclude Include="multi.h" />
+    <ClInclude Include="tri_class.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="multi.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="func_eigen.h" />
   </ItemGroup>
   <ItemGroup>
