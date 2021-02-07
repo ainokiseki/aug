@@ -1,5 +1,5 @@
 #include "axbu_eigen.h"
-
+#include<iostream>
 inline long long ij(long long x, long long y, long long n) {
 	long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 

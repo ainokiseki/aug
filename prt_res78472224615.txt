@@ -1,0 +1,4 @@
+
+main loop,time=1
+iter_time	rhs	cg	alpha
+0	54	

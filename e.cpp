@@ -110,13 +110,24 @@ void ipd(double* res, double* a, double* b, int n) {
     *res = r;
     return;
 }
-Eigen::VectorXd prox_p_star(Eigen::VectorXd x,Eigen::VectorXd w,double sigma ) {
+inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x,Eigen::VectorXd w,double sigma ) {
     Eigen::VectorXd res,res2;
     res = x.cwiseAbs().cwiseMin(w / sigma);
     res2 = (((x.array() > 0) - (x.array() < 0)).matrix()).cast<double>();
     res = res.cwiseProduct(res2);
     res = res.cast<double>();
     return res;
+
+}
+inline Eigen::VectorXd prox_p(Eigen::VectorXd x, Eigen::VectorXd w, double sigma) {
+    Eigen::VectorXd res, res2;
+    res2 = (((x.array() > 0) - (x.array() < 0)).matrix()).cast<double>();
+    res = (x.cwiseAbs() - w / sigma).cwiseMax(0);
+    res = res.cwiseProduct(res2);
+    res = res.cast<double>();
+    return res;
+
+
 
 }
 
@@ -222,6 +233,7 @@ int main()
             
             cout << "start find minimum of phi(x),";
             cout << "iter time:" << iter_1 << endl;
+
             long long index = 0;
             prt_res << iter_1 << "\t";
             rhs = Eigen::VectorXd::Zero(var_num);
@@ -230,18 +242,24 @@ int main()
 
             axbu.set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
             axbu();
-            rhs = sigma * rhs + sigma*prox_p_star(x + v / sigma, w, sigma);
+            rhs = sigma * rhs;
 
+
+
+            rhs+=sigma* prox_p_star(x + v / sigma, w, sigma);
+
+
+            
             cout << "aj1:" << aj1.size() << endl;
 
-
+            cout << "rhs:" << rhs.norm() << endl;
             if (rhs.norm() < 1e-6) {
 
                 for (int i = 0; i < aj1.size(); i++)
                     delete aj1[i];
                 break;
             }
-            Eigen::VectorXd aj2 =(((sigma * x + v).cwiseAbs() - w).array() > 0).matrix().cast<double>();
+            Eigen::VectorXd aj2 =(((sigma * x + v).cwiseAbs() - w).array() < 0).matrix().cast<double>();
             
 
             //cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
@@ -259,24 +277,33 @@ int main()
             cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
             prt_res << cg.iterations() << "\t";
 
+            cout << "=================\n";
+
+
 
             //cg end,result saved at direction
             //find step length
             double alpha = 1;
             double c1 = 1e-4;
             double lx0 = 0;
-            axbu.set_function(new func_eigen_phi(alpha,&direction,&lx0));
+            axbu.set_function(new func_eigen_phi(0,&direction,&lx0));
             axbu();
-
+            lx0 = sigma / 2 * lx0 + sigma/2*prox_p_star(x + v / sigma, w, sigma).norm() * prox_p_star(x + v / sigma, w, sigma).norm();
+            lx0 += w.dot( prox_p(x + v / sigma, w, sigma).cwiseAbs());
             double down = lx0 + c1 * alpha*rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
             cout <<"lx0:"<<lx0<<"\tdown"<< down << endl;
+
             for (int i = 0; i < 20; i++) {
                 //cout << "start find step,alpha=" << alpha << endl;
                 double lx = 0;
                 axbu.set_function(new func_eigen_phi(alpha, &direction, &lx));
                 axbu();
+                lx = sigma / 2 * lx;
+                lx+=sigma / 2 * prox_p_star(x + alpha * direction + v / sigma, w, sigma).norm() * prox_p_star(x + alpha * direction + v / sigma, w, sigma).norm();
+                lx += w.dot(prox_p(x + v / sigma + alpha * direction, w, sigma).cwiseAbs());
+
                 if (lx <= down) {
                     break;
                 }

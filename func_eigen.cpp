@@ -1,4 +1,4 @@
-
+#include<iostream>
 #include"func_eigen.h"
 func_eigen::func_eigen()
 {
@@ -47,6 +47,7 @@ void func_eigen_phi::operator()(double axbu, int* idx, int time, long long index
 		axbu -= alpha * (*direction)[idx[2]];
 		axbu += 2 * alpha * (*direction)[idx[time]];
 	}
+
 	if (axbu > 0) {
 		*norm += axbu * axbu;
 	}
