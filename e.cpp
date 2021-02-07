@@ -111,8 +111,12 @@ void ipd(double* res, double* a, double* b, int n) {
     return;
 }
 Eigen::VectorXd prox_p_star(Eigen::VectorXd x,Eigen::VectorXd w,double sigma ) {
-    
-    return ;
+    Eigen::VectorXd res,res2;
+    res = x.cwiseAbs().cwiseMin(w / sigma);
+    res2 = (((x.array() > 0) - (x.array() < 0)).matrix()).cast<double>();
+    res = res.cwiseProduct(res2);
+    res = res.cast<double>();
+    return res;
 
 }
 
@@ -231,8 +235,6 @@ int main()
             cout << "aj1:" << aj1.size() << endl;
 
 
-
-
             if (rhs.norm() < 1e-6) {
 
                 for (int i = 0; i < aj1.size(); i++)
@@ -265,10 +267,11 @@ int main()
             double lx0 = 0;
             axbu.set_function(new func_eigen_phi(alpha,&direction,&lx0));
             axbu();
+
             double down = lx0 + c1 * alpha*rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
-
+            cout <<"lx0:"<<lx0<<"\tdown"<< down << endl;
             for (int i = 0; i < 20; i++) {
                 //cout << "start find step,alpha=" << alpha << endl;
                 double lx = 0;

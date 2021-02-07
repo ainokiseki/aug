@@ -26,7 +26,7 @@ void func_eigen_rhs_aj1::operator()(double axbu, int* idx, int time, long long i
 			(*rhs)(idx[i]) -= axbu;
 		}
 		(*rhs)(idx[time]) += axbu;
-		aj1->push_back(new tri(idx[0], idx[1], idx[2], index, time));
+		aj1->push_back(new tri(index,idx[0], idx[1], idx[2],  time));
 	}
 }
 
