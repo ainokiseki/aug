@@ -12,14 +12,14 @@ axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<l
 
 axbu_eigen::~axbu_eigen()
 {
-	if (f)
-		delete f;
-}
-void axbu_eigen::operator() (){
 
+}
+void axbu_eigen::operator() (int init,int end){
+	if (end < 0)end = n;
 	int var_num = n * (n - 1) / 2;
-	long long index = 0;
-	for (int i = 0; i < n; i++) {
+	long long index = n * (n - 1) * (n - 2) / 2 - (n - init) * (n - init - 1) * (n - init - 2) / 2;
+	//std::cout << init << "\t" << end << "\t" << index << std::endl;
+	for (int i = init; i < end; i++) {
 		for (int j = i+1; j < n; j++) {
 			for (int k = j + 1; k < n; k++) {
 				int idx[3];
@@ -42,13 +42,12 @@ void axbu_eigen::operator() (){
 			}
 		}
 	}
-
+	delete f;
 
 	return;
 
 }
 void axbu_eigen::set_function(func_eigen* func) {
-	if (f != NULL)
-		delete f;
+
 	f = func;
 }

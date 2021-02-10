@@ -12,8 +12,6 @@
 #include <thread>
 #include<string>
 #include<sstream>
-
-
 #include<mutex>
 #include<chrono>
 #include <Eigen/Core>
@@ -23,6 +21,7 @@
 #include"cg.h"
 #include "tri.h"
 #include"axbu_eigen.h"
+#include<omp.h>
 
 using namespace std;
 typedef map<int, set<int> > mis;
@@ -34,17 +33,7 @@ map<int, set<int> > g;
 
 double epsi = 0.01;
 
-//inline double sign(double x) {
-//    return (x > 0) - (x < 0);
-//}
-//
-//
-//inline long long ij(long long x, long long y, long long n) {
-//    return n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
-//}
-//inline long long ij2(long long x, long long y, long long n) {
-//    return n * (n - 1) / 2 - n - (n - x) * (n - 1 - x) / 2 + y - 1;
-//}
+
 inline long long ij(long long x, long long y, long long n) {
     long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
     if (res < 0)
@@ -52,49 +41,7 @@ inline long long ij(long long x, long long y, long long n) {
     return res;
 }
 
-void loop_update_u(int* idx, int three, long long index, const double& axbu, const double& sigma, map<long long, double>& u, double& y_norm) {
-    if (axbu > 1e-8) {
-        u[index] = sigma * axbu;
-    }
-    else {
 
-        if (u.find(index) != u.end())
-            u.erase(index);
-    }
-    return;
-
-}
-
-void loop_update_kkt(int* idx, int three, long long index, const double& axbu, const double& sigma, map<long long, double>& u, double**& kkt) {
-    int ia[3];
-    ia[0] = ia[1] = ia[2] = -1;
-    ia[three] = 1;
-    //kkt 0:kkt_y, 1:y_norm 2:kkt_u
-    if (axbu < 0) {
-        if (u.find(index) != u.end() && u[index] + axbu > 0) {
-            *kkt[0] += axbu * axbu;
-        }
-        else {
-            if (u.find(index) != u.end())
-                *kkt[0] += u[index] * u[index];
-        }
-    }
-
-
-
-
-
-    if (axbu < 0) {
-        *kkt[1] += axbu * axbu;
-    }
-    double tem = 0;
-    tem += max(axbu, 0.0);
-    if (u.find(index) != u.end())
-        tem -= u[index] / sigma;
-    *kkt[2] += tem * tem;
-    return;
-
-}
 
 
 
@@ -103,17 +50,13 @@ time_t start, t_end;
 
 
 
-void ipd(double* res, double* a, double* b, int n) {
-    double r = 0.0;
-    for (int i = 0; i < n; i++)
-        r += a[i] * b[i];
-    *res = r;
-    return;
-}
-inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x,Eigen::VectorXd w,double sigma ) {
+
+ inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x,Eigen::VectorXd w,double sigma ) {
     Eigen::VectorXd res,res2;
+
     res = x.cwiseAbs().cwiseMin(w / sigma);
-    res2 = (((x.array() > 0) - (x.array() < 0)).matrix()).cast<double>();
+
+    res2 = (((x.array() > 0).cast<double>() - (x.array() < 0).cast<double>()).matrix()).cast<double>();
     res = res.cwiseProduct(res2);
     res = res.cast<double>();
     return res;
@@ -121,7 +64,7 @@ inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x,Eigen::VectorXd w,double si
 }
 inline Eigen::VectorXd prox_p(Eigen::VectorXd x, Eigen::VectorXd w, double sigma) {
     Eigen::VectorXd res, res2;
-    res2 = (((x.array() > 0) - (x.array() < 0)).matrix()).cast<double>();
+    res2 = (((x.array() > 0).cast<double>() - (x.array() < 0).cast<double>()).matrix()).cast<double>();
     res = (x.cwiseAbs() - w / sigma).cwiseMax(0);
     res = res.cwiseProduct(res2);
     res = res.cast<double>();
@@ -130,17 +73,35 @@ inline Eigen::VectorXd prox_p(Eigen::VectorXd x, Eigen::VectorXd w, double sigma
 
 
 }
-
+void m_calc_rhs_and_aj1(int pnum,Eigen::VectorXd&rhs,vector<tri*>&aj1,int n,axbu_eigen axbu) {
+    int var_num = n * (n - 1) / 2;
+    Eigen::VectorXd* mrhs=new Eigen::VectorXd[pnum];
+    vector<tri*>*maj1=new vector<tri*>[pnum];
+    for (int i = 0; i < pnum; i++)
+        mrhs[i] = Eigen::VectorXd::Zero(var_num);
+    vector<thread>tv;
+    for (int i = 0; i < 8; i++) {
+        axbu.set_function(new func_eigen_rhs_aj1(mrhs+i, maj1+i));
+        tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / 8) * n), n - (int)(cbrt(i * 1.0 / 8) * 1.0 * n)));
+    }
+    for (int i = 0; i < 8; i++)
+        tv[i].join();
+    for (int i=0;i<pnum;i++)
+        rhs += mrhs[i];
+    for (int i=0;i<pnum;i++)
+        aj1.insert(aj1.end(), maj1[i].begin(), maj1[i].end());
+}
 
 int main()
 {
+    omp_set_num_threads(8);
     std::chrono::high_resolution_clock::time_point ck, ck2;
 
     ck = std::chrono::high_resolution_clock::now();
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph14.txt", ios::in);
+    ifstream graph("graph100.txt", ios::in);
     ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
     prt_res.precision(6);
@@ -235,13 +196,33 @@ int main()
             cout << "iter time:" << iter_1 << endl;
 
             long long index = 0;
-            prt_res << iter_1 << "\t";
+            
+
             rhs = Eigen::VectorXd::Zero(var_num);
             vector<tri*>aj1;
-
+            //old version
 
             axbu.set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
             axbu();
+            //old version end
+            //m_calc_rhs_and_aj1(8, rhs, aj1, n, axbu);
+            //Eigen::VectorXd mrhs[8];
+            //vector<tri*>maj1[8];
+            //for (int i = 0; i < 8; i++)
+            //    mrhs[i] = Eigen::VectorXd::Zero(var_num);
+
+            //vector<thread>tv;
+            //for (int i = 0; i < 8; i++) {
+            //    axbu.set_function(new func_eigen_rhs_aj1(&mrhs[i], &maj1[i]));
+            //    tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / 8) * n), n - (int)(cbrt(i * 1.0 / 8) * 1.0 * n)));
+            //}
+            //for (int i = 0; i < 8; i++)
+            //    tv[i].join();
+            //for (auto i : mrhs)
+            //    rhs += i;
+            //for (auto i : maj1)
+            //    aj1.insert(aj1.end(), i.begin(), i.end());
+            //
             rhs = sigma * rhs;
 
 
@@ -253,6 +234,7 @@ int main()
             cout << "aj1:" << aj1.size() << endl;
 
             cout << "rhs:" << rhs.norm() << endl;
+
             if (rhs.norm() < 1e-6) {
 
                 for (int i = 0; i < aj1.size(); i++)
@@ -274,10 +256,10 @@ int main()
 
             Eigen::VectorXd direction = cg.solve(-rhs);
             
-            cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
-            prt_res << cg.iterations() << "\t";
+            //cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+            cout << "CG:" << cg.iterations() << std::endl;
 
-            cout << "=================\n";
+
 
 
 
@@ -286,14 +268,24 @@ int main()
             double alpha = 1;
             double c1 = 1e-4;
             double lx0 = 0;
+            //old version
             axbu.set_function(new func_eigen_phi(0,&direction,&lx0));
             axbu();
+
+
             lx0 = sigma / 2 * lx0 + sigma/2*prox_p_star(x + v / sigma, w, sigma).norm() * prox_p_star(x + v / sigma, w, sigma).norm();
             lx0 += w.dot( prox_p(x + v / sigma, w, sigma).cwiseAbs());
             double down = lx0 + c1 * alpha*rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
             cout <<"lx0:"<<lx0<<"\tdown"<< down << endl;
+            Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
+            axbu.set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
+            axbu();
+            nrhs = sigma * nrhs;
+            nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, w, sigma);
+            if (nrhs.dot(direction) < 0)
+                goto AL;
 
             for (int i = 0; i < 20; i++) {
                 //cout << "start find step,alpha=" << alpha << endl;
@@ -309,64 +301,25 @@ int main()
                 }
                 alpha *= 0.5;
             }
+        AL:
             cout << "alpha=" << alpha << endl;
-            prt_res << alpha << "\n";
+            prt_res << iter_1<<"\t"<<rhs.norm()<<"\t"<<cg.iterations()<<"\t"<<alpha << "\n";
 
 
             x = x + alpha * direction;
             for (int i = 0; i < aj1.size(); i++)
                 delete aj1[i];
         }
-
-        axbu.set_function(new func_eigen_u(&u, sigma));
+        double y_norm = 0;
+        double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
+        kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
+        axbu.set_function(new func_eigen_u(&u, sigma,&y_norm,&kkt_y,&kkt_u));
         axbu();
         v = sigma * prox_p_star(x + v / sigma,w,sigma);
+        sigma *= 2;
+        y_norm = sqrt(y_norm);
+        cout << "kkt_u:" << sqrt(kkt_u) / (1 + y_norm) << "\tkkt_y:" << sqrt(kkt_y) / (1 + y_norm) << endl;
 
-        ////update y,z
-        //long long index = 0;
-        //calc_z(x, z, w, v, sigma, n);
-        //double y_norm, z_norm;
-        //y_norm = z_norm = 0;
-        //z_norm = inner_product(z, z + var_num, z, 0.0);
-
-
-        ////calculate kkt
-        //double kkt_y, kkt_z, kkt_u, kkt_v, kkt_x;
-        //kkt_y = kkt_u = kkt_v = kkt_x = kkt_z = 0;
-
-
-        //////update u
-        //cout << "start u\n";
-        //tri_update_u(n, x, b, w, &u, sigma)();
-        ////tri_loop(n, x, b, u, sigma, loop_update_u, u,y_norm);
-        //cout << "start x\n";
-
-        //cout << "size(u):" << u.size() << endl;
-        ////update v,z_norm
-
-        //for (int i = 0; i < var_num; i++)
-        //    v[i] += sigma * (x[i] - z[i]);
-
-
-        //cout << "start kkt\n";
-        //tri_kkt(n, x, b, w, &u, sigma, kkt_y, kkt_u, y_norm)();
-        ////tri_loop(n, x, b, u, sigma, loop_update_kkt, u, kkt);
-        //kkt_x = multi_calc_au(n, &u, v)();
-        //kkt_y = sqrt(kkt_y) / (1 + sqrt(y_norm));
-        //kkt_u = sqrt(kkt_u) / (1 + sqrt(y_norm));
-        //for (int i = 0; i < var_num; i++)
-        //    kkt_v += (x[i] - z[i]) * (x[i] - z[i]);
-        //kkt_v = sqrt(kkt_v) / (1 + sqrt(inner_product(x, x + var_num, x, 0.0)));
-        //for (int i = 0; i < var_num; i++)
-        //    kkt_z += (z[i] - sign(x[i] + v[i]) * max(0.0, abs(x[i] + v[i]) - w[i])) * (z[i] - sign(x[i] + v[i]) * max(0.0, abs(x[i] + v[i]) - w[i]));
-        //kkt_z = sqrt(kkt_z) / (1 + sqrt(inner_product(z, z + var_num, x, 0.0)));
-        //sigma = min(sigma * 2, 1e7);
-        //cout << "kkt v:" << kkt_v << "\tz:" << kkt_z << endl;
-
-        //cout << "kkt u:" << kkt_u << "\ty:" << kkt_y << "\tx:" << kkt_x << endl;
-
-        //prt_res << "\n" << "kkt:" << max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x)) << endl;
-        //double t_res = 0.0;
         //for (int i = 0; i < var_num; i++)
         //    t_res += abs(x[i] * w[i]);
         //prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;

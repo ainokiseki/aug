@@ -38,11 +38,26 @@ private:
 class func_eigen_u:public func_eigen
 {
 public:
-	func_eigen_u(std::map<long long,double>*,double sigma);
+	func_eigen_u(std::map<long long,double>*,double sigma, double*,double*,double*);
 	~func_eigen_u();
 	void operator()(double axbu, int* idx, int time, long long index);
 private:
 	std::map<long long, double>* u;
 	double sigma;
+	double* y_norm;
+	double* kkt_y;
+	double* kkt_u;
+};
+
+class func_eigen_rhs:public func_eigen
+{
+public:
+	func_eigen_rhs(double alpha, Eigen::VectorXd* direction,Eigen::VectorXd*rhs);
+	~func_eigen_rhs();
+	void operator()(double axbu, int* idx, int time, long long index);
+private:
+	double alpha;
+	Eigen::VectorXd* direction;
+	Eigen::VectorXd* rhs;
 };
 
