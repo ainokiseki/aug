@@ -28,7 +28,7 @@ void axbu_eigen::operator() (int init,int end){
 				idx[2] = ij(j, k, n);
 				double axbu = 0;
 				for (int time = 0; time < 3; time++) {
-					axbu -= (*x)[idx[time]] + (*b)[idx[time]];
+					axbu -= (*x)[idx[time]] + (*b)[idx[time]]; 
 				}
 				for (int time = 0; time < 3; time++,index++) {
 					double axbu2 = axbu;
@@ -41,7 +41,9 @@ void axbu_eigen::operator() (int init,int end){
 
 			}
 		}
+
 	}
+
 	delete f;
 
 	return;

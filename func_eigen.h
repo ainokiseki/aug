@@ -26,13 +26,14 @@ private:
 class func_eigen_phi:public func_eigen
 {
 public:
-	func_eigen_phi(double,Eigen::VectorXd*,double*);
+	func_eigen_phi(double,Eigen::VectorXd*,double*,int debug=0);
 	~func_eigen_phi();
 	void operator()(double axbu, int* idx, int time, long long index);
 private:
 	double alpha;
 	Eigen::VectorXd* direction;
 	double* norm;
+	int debug;
 };
 
 class func_eigen_u:public func_eigen

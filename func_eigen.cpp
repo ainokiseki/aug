@@ -1,4 +1,6 @@
 #include<iostream>
+#include<fstream>
+#include<string>
 #include"func_eigen.h"
 func_eigen::func_eigen()
 {
@@ -31,7 +33,7 @@ void func_eigen_rhs_aj1::operator()(double axbu, int* idx, int time, long long i
 	}
 }
 
-func_eigen_phi::func_eigen_phi(double alpha, Eigen::VectorXd* direction, double* norm) :alpha(alpha), direction(direction), norm(norm)
+func_eigen_phi::func_eigen_phi(double alpha, Eigen::VectorXd* direction, double* norm,int debug) :alpha(alpha), direction(direction), norm(norm),debug(debug)
 {
 
 }
@@ -52,6 +54,9 @@ void func_eigen_phi::operator()(double axbu, int* idx, int time, long long index
 	if (axbu > 0) {
 		*norm += axbu * axbu;
 	}
+	//std::ofstream prt_axbu("axbu"+std::to_string(debug)+".txt", std::ios::out|std::ios::app);
+	//if(alpha==0)
+	//prt_axbu << index<<"\t"<<axbu << "\n";
 }
 func_eigen_u::func_eigen_u(std::map<long long, double>* u, double sigma,double*y_norm,double *kkt_y,double*kkt_u) :
 	u(u), sigma(sigma),y_norm(y_norm),kkt_y(kkt_y),kkt_u(kkt_u)
