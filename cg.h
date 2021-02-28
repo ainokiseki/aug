@@ -86,7 +86,7 @@ namespace Eigen {
                     ap[tem->idx[tem->symbol]] += 2 * num;
 
                 }
-                dst = ap * lhs.sigma + lhs.sigma * (lhs.aj2->array() * rhs.array()).matrix() + lhs.a * rhs;
+                dst = ap * lhs.sigma + lhs.sigma *lhs.aj2->cwiseProduct(rhs)  + lhs.a * rhs;
 
                 //int thnum = 4;
                 //Eigen::VectorXd* ap = new  Eigen::VectorXd[thnum];

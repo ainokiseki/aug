@@ -73,7 +73,6 @@ void func_eigen_u::operator()(double axbu, int* idx, int time, long long index)
 	if (axbu > 0) {
 		naxbu   += axbu;
 		(*u)[index] = sigma * axbu;
-
 	}
 	else {
 		if (u->find(index) != u->end())
@@ -82,7 +81,15 @@ void func_eigen_u::operator()(double axbu, int* idx, int time, long long index)
 	double y = (naxbu < 0 ? naxbu : 0.0);
 	*y_norm += y * y;
 	*kkt_y += (axb - y) * (axb - y);
-	double y_plus_u = (y + (*u)[index] > 0 ? y : -(*u)[index]);
+	double y_plus_u;
+	if (u->find(index)==u->end())
+	{
+		y_plus_u = (y > 0 ? y : 0);
+	}
+	else {
+		y_plus_u = (y + (*u)[index] > 0 ? y : -(*u)[index]);
+	}
+
 	*kkt_u += y_plus_u * y_plus_u;
 
 	

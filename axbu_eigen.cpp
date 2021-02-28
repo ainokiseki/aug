@@ -53,3 +53,45 @@ void axbu_eigen::set_function(func_eigen* func) {
 
 	f = func;
 }
+
+au_eigen::au_eigen(int n, std::map<long long, double>* u, Eigen::VectorXd v) :n(n), u(u), v(v)
+{
+	int var_num = n * (n - 1) / 2;
+	au = Eigen::VectorXd::Zero(var_num);
+}
+
+au_eigen::~au_eigen()
+{
+}
+
+double au_eigen::operator()(int init, int end)
+{
+	if (end < 0)end = n;
+
+	int var_num = n * (n - 1) / 2;
+	long long index = n * (n - 1) * (n - 2) / 2 - (n - init) * (n - init - 1) * (n - init - 2) / 2;
+	//std::cout << init << "\t" << end << "\t" << index << std::endl;
+	for (int i = init; i < end; i++) {
+		for (int j = i + 1; j < n; j++) {
+			for (int k = j + 1; k < n; k++) {
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
+				for (int time = 0; time < 3; time++,index++) {
+					if (u->find(index) == u->end())
+						continue;
+					double tem = (*u)[index];
+					(au)[idx[0]] -= tem;
+					(au)[idx[1]] -= tem;
+					(au)[idx[2]] -= tem;
+					(au)[idx[time]] += 2 * tem;
+
+				}
+			}
+		}
+
+	}
+	return (au + v).norm();
+}
+
