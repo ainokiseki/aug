@@ -50,53 +50,57 @@ time_t start, t_end;
 
 
 
- inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x,double sigma ) {
-    Eigen::VectorXd res;
 
-    res = x.cwiseAbs().cwiseMin(1/ sigma);
-    res = res.cwiseProduct(x.cwiseSign());
+inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x, Eigen::VectorXd w, double sigma) {
+    Eigen::VectorXd res, res2;
+
+    res = x.cwiseAbs().cwiseMin(w / sigma);
+
+    res2 = (((x.array() > 0).cast<double>() - (x.array() < 0).cast<double>()).matrix()).cast<double>();
+    res = res.cwiseProduct(res2);
     res = res.cast<double>();
     return res;
 
 }
 inline Eigen::VectorXd prox_p(Eigen::VectorXd x, Eigen::VectorXd w, double sigma) {
     Eigen::VectorXd res, res2;
+    res2 = (((x.array() > 0).cast<double>() - (x.array() < 0).cast<double>()).matrix()).cast<double>();
     res = (x.cwiseAbs() - w / sigma).cwiseMax(0);
-    res = res.cwiseProduct(x.cwiseSign());
+    res = res.cwiseProduct(res2);
     res = res.cast<double>();
     return res;
 
 
 
 }
-void m_calc_rhs_and_aj1(int pnum,Eigen::VectorXd&rhs,vector<tri*>&aj1,int n,axbu_eigen axbu) {
+void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd& rhs, vector<tri*>& aj1, int n, axbu_eigen axbu) {
     int var_num = n * (n - 1) / 2;
-    Eigen::VectorXd* mrhs=new Eigen::VectorXd[pnum];
-    vector<tri*>*maj1=new vector<tri*>[pnum];
+    Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
+    vector<tri*>* maj1 = new vector<tri*>[pnum];
     for (int i = 0; i < pnum; i++)
         mrhs[i] = Eigen::VectorXd::Zero(var_num);
     vector<thread>tv;
     for (int i = 0; i < pnum; i++) {
-        axbu.set_function(new func_eigen_rhs_aj1(mrhs+i, maj1+i));
+        axbu.set_function(new func_eigen_rhs_aj1(mrhs + i, maj1 + i));
         tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
     }
     for (int i = 0; i < pnum; i++)
         tv[i].join();
-    for (int i=0;i<pnum;i++)
+    for (int i = 0; i < pnum; i++)
         rhs += mrhs[i];
-    for (int i=0;i<pnum;i++)
+    for (int i = 0; i < pnum; i++)
         aj1.insert(aj1.end(), maj1[i].begin(), maj1[i].end());
     delete[]mrhs;
     delete[]maj1;
 }
-void m_calc_rhs(int pnum, Eigen::VectorXd& rhs,int n, axbu_eigen axbu,double alpha,Eigen::VectorXd*direction) {
+void m_calc_rhs(int pnum, Eigen::VectorXd& rhs, int n, axbu_eigen axbu, double alpha, Eigen::VectorXd* direction) {
     int var_num = n * (n - 1) / 2;
     Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
     for (int i = 0; i < pnum; i++)
         mrhs[i] = Eigen::VectorXd::Zero(var_num);
     vector<thread>tv;
     for (int i = 0; i < pnum; i++) {
-        axbu.set_function(new func_eigen_rhs(alpha,direction,mrhs + i));
+        axbu.set_function(new func_eigen_rhs(alpha, direction, mrhs + i));
         tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
     }
     for (int i = 0; i < pnum; i++)
@@ -105,25 +109,30 @@ void m_calc_rhs(int pnum, Eigen::VectorXd& rhs,int n, axbu_eigen axbu,double alp
         rhs += mrhs[i];
     delete[]mrhs;
 }
-void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eigen::VectorXd* direction) {
+void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eigen::VectorXd* direction, ofstream& prt) {
     int var_num = n * (n - 1) / 2;
-    double*mphi=new double[pnum];
+    double* mphi = new double[pnum];
     for (int i = 0; i < pnum; i++)
         mphi[i] = 0;
     vector<thread>tv;
     for (int i = 0; i < pnum; i++) {
-        axbu.set_function(new func_eigen_phi(alpha, direction,mphi+i,i));
+        axbu.set_function(new func_eigen_phi(alpha, direction, mphi + i, i));
         int a, b;
         a = n - (int)(cbrt((i + 1) * 1.0 / pnum) * n);
         b = n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n);
-        tv.push_back(thread(axbu, a,b));
-
+        tv.push_back(thread(axbu, a, b));
+        prt << a << "\t" << b << "\n";
     }
     for (int i = 0; i < pnum; i++)
         tv[i].join();
     for (int i = 0; i < pnum; i++)
         phi += mphi[i];
-    
+    if (alpha == 0) {
+        for (int i = 0; i < pnum; i++)
+            prt << mphi[i] << "\t";
+        prt << "\n" << phi << "\n";
+    }
+
     delete[]mphi;
 }
 int main()
@@ -135,11 +144,13 @@ int main()
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph500.txt", ios::in);
-    ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
-
+    ifstream graph("graph100.txt", ios::in);
+    ofstream prt_res("prt_res" + prt_name + ".txt", ios::out);
+    ofstream prt_phi("prt_phi" + prt_name + ".txt", ios::out);
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
     prt_res.precision(6);
+    prt_phi.setf(ios_base::scientific, ios_base::floatfield);
+    prt_phi.precision(10);
     ofstream prt_x("prt_x" + prt_name + ".txt", ios::out);
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
     prt_res.precision(10);
@@ -167,10 +178,10 @@ int main()
     cout << "n:" << n << endl;
     int var_num = n * (n - 1) / 2;
     long long cons_num = n * (n - 1) * (n - 2) / 6;
-    
+
     Eigen::VectorXd w = Eigen::VectorXd::Zero(var_num);
     Eigen::VectorXd b = Eigen::VectorXd::Zero(var_num);
-    
+
     Eigen::VectorXd z = Eigen::VectorXd::Zero(var_num);
     Eigen::VectorXd v = Eigen::VectorXd::Zero(var_num);
     Eigen::VectorXd x = Eigen::VectorXd::Zero(var_num);
@@ -222,20 +233,20 @@ int main()
 
     double sigma = 1;
 
-    for (int iter_all = 0; iter_all < 1000; iter_all++) {
+    for (int iter_all = 0; iter_all < 1000 && sigma < 8; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
         //main loop
-        axbu_eigen axbu(n, &x,&b, &u, sigma);
+        axbu_eigen axbu(n, &x, &b, &u, sigma);
         for (int iter_1 = 0; iter_1 < 150; iter_1++) {//using ssn to find minimum of phi(x)
             //calculate grad,hessie
-            
+
             cout << "start find minimum of phi(x),";
             cout << "iter time:" << iter_1 << endl;
 
             long long index = 0;
-            
+
 
             rhs = Eigen::VectorXd::Zero(var_num);
             vector<tri*>aj1;
@@ -266,10 +277,10 @@ int main()
 
 
 
-            rhs+=sigma*w.cwiseProduct( prox_p_star(x + v / sigma,  sigma));
+            rhs += sigma * prox_p_star(x + v / sigma, w, sigma);
 
 
-            
+
             cout << "aj1:" << aj1.size() << endl;
 
             cout << "rhs:" << rhs.norm() << endl;
@@ -280,21 +291,21 @@ int main()
                     delete aj1[i];
                 break;
             }
-            Eigen::VectorXd aj2 =((w.cwiseProduct(x)+v/sigma).cwiseAbs().array() < 1/sigma).matrix().cast<double>();
-            aj2 = aj2.cwiseProduct(w.cwiseProduct(w));
-            
+            Eigen::VectorXd aj2 = (((sigma * x + v).cwiseAbs() - w).array() < 0).matrix().cast<double>();
+
+
             //cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 
-            double a = min(pow(rhs.norm(),1.5)*0.5,0.5);
+            double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 
-            MatrixReplacement A(&aj1,var_num,a,&aj2,sigma);
+            MatrixReplacement A(&aj1, var_num, a, &aj2, sigma);
             //Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
             Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
             cg.compute(A);
 
 
             Eigen::VectorXd direction = cg.solve(-rhs);
-            
+
             //cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
             cout << "CG:" << cg.iterations() << std::endl;
 
@@ -312,21 +323,21 @@ int main()
 
             //axbu.set_function(new func_eigen_phi(0,&direction,&lx0));
             //axbu();
+            prt_phi << iter_1 << "\n";
+            m_calc_phi(8, lx0, n, axbu, 0, &direction, prt_phi);
 
-            m_calc_phi(8, lx0, n, axbu, 0, &direction);
-            auto square = [](double x) {return x * x; };
-            lx0 = sigma / 2 * lx0 + sigma/2*square((w.cwiseProduct(x)+v/sigma).cwiseMin(1/sigma).norm());
-            lx0 += w.dot( prox_p(x + v / sigma, w, sigma).cwiseAbs());
-            double down = lx0 + c1 * alpha*rhs.dot(direction);
+            lx0 = sigma / 2 * lx0 + sigma / 2 * prox_p_star(x + v / sigma, w, sigma).norm() * prox_p_star(x + v / sigma, w, sigma).norm();
+            lx0 += w.dot(prox_p(x + v / sigma, w, sigma).cwiseAbs());
+            double down = lx0 + c1 * alpha * rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
-            cout <<"lx0:"<<lx0<<"\tdown"<< down << endl;
+            cout << "lx0:" << lx0 << "\tdown" << down << endl;
             Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
             axbu.set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
             axbu();
             //m_calc_rhs(8, nrhs, n, axbu, alpha, &direction);
             nrhs = sigma * nrhs;
-            nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, sigma);
+            nrhs += sigma * prox_p_star(x + alpha * direction + v / sigma, w, sigma);
             if (nrhs.dot(direction) < 0)
                 goto AL;
 
@@ -337,7 +348,7 @@ int main()
                 axbu();
                 //m_calc_phi(8, lx, n, axbu, alpha, &direction);
                 lx = sigma / 2 * lx;
-                lx+=sigma / 2 * prox_p_star(x + alpha * direction + v / sigma, w, sigma).norm() * prox_p_star(x + alpha * direction + v / sigma, w, sigma).norm();
+                lx += sigma / 2 * prox_p_star(x + alpha * direction + v / sigma, w, sigma).norm() * prox_p_star(x + alpha * direction + v / sigma, w, sigma).norm();
                 lx += w.dot(prox_p(x + v / sigma + alpha * direction, w, sigma).cwiseAbs());
 
                 if (lx <= down) {
@@ -347,7 +358,7 @@ int main()
             }
         AL:
             cout << "alpha=" << alpha << endl;
-            prt_res << iter_1<<" "<<lx0<<" "<<rhs.norm()<<"\t"<<cg.iterations()<<"\t"<<alpha << "\n";
+            prt_res << iter_1 << " " << lx0 << " " << rhs.norm() << "\t" << cg.iterations() << "\t" << alpha << "\n";
             x = x + alpha * direction;
             for (int i = 0; i < aj1.size(); i++)
                 delete aj1[i];
@@ -355,35 +366,22 @@ int main()
         double y_norm = 0;
         double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
         kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
-        axbu.set_function(new func_eigen_u(&u, sigma,&y_norm,&kkt_y,&kkt_u));
+        axbu.set_function(new func_eigen_u(&u, sigma, &y_norm, &kkt_y, &kkt_u));
         axbu();
-        cout << "u:" << u.size() << endl;
-        z = prox_p(x + v / sigma, w, sigma);
-        v = sigma * prox_p_star(x + v / sigma,w,sigma);
+        v = sigma * prox_p_star(x + v / sigma, w, sigma);
         sigma *= 2;
         y_norm = sqrt(y_norm);
-        kkt_u = sqrt(kkt_u) / (1 + y_norm);
-        kkt_y = sqrt(kkt_y) / (1 + y_norm);
-        //cout << "kkt_u:" << kkt_u  << "\tkkt_y:" <<kkt_y << endl;
-        kkt_x = au_eigen(n, &u, v)();
-        kkt_x = kkt_x / (1 + v.norm());
+        cout << "kkt_u:" << sqrt(kkt_u) / (1 + y_norm) << "\tkkt_y:" << sqrt(kkt_y) / (1 + y_norm) << endl;
 
-        //cout << "z_norm" << z.norm() << endl;
-        kkt_v = (x - z).norm() / (1 + x.norm());
-        kkt_z = (z - prox_p(x + v,w,1)).norm() / (1 + z.norm());
         //for (int i = 0; i < var_num; i++)
         //    t_res += abs(x[i] * w[i]);
         //prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
-        double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
-        //cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
-        cout << "kkt:" << kkt_final << endl;
-        //cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
-        if (kkt_final < 1e-5)
-            break;
+        //if (max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x)) < 1e-5)
+        //    break;
 
     }
 
-    cout << "function value:" << w.dot(x.cwiseAbs())<<endl;
+    cout << "function value:" << w.dot(x.cwiseAbs()) << endl;
 
 
     return 0;
