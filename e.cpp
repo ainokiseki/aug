@@ -52,27 +52,23 @@ time_t start, t_end;
 
 
 inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x, Eigen::VectorXd w, double sigma) {
-    Eigen::VectorXd res, res2;
+    Eigen::VectorXd res;
 
     res = x.cwiseAbs().cwiseMin(w / sigma);
 
-    res2 = (((x.array() > 0).cast<double>() - (x.array() < 0).cast<double>()).matrix()).cast<double>();
-    res = res.cwiseProduct(res2);
-    res = res.cast<double>();
+    res = res.cwiseProduct(x.cwiseSign());
+
     return res;
 
 }
 inline Eigen::VectorXd prox_p(Eigen::VectorXd x, Eigen::VectorXd w, double sigma) {
-    Eigen::VectorXd res, res2;
-    res2 = (((x.array() > 0).cast<double>() - (x.array() < 0).cast<double>()).matrix()).cast<double>();
+    Eigen::VectorXd res;
     res = (x.cwiseAbs() - w / sigma).cwiseMax(0);
-    res = res.cwiseProduct(res2);
-    res = res.cast<double>();
+    res = res.cwiseProduct(x.cwiseSign());
+
     return res;
-
-
-
 }
+
 void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd& rhs, vector<tri*>& aj1, int n, axbu_eigen axbu) {
     int var_num = n * (n - 1) / 2;
     Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
