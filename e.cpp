@@ -50,22 +50,7 @@ time_t start, t_end;
 
 
 
- inline Eigen::VectorXd prox_p_star(Eigen::VectorXd x,double sigma ) {
-    Eigen::VectorXd res;
 
-    res = x.cwiseAbs().cwiseMin(1/ sigma);
-    res = res.cwiseProduct(x.cwiseSign());
-    res = res.cast<double>();
-    return res;
-
-}
-inline Eigen::VectorXd prox_p(Eigen::VectorXd x, Eigen::VectorXd w, double sigma) {
-    Eigen::VectorXd res, res2;
-    res = (x.cwiseAbs() - w / sigma).cwiseMax(0);
-    res = res.cwiseProduct(x.cwiseSign());
-    res = res.cast<double>();
-    return res;
-}
 
 inline Eigen::VectorXd pi_c(Eigen::VectorXd x,  double sigma) {
     return x.cwiseSign().cwiseProduct(x.cwiseAbs().cwiseMin(1 / sigma));
@@ -138,7 +123,7 @@ int main()
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph14.txt", ios::in);
+    ifstream graph("graph100.txt", ios::in);
     ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
 
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
@@ -157,6 +142,7 @@ int main()
         //if (input_ct > 300)
         //    break;
     }
+
     cout << "line:" << input_ct << endl;
     //point list
     vector<int> target;
@@ -225,7 +211,7 @@ int main()
 
     double sigma = 1;
 
-    for (int iter_all = 0; iter_all < 1000&&sigma<8; iter_all++) {
+    for (int iter_all = 0; iter_all < 1000&&sigma<32; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
@@ -367,7 +353,7 @@ int main()
         z = w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x)+v/sigma,sigma);
         v = sigma *pi_c(w.cwiseProduct(x)+v/sigma,sigma);
 
-        sigma *= 2;
+        sigma *= 4;
         y_norm = sqrt(y_norm);
         kkt_u = sqrt(kkt_u) / (1 + y_norm);
         kkt_y = sqrt(kkt_y) / (1 + y_norm);
