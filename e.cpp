@@ -65,10 +65,13 @@ inline Eigen::VectorXd prox_p(Eigen::VectorXd x, Eigen::VectorXd w, double sigma
     res = res.cwiseProduct(x.cwiseSign());
     res = res.cast<double>();
     return res;
-
-
-
 }
+
+inline Eigen::VectorXd pi_c(Eigen::VectorXd x,  double sigma) {
+    return x.cwiseSign().cwiseProduct(x.cwiseAbs().cwiseMin(1 / sigma));
+}
+
+
 void m_calc_rhs_and_aj1(int pnum,Eigen::VectorXd&rhs,vector<tri*>&aj1,int n,axbu_eigen axbu) {
     int var_num = n * (n - 1) / 2;
     Eigen::VectorXd* mrhs=new Eigen::VectorXd[pnum];
@@ -135,7 +138,7 @@ int main()
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph500.txt", ios::in);
+    ifstream graph("graph14.txt", ios::in);
     ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
 
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
@@ -222,7 +225,7 @@ int main()
 
     double sigma = 1;
 
-    for (int iter_all = 0; iter_all < 1000; iter_all++) {
+    for (int iter_all = 0; iter_all < 1000&&sigma<8; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
@@ -266,7 +269,7 @@ int main()
 
 
 
-            rhs+=sigma*w.cwiseProduct( prox_p_star(x + v / sigma,  sigma));
+            rhs+=sigma*w.cwiseProduct(pi_c(w.cwiseProduct(x)+v/sigma,sigma));
 
 
             
@@ -315,18 +318,21 @@ int main()
 
             m_calc_phi(8, lx0, n, axbu, 0, &direction);
             auto square = [](double x) {return x * x; };
+
             lx0 = sigma / 2 * lx0 + sigma/2*square((w.cwiseProduct(x)+v/sigma).cwiseMin(1/sigma).norm());
-            lx0 += w.dot( prox_p(x + v / sigma, w, sigma).cwiseAbs());
+
+            lx0 +=(w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x) + v / sigma,sigma)).cwiseAbs().sum();
             double down = lx0 + c1 * alpha*rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
             cout <<"lx0:"<<lx0<<"\tdown"<< down << endl;
+
             Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
             axbu.set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
             axbu();
             //m_calc_rhs(8, nrhs, n, axbu, alpha, &direction);
             nrhs = sigma * nrhs;
-            nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, sigma);
+            nrhs += sigma * w.cwiseProduct(pi_c(w.cwiseProduct(x+alpha*direction) + v / sigma, sigma));
             if (nrhs.dot(direction) < 0)
                 goto AL;
 
@@ -337,8 +343,8 @@ int main()
                 axbu();
                 //m_calc_phi(8, lx, n, axbu, alpha, &direction);
                 lx = sigma / 2 * lx;
-                lx+=sigma / 2 * prox_p_star(x + alpha * direction + v / sigma, w, sigma).norm() * prox_p_star(x + alpha * direction + v / sigma, w, sigma).norm();
-                lx += w.dot(prox_p(x + v / sigma + alpha * direction, w, sigma).cwiseAbs());
+                lx+= sigma / 2 * square((w.cwiseProduct(x+alpha*direction) + v / sigma).cwiseMin(1 / sigma).norm());
+                lx += (w.cwiseProduct(x+alpha*direction) + v / sigma - pi_c(w.cwiseProduct(x + alpha * direction) + v / sigma, sigma)).cwiseAbs().sum();
 
                 if (lx <= down) {
                     break;
@@ -358,24 +364,25 @@ int main()
         axbu.set_function(new func_eigen_u(&u, sigma,&y_norm,&kkt_y,&kkt_u));
         axbu();
         cout << "u:" << u.size() << endl;
-        z = prox_p(x + v / sigma, w, sigma);
-        v = sigma * prox_p_star(x + v / sigma,w,sigma);
+        z = w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x)+v/sigma,sigma);
+        v = sigma *pi_c(w.cwiseProduct(x)+v/sigma,sigma);
+
         sigma *= 2;
         y_norm = sqrt(y_norm);
         kkt_u = sqrt(kkt_u) / (1 + y_norm);
         kkt_y = sqrt(kkt_y) / (1 + y_norm);
-        //cout << "kkt_u:" << kkt_u  << "\tkkt_y:" <<kkt_y << endl;
+        cout << "kkt_u:" << kkt_u  << "\tkkt_y:" <<kkt_y << endl;
         kkt_x = au_eigen(n, &u, v)();
-        kkt_x = kkt_x / (1 + v.norm());
+        kkt_x = (kkt_x+w.dot(v)) / (1 + v.norm());
 
         //cout << "z_norm" << z.norm() << endl;
-        kkt_v = (x - z).norm() / (1 + x.norm());
-        kkt_z = (z - prox_p(x + v,w,1)).norm() / (1 + z.norm());
+        kkt_v = (w.cwiseProduct(x) - z).norm() / (1 + w.norm()*x.norm());
+        //kkt_z = (z - prox_p(x + v,w,1)).norm() / (1 + z.norm());
         //for (int i = 0; i < var_num; i++)
         //    t_res += abs(x[i] * w[i]);
         //prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
         double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
-        //cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+        cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
         cout << "kkt:" << kkt_final << endl;
         //cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
         if (kkt_final < 1e-5)
