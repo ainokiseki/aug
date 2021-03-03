@@ -364,16 +364,30 @@ int main()
         kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
         axbu.set_function(new func_eigen_u(&u, sigma, &y_norm, &kkt_y, &kkt_u));
         axbu();
+        cout << "u:" << u.size() << endl;
+        z = prox_p(x + v / sigma, w, sigma);
         v = sigma * prox_p_star(x + v / sigma, w, sigma);
         sigma *= 2;
         y_norm = sqrt(y_norm);
-        cout << "kkt_u:" << sqrt(kkt_u) / (1 + y_norm) << "\tkkt_y:" << sqrt(kkt_y) / (1 + y_norm) << endl;
+        kkt_u = sqrt(kkt_u) / (1 + y_norm);
+        kkt_y = sqrt(kkt_y) / (1 + y_norm);
+        //cout << "kkt_u:" << kkt_u  << "\tkkt_y:" <<kkt_y << endl;
+        kkt_x = au_eigen(n, &u, v)();
+        kkt_x = kkt_x / (1 + v.norm());
 
+        //cout << "z_norm" << z.norm() << endl;
+        kkt_v = (x - z).norm() / (1 + x.norm());
+        kkt_z = (z - prox_p(x + v, w, 1)).norm() / (1 + z.norm());
         //for (int i = 0; i < var_num; i++)
         //    t_res += abs(x[i] * w[i]);
         //prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
-        //if (max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x)) < 1e-5)
-        //    break;
+        double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
+        //cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+        cout << "kkt:" << kkt_final << endl;
+        //cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
+        if (kkt_final < 1e-5)
+            break;
+
 
     }
 
