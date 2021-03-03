@@ -123,7 +123,7 @@ int main()
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph100.txt", ios::in);
+    ifstream graph("graph14.txt", ios::in);
     ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
 
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
@@ -207,11 +207,11 @@ int main()
     //u
     map<long long, double>u;
     //v
-
+    w = Eigen::VectorXd::Ones(var_num);
 
     double sigma = 1;
 
-    for (int iter_all = 0; iter_all < 1000&&sigma<32; iter_all++) {
+    for (int iter_all = 0; iter_all < 1000&&sigma<8; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
@@ -353,7 +353,7 @@ int main()
         z = w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x)+v/sigma,sigma);
         v = sigma *pi_c(w.cwiseProduct(x)+v/sigma,sigma);
 
-        sigma *= 4;
+        sigma *= 2;
         y_norm = sqrt(y_norm);
         kkt_u = sqrt(kkt_u) / (1 + y_norm);
         kkt_y = sqrt(kkt_y) / (1 + y_norm);
