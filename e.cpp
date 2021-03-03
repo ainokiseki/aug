@@ -272,7 +272,9 @@ int main()
             rhs = sigma * rhs;
 
 
-
+            if (iter_1 == 0) {
+                cout << "x:" << x.norm() << "\t" << "v:" << v.norm() << "rhs"<<rhs.norm()<<endl;
+            }
             rhs += sigma * prox_p_star(x + v / sigma, w, sigma);
 
 
@@ -367,6 +369,7 @@ int main()
         cout << "u:" << u.size() << endl;
         z = prox_p(x + v / sigma, w, sigma);
         v = sigma * prox_p_star(x + v / sigma, w, sigma);
+        cout << "V:" << v.norm() << endl;
         sigma *= 2;
         y_norm = sqrt(y_norm);
         kkt_u = sqrt(kkt_u) / (1 + y_norm);
