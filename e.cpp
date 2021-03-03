@@ -227,7 +227,7 @@ int main()
     //v
     w = Eigen::VectorXd::Ones(var_num);
 
-    double sigma = 1;
+    double sigma = 2;
 
     for (int iter_all = 0; iter_all < 1000 && sigma < 8; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
