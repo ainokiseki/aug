@@ -207,7 +207,7 @@ int main()
     //u
     map<long long, double>u;
     //v
-    w = Eigen::VectorXd::Ones(var_num);
+    //w = Eigen::VectorXd::Ones(var_num);
 
     double sigma = 1;
 
@@ -363,7 +363,7 @@ int main()
         kkt_y = sqrt(kkt_y) / (1 + y_norm);
         cout << "kkt_u:" << kkt_u  << "\tkkt_y:" <<kkt_y << endl;
         kkt_x = au_eigen(n, &u, v)();
-        kkt_x = (kkt_x+w.dot(v)) / (1 + v.norm());
+        kkt_x = abs((kkt_x-w.cwiseProduct(v).norm())) / (1 + v.norm());
 
         //cout << "z_norm" << z.norm() << endl;
         kkt_v = (w.cwiseProduct(x) - z).norm() / (1 + w.norm()*x.norm());
