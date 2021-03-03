@@ -253,7 +253,9 @@ int main()
             //
             rhs = sigma * rhs;
 
-
+            if (iter_1 == 0) {
+                cout << "x:" << x.norm() << "\t" << "v:" << v.norm() << "rhs" << rhs.norm() << endl;
+            }
 
             rhs+=sigma*w.cwiseProduct(pi_c(w.cwiseProduct(x)+v/sigma,sigma));
 
