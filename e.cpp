@@ -227,7 +227,7 @@ int main()
     //v
     w = Eigen::VectorXd::Ones(var_num);
 
-    double sigma = 2;
+    double sigma = 1;
 
     for (int iter_all = 0; iter_all < 1000 && sigma < 8; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
@@ -323,12 +323,12 @@ int main()
             //axbu();
             prt_phi << iter_1 << "\n";
             m_calc_phi(8, lx0, n, axbu, 0, &direction, prt_phi);
-            cout << "lx0/0:" << lx0 << "\t";
+           
             lx0 = sigma / 2 * lx0 + sigma / 2 * prox_p_star(x + v / sigma, w, sigma).norm() * prox_p_star(x + v / sigma, w, sigma).norm();
-            cout << "lx0/1:" << lx0 << "\t";
+
 
             lx0 += w.dot(prox_p(x + v / sigma, w, sigma).cwiseAbs());
-            cout << "lx0/2:" << lx0 << "\n";
+
             double down = lx0 + c1 * alpha * rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
