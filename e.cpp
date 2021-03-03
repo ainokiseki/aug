@@ -352,7 +352,7 @@ int main()
         cout << "u:" << u.size() << endl;
         z = w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x)+v/sigma,sigma);
         v = sigma *pi_c(w.cwiseProduct(x)+v/sigma,sigma);
-
+        cout << "v:" << v.norm() << endl;
         sigma *= 2;
         y_norm = sqrt(y_norm);
         kkt_u = sqrt(kkt_u) / (1 + y_norm);
