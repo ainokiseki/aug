@@ -306,10 +306,12 @@ int main()
 
             m_calc_phi(8, lx0, n, axbu, 0, &direction);
             auto square = [](double x) {return x * x; };
+            cout << "lx0/0:" << lx0 << "\t";
 
             lx0 = sigma / 2 * lx0 + sigma/2*square((w.cwiseProduct(x)+v/sigma).cwiseMin(1/sigma).norm());
-
+            cout << "lx0/1:" << lx0 << "\t";
             lx0 +=(w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x) + v / sigma,sigma)).cwiseAbs().sum();
+            cout << "lx0/2:" << lx0 << "\t";
             double down = lx0 + c1 * alpha*rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
