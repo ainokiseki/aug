@@ -209,7 +209,7 @@ int main()
     //v
     w = Eigen::VectorXd::Ones(var_num);
 
-    double sigma = 2;
+    double sigma = 1;
 
     for (int iter_all = 0; iter_all < 1000&&sigma<8; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
@@ -306,12 +306,12 @@ int main()
 
             m_calc_phi(8, lx0, n, axbu, 0, &direction);
             auto square = [](double x) {return x * x; };
-            cout << "lx0/0:" << lx0 << "\t";
 
-            lx0 = sigma / 2 * lx0 + sigma/2*square((w.cwiseProduct(x)+v/sigma).cwiseMin(1/sigma).norm());
-            cout << "lx0/1:" << lx0 << "\t";
+
+            lx0 = sigma / 2 * lx0 + sigma/2*square(pi_c(w.cwiseProduct(x)+v/sigma,sigma).norm());
+
             lx0 +=(w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x) + v / sigma,sigma)).cwiseAbs().sum();
-            cout << "lx0/2:" << lx0 << "\t";
+
             double down = lx0 + c1 * alpha*rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
@@ -333,7 +333,7 @@ int main()
                 axbu();
                 //m_calc_phi(8, lx, n, axbu, alpha, &direction);
                 lx = sigma / 2 * lx;
-                lx+= sigma / 2 * square((w.cwiseProduct(x+alpha*direction) + v / sigma).cwiseMin(1 / sigma).norm());
+                lx+= sigma / 2 * square(pi_c(w.cwiseProduct(x+alpha*direction) + v / sigma, sigma).norm());
                 lx += (w.cwiseProduct(x+alpha*direction) + v / sigma - pi_c(w.cwiseProduct(x + alpha * direction) + v / sigma, sigma)).cwiseAbs().sum();
 
                 if (lx <= down) {
@@ -356,7 +356,7 @@ int main()
         cout << "u:" << u.size() << endl;
         z = w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x)+v/sigma,sigma);
         v = sigma *pi_c(w.cwiseProduct(x)+v/sigma,sigma);
-        cout << "v:" << v.norm() << endl;
+
         sigma *= 2;
         y_norm = sqrt(y_norm);
         kkt_u = sqrt(kkt_u) / (1 + y_norm);
