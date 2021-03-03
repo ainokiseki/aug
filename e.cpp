@@ -140,7 +140,7 @@ int main()
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph150.txt", ios::in);
+    ifstream graph("graph14.txt", ios::in);
     ofstream prt_res("prt_res" + prt_name + ".txt", ios::out);
     ofstream prt_phi("prt_phi" + prt_name + ".txt", ios::out);
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
@@ -225,7 +225,7 @@ int main()
     //u
     map<long long, double>u;
     //v
-
+    w = Eigen::VectorXd::Ones(var_num);
 
     double sigma = 1;
 
