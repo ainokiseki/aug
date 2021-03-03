@@ -229,7 +229,7 @@ int main()
 
     double sigma = 1;
 
-    for (int iter_all = 0; iter_all < 1000 && sigma < 8; iter_all++) {
+    for (int iter_all = 0; iter_all < 1000 && sigma < 64; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
