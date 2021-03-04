@@ -54,7 +54,7 @@ void axbu_eigen::set_function(func_eigen* func) {
 	f = func;
 }
 
-au_eigen::au_eigen(int n, std::map<long long, double>* u, Eigen::VectorXd v) :n(n), u(u), v(v)
+au_eigen::au_eigen(int n, std::map<long long, double>* u, Eigen::VectorXd v, Eigen::VectorXd w) :n(n), u(u), v(v),w(w)
 {
 	int var_num = n * (n - 1) / 2;
 	au = Eigen::VectorXd::Zero(var_num);
@@ -92,6 +92,6 @@ double au_eigen::operator()(int init, int end)
 		}
 
 	}
-	return (au + v).norm();
+	return (au + w.cwiseProduct(v)).norm();
 }
 

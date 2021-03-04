@@ -123,7 +123,7 @@ int main()
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph14.txt", ios::in);
+    ifstream graph("graph150.txt", ios::in);
     ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
 
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
@@ -211,7 +211,7 @@ int main()
 
     double sigma = 1;
 
-    for (int iter_all = 0; iter_all < 1000&&sigma<64; iter_all++) {
+    for (int iter_all = 0; iter_all < 1000; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
@@ -253,9 +253,7 @@ int main()
             //
             rhs = sigma * rhs;
 
-            if (iter_1 == 0) {
-                cout << "x:" << x.norm() << "\t" << "v:" << v.norm() << "rhs" << rhs.norm() << endl;
-            }
+
 
             rhs+=sigma*w.cwiseProduct(pi_c(w.cwiseProduct(x)+v/sigma,sigma));
 
@@ -362,11 +360,11 @@ int main()
         kkt_u = sqrt(kkt_u) / (1 + y_norm);
         kkt_y = sqrt(kkt_y) / (1 + y_norm);
         cout << "kkt_u:" << kkt_u  << "\tkkt_y:" <<kkt_y << endl;
-        kkt_x = au_eigen(n, &u, v)();
-        kkt_x = abs((kkt_x-w.cwiseProduct(v).norm())) / (1 + v.norm());
+        kkt_x = au_eigen(n, &u, v,w)();
+        kkt_x =kkt_x / (1 + v.norm());
 
         //cout << "z_norm" << z.norm() << endl;
-        kkt_v = (w.cwiseProduct(x) - z).norm() / (1 + w.norm()*x.norm());
+        kkt_v = (w.cwiseProduct(x) - z).norm() / (1 +z.norm());
         //kkt_z = (z - prox_p(x + v,w,1)).norm() / (1 + z.norm());
         //for (int i = 0; i < var_num; i++)
         //    t_res += abs(x[i] * w[i]);

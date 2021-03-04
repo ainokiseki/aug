@@ -23,7 +23,7 @@ private:
 class au_eigen
 {
 public:
-	au_eigen(int, std::map<long long, double>*, Eigen::VectorXd );
+	au_eigen(int, std::map<long long, double>*, Eigen::VectorXd ,Eigen::VectorXd);
 	~au_eigen();
 	double operator()(int init=0,int end=-1);
 private:
@@ -31,6 +31,7 @@ private:
 	int n;
 	Eigen::VectorXd v;
 	Eigen::VectorXd au;
+	Eigen::VectorXd w;
 };
 
 
