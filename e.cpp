@@ -116,14 +116,14 @@ void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eig
 }
 int main()
 {
-    omp_set_num_threads(8);
+    omp_set_num_threads(4);
     std::chrono::high_resolution_clock::time_point ck, ck2;
 
     ck = std::chrono::high_resolution_clock::now();
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph150.txt", ios::in);
+    ifstream graph("graph14.txt", ios::in);
     ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
 
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
@@ -224,7 +224,6 @@ int main()
             cout << "iter time:" << iter_1 << endl;
 
             long long index = 0;
-            
 
             rhs = Eigen::VectorXd::Zero(var_num);
             vector<tri*>aj1;
@@ -302,7 +301,7 @@ int main()
             //axbu.set_function(new func_eigen_phi(0,&direction,&lx0));
             //axbu();
 
-            m_calc_phi(8, lx0, n, axbu, 0, &direction);
+            m_calc_phi(4, lx0, n, axbu, 0, &direction);
             auto square = [](double x) {return x * x; };
 
 
