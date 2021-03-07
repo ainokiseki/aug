@@ -19,6 +19,7 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <unsupported/Eigen/IterativeSolvers>
 #include"cg.h"
+#include"cg2.h"
 #include "tri.h"
 #include"axbu_eigen.h"
 #include<omp.h>
@@ -53,7 +54,12 @@ time_t start, t_end;
 
 
 inline Eigen::VectorXd pi_c(Eigen::VectorXd x,  double sigma) {
-    return x.cwiseSign().cwiseProduct(x.cwiseAbs().cwiseMin(1 / sigma));
+	if (x.norm() <= 1 / sigma)
+		return x;
+	return x * (1 / sigma) * x.norm();
+
+
+
 }
 
 
@@ -268,14 +274,13 @@ int main()
                     delete aj1[i];
                 break;
             }
-            Eigen::VectorXd aj2 =((w.cwiseProduct(x)+v/sigma).cwiseAbs().array() < 1/sigma).matrix().cast<double>();
-            aj2 = aj2.cwiseProduct(w.cwiseProduct(w));
+
             
             //cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 
             double a = min(pow(rhs.norm(),1.5)*0.5,0.5);
-
-            MatrixReplacement A(&aj1,var_num,a,&aj2,sigma);
+			Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
+			MatrixReplacement2 A(&aj1, var_num, a, &wx,&w, sigma);
             //Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
             Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
             cg.compute(A);
@@ -307,7 +312,7 @@ int main()
 
             lx0 = sigma / 2 * lx0 + sigma/2*square(pi_c(w.cwiseProduct(x)+v/sigma,sigma).norm());
 
-            lx0 +=(w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x) + v / sigma,sigma)).cwiseAbs().sum();
+            lx0 +=(w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x) + v / sigma,sigma)).norm();
 
             double down = lx0 + c1 * alpha*rhs.dot(direction);
             //cout << "down:" << down << "\tlx0:" << lx0 << endl;
@@ -331,7 +336,7 @@ int main()
                 //m_calc_phi(8, lx, n, axbu, alpha, &direction);
                 lx = sigma / 2 * lx;
                 lx+= sigma / 2 * square(pi_c(w.cwiseProduct(x+alpha*direction) + v / sigma, sigma).norm());
-                lx += (w.cwiseProduct(x+alpha*direction) + v / sigma - pi_c(w.cwiseProduct(x + alpha * direction) + v / sigma, sigma)).cwiseAbs().sum();
+                lx += (w.cwiseProduct(x+alpha*direction) + v / sigma - pi_c(w.cwiseProduct(x + alpha * direction) + v / sigma, sigma)).norm();
 
                 if (lx <= down) {
                     break;
@@ -377,7 +382,7 @@ int main()
 
     }
 
-    cout << "function value:" << w.dot(x.cwiseAbs())<<endl;
+    cout << "function value:" << w.cwiseProduct(x).norm()<<endl;
 
 
     return 0;
