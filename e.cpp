@@ -210,27 +210,7 @@ int main()
     cout << "b:" << b.sum() << endl;
 
 	//test A
-	Eigen::MatrixXd AA=Eigen::MatrixXd::Zero(cons_num*3, var_num);
-	{
-		long idx = 0;
-		for (int i = 0; i < n; i++) {
-			for (int j = i + 1; j < n; j++) {
-				for (int k = j + 1; k < n; k++) {
-					int inum[3];
-					inum[0] = ij(i, j, n);
-					inum[1] = ij(i, k, n);
-					inum[2] = ij(j, k, n);
-					for (int time = 0; time < 3; time++,idx++) {
-						AA(idx, inum[0]) = -1;
-						AA(idx, inum[1]) = -1;
-						AA(idx, inum[2]) = -1;
-						AA(idx, inum[time])=1;
-					}
 
-				}
-			}
-		}
-	}
 	//test A end
 
 
@@ -305,8 +285,8 @@ int main()
 
             double a = min(pow(rhs.norm(),1.5)*0.5,0.5);
 			Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
-
-			/*
+			cout << "wx::"<<wx.norm() << "\t" << 1 / sigma << endl;
+			
 			MatrixReplacement2 A(&aj1, var_num, a, &wx,&w, sigma);
             //Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
             Eigen::ConjugateGradient<MatrixReplacement2, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
@@ -317,31 +297,7 @@ int main()
             
             //cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
             cout << "CG:" << cg.iterations() << std::endl;
-			*/
-			Eigen::MatrixXd AJ1 = Eigen::MatrixXd::Zero(cons_num*3,cons_num*3);
-			Eigen::VectorXd vaj1 = AA * (x - b);
-			for (int i = 0; i <cons_num*3; i++) {
-				double tp= vaj1[i];
-				if (u.find(i) != u.end())tp += u[i] / sigma;
-				if (tp >= 0) {
-					AJ1(i, i) = 1;
-				}
-				else {
-					AJ1(i, i) = 0;
-				}
-			}
-			Eigen::MatrixXd W = Eigen::MatrixXd::Zero(var_num,var_num);
-			for (int i = 0; i < var_num; i++)W(i, i) = w[i];
-			Eigen::MatrixXd hess;
-			hess = sigma * AA.transpose() * AJ1 * AA+a* Eigen::MatrixXd::Identity(var_num, var_num);
-			if (wx.norm() < 1 / sigma) {
-				hess = hess + sigma * W * W;
-			}
-			else {
-				hess = hess + (wx.norm() * wx.norm() * Eigen::MatrixXd::Identity(var_num, var_num) - wx * wx.transpose()) / (wx.norm() * wx.norm() * wx.norm());
-			}
-			Eigen::VectorXd direction = -hess.inverse() * rhs;
-
+			
 
 
 

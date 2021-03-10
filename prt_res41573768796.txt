@@ -1,0 +1,8 @@
+
+main loop,time=1
+iter_time	rhs	cg	alpha
+
+main loop,time=2
+iter_time	rhs	cg	alpha
+
+main loop,time=3
