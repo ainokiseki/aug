@@ -18,7 +18,7 @@
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
 #include <unsupported/Eigen/IterativeSolvers>
-#include"cg.h"
+
 #include"cg2.h"
 #include "tri.h"
 #include"axbu_eigen.h"
@@ -199,7 +199,7 @@ int main()
                     tmp = -epsi;
             }
             b[tmp_it] = (tmp < 0);
-            w[tmp_it] = abs(tmp);
+            w[tmp_it] = sqrt(abs(tmp));
             //calculate d
 
 
@@ -209,6 +209,31 @@ int main()
     cout << "w:" << w.sum() << endl;
     cout << "b:" << b.sum() << endl;
 
+	//test A
+	Eigen::MatrixXd AA=Eigen::MatrixXd::Zero(cons_num*3, var_num);
+	{
+		long idx = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				for (int k = j + 1; k < n; k++) {
+					int inum[3];
+					inum[0] = ij(i, j, n);
+					inum[1] = ij(i, k, n);
+					inum[2] = ij(j, k, n);
+					for (int time = 0; time < 3; time++,idx++) {
+						AA(idx, inum[0]) = -1;
+						AA(idx, inum[1]) = -1;
+						AA(idx, inum[2]) = -1;
+						AA(idx, inum[time])=1;
+					}
+
+				}
+			}
+		}
+	}
+	//test A end
+
+
     //map for y
     //u
     map<long long, double>u;
@@ -217,13 +242,13 @@ int main()
 
     double sigma = 1;
 
-    for (int iter_all = 0; iter_all < 1000; iter_all++) {
+    for (int iter_all = 0; iter_all < 1000&&sigma<8; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
         //main loop
         axbu_eigen axbu(n, &x,&b, &u, sigma);
-        for (int iter_1 = 0; iter_1 < 150; iter_1++) {//using ssn to find minimum of phi(x)
+        for (int iter_1 = 0; iter_1 < 50; iter_1++) {//using ssn to find minimum of phi(x)
             //calculate grad,hessie
             
             cout << "start find minimum of phi(x),";
@@ -280,9 +305,11 @@ int main()
 
             double a = min(pow(rhs.norm(),1.5)*0.5,0.5);
 			Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
+
+			/*
 			MatrixReplacement2 A(&aj1, var_num, a, &wx,&w, sigma);
             //Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
-            Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+            Eigen::ConjugateGradient<MatrixReplacement2, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
             cg.compute(A);
 
 
@@ -290,7 +317,30 @@ int main()
             
             //cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
             cout << "CG:" << cg.iterations() << std::endl;
-
+			*/
+			Eigen::MatrixXd AJ1 = Eigen::MatrixXd::Zero(cons_num*3,cons_num*3);
+			Eigen::VectorXd vaj1 = AA * (x - b);
+			for (int i = 0; i <cons_num*3; i++) {
+				double tp= vaj1[i];
+				if (u.find(i) != u.end())tp += u[i] / sigma;
+				if (tp >= 0) {
+					AJ1(i, i) = 1;
+				}
+				else {
+					AJ1(i, i) = 0;
+				}
+			}
+			Eigen::MatrixXd W = Eigen::MatrixXd::Zero(var_num,var_num);
+			for (int i = 0; i < var_num; i++)W(i, i) = w[i];
+			Eigen::MatrixXd hess;
+			hess = sigma * AA.transpose() * AJ1 * AA+a* Eigen::MatrixXd::Identity(var_num, var_num);
+			if (wx.norm() < 1 / sigma) {
+				hess = hess + sigma * W * W;
+			}
+			else {
+				hess = hess + (wx.norm() * wx.norm() * Eigen::MatrixXd::Identity(var_num, var_num) - wx * wx.transpose()) / (wx.norm() * wx.norm() * wx.norm());
+			}
+			Eigen::VectorXd direction = -hess.inverse() * rhs;
 
 
 
@@ -345,7 +395,7 @@ int main()
             }
         AL:
             cout << "alpha=" << alpha << endl;
-            prt_res << iter_1<<" "<<lx0<<" "<<rhs.norm()<<"\t"<<cg.iterations()<<"\t"<<alpha << "\n";
+            //prt_res << iter_1<<" "<<lx0<<" "<<rhs.norm()<<"\t"<<cg.iterations()<<"\t"<<alpha << "\n";
             x = x + alpha * direction;
             for (int i = 0; i < aj1.size(); i++)
                 delete aj1[i];

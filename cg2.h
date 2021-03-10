@@ -71,6 +71,33 @@ namespace Eigen {
 				// Here we could simply call dst.noalias() += lhs.my_matrix() * rhs,
 				// but let's do something fancier (and less efficient):
 
+				Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
+
+				for (int i = 0; i < lhs.aj1->size(); i++) {
+					tri* tem = (*(lhs.aj1))[i];
+					double num = -(rhs[tem->idx[0]] + rhs[tem->idx[1]] + rhs[tem->idx[2]]) + 2 * rhs[tem->idx[tem->symbol]];
+
+					ap[tem->idx[0]] -= num;
+
+					ap[tem->idx[1]] -= num;
+
+					ap[tem->idx[2]] -= num;
+
+					ap[tem->idx[tem->symbol]] += 2 * num;
+
+				}
+				Eigen::VectorXd ix = lhs.w->cwiseProduct(*(lhs.w)).cwiseProduct(rhs);
+				//dst = ap * lhs.sigma + lhs.sigma * lhs.aj2->cwiseProduct(rhs) + lhs.a * rhs;
+				if (lhs.x->norm() <= 1 / lhs.sigma) {
+					dst = ap * lhs.sigma + lhs.sigma*ix + lhs.a * rhs;
+				}
+				else {
+					double xnorm = lhs.x->norm();
+
+					Eigen::VectorXd xx = lhs.x->dot(lhs.w->cwiseProduct(rhs)) * lhs.w->cwiseProduct(*(lhs.x)) / (xnorm*xnorm);
+					dst = ap * lhs.sigma + lhs.a * rhs + 1 / xnorm * (ix - xx);
+				}
+
 			}
 		};
 
