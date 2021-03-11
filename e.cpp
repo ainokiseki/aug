@@ -121,7 +121,7 @@ void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eig
     
     delete[]mphi;
 }
-int main()
+int main2()
 {
     omp_set_num_threads(4);
     std::chrono::high_resolution_clock::time_point ck, ck2;
@@ -391,3 +391,11 @@ int main()
     return 0;
 }
 
+int main() {
+
+
+
+
+
+	return 0;
+}
