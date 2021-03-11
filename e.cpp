@@ -263,7 +263,6 @@ int main()
             cout << "rhs:" << rhs.norm() << endl;
 
             if (rhs.norm() < 1e-6) {
-
                 for (int i = 0; i < aj1.size(); i++)
                     delete aj1[i];
                 break;
