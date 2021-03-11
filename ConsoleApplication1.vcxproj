@@ -193,6 +193,7 @@
     </ClCompile>
     <ClCompile Include="axbu_eigen.cpp" />
     <ClCompile Include="func_eigen.cpp" />
+    <ClCompile Include="norm_class.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
