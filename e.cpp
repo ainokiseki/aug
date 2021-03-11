@@ -22,7 +22,7 @@
 #include "tri.h"
 #include"axbu_eigen.h"
 #include<omp.h>
-
+#include"norm_class.h"
 using namespace std;
 typedef map<int, set<int> > mis;
 
@@ -114,7 +114,7 @@ void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eig
     
     delete[]mphi;
 }
-int main()
+int main1()
 {
     omp_set_num_threads(4);
     std::chrono::high_resolution_clock::time_point ck, ck2;
@@ -381,4 +381,10 @@ int main()
 
     return 0;
 }
+int main() {
 
+    norm_1 nm("graph150.txt");
+    nm.run();
+
+    return 0;
+}

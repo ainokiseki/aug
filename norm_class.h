@@ -26,7 +26,7 @@ using namespace std;
 class norm_basic
 {
 public:
-	norm_basic();
+	norm_basic(string graph_name);
 	~norm_basic();
 	inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma) {};
 	void init() {
@@ -93,14 +93,14 @@ public:
 
 		return;
 	}
-	Eigen::VectorXd get_direction(double sigma,Eigen::VectorXd rhs) {};
+	Eigen::VectorXd get_direction(double sigma,Eigen::VectorXd rhs,vector<tri*>*aj1) {};
 	double func_p(Eigen::VectorXd x){};
 	double get_kkt(double sigma) {
 		double y_norm = 0;
 		double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
 		kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
 		axbu->set_function(new func_eigen_u(&u, sigma, &y_norm, &kkt_y, &kkt_u));
-		axbu->operator();
+		(*axbu)();
 		cout << "u:" << u.size() << endl;
 		Eigen::VectorXd z = w.cwiseProduct(x) + v / sigma - pi_c(w.cwiseProduct(x) + v / sigma, sigma);
 		v = sigma * pi_c(w.cwiseProduct(x) + v / sigma, sigma);
@@ -134,7 +134,7 @@ public:
 		const double c1 = 1e-4;
 		double lx0 = 0;
 		axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
-		axbu->operator();
+		(*axbu)();
 		auto square = [](double x) {return x * x; };
 
 
@@ -149,7 +149,7 @@ public:
 
 		Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
 		axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
-		axbu->operator();
+		(*axbu)();
 		//m_calc_rhs(8, nrhs, n, axbu, alpha, &direction);
 		nrhs = sigma * nrhs;
 		nrhs += sigma * w.cwiseProduct(pi_c(w.cwiseProduct(x + alpha * direction) + v / sigma, sigma));
@@ -160,7 +160,7 @@ public:
 			//cout << "start find step,alpha=" << alpha << endl;
 			double lx = 0;
 			axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
-			axbu->operator();
+			(*axbu)();
 			//m_calc_phi(8, lx, n, axbu, alpha, &direction);
 			lx = sigma / 2 * lx;
 			lx += sigma / 2 * square(pi_c(w.cwiseProduct(x + alpha * direction) + v / sigma, sigma).norm());
@@ -182,17 +182,15 @@ public:
 			for (int iter_1 = 0; iter_1 < 50; iter_1++) {
 				rhs = Eigen::VectorXd::Zero(var_num);
 				vector<tri*>aj1;
-				//old version
-
 				axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-				axbu->operator();
+				(*axbu)();
 				rhs = sigma * rhs+sigma * w.cwiseProduct(pi_c(w.cwiseProduct(x) + v / sigma, sigma));
 				if (rhs.norm() < 1e-6) {
 					for (int i = 0; i < aj1.size(); i++)
 						delete aj1[i];
 					break;
 				}
-				Eigen::VectorXd direction = get_direction(sigma,rhs);
+				Eigen::VectorXd direction = get_direction(sigma,rhs,&aj1);
 				double alpha = get_step_length(direction, sigma);
 				cout << "alpha=" << alpha << endl;
 				x = x + alpha * direction;
@@ -211,7 +209,7 @@ public:
 
 	}
 
-private:
+protected:
 	string graph_name;
 	int n,var_num;
 	long long cons_num;
@@ -225,7 +223,7 @@ private:
 	axbu_eigen* axbu;
 };
 
-norm_basic::norm_basic()
+norm_basic::norm_basic(string graph_name):graph_name(graph_name)
 {
 }
 
@@ -235,21 +233,47 @@ norm_basic::~norm_basic()
 
 
 
-
-class norm_1
+class norm_1:public norm_basic
 {
 public:
-	norm_1();
+	norm_1(string graph_name);
 	~norm_1();
+	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs,vector<tri*>*aj1) {
+		Eigen::VectorXd aj2 = ((w.cwiseProduct(x) + v / sigma).cwiseAbs().array() < 1 / sigma).matrix().cast<double>();
+		aj2 = aj2.cwiseProduct(w.cwiseProduct(w));
+
+		//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+
+		double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
+
+		MatrixReplacement A(aj1, var_num, a, &aj2, sigma);
+		//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
+		Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+		cg.compute(A);
+		Eigen::VectorXd direction = cg.solve(-rhs);
+		//cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+		cout << "CG:" << cg.iterations() << std::endl;
 	
+		return direction;
+	};
+	double func_p(Eigen::VectorXd x) {
+		return x.cwiseAbs().sum();
+	};
+	inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma) {
+		return x.cwiseSign().cwiseProduct(x.cwiseAbs().cwiseMin(1 / sigma));
+	};
 private:
 
 };
 
-norm_1::norm_1()
+norm_1::norm_1(string graph_name):norm_basic(graph_name)
 {
 }
 
 norm_1::~norm_1()
 {
 }
+
+
+
+
