@@ -29,7 +29,7 @@ public:
 	norm_basic(string graph_name);
 	~norm_basic();
 	virtual inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma)=0;
-	void init();
+	virtual void init();
 	virtual Eigen::VectorXd get_direction(double sigma,Eigen::VectorXd rhs,vector<tri*>*aj1)=0;
 	virtual double func_p(Eigen::VectorXd x)=0;
 	double get_kkt(double sigma);

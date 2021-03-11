@@ -4,7 +4,7 @@
 
 int main() {
 
-    norm_2 nm("graph14.txt");
+    norm_2 nm("graph150.txt");
     nm.run();
 
     return 0;

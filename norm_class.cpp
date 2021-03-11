@@ -97,7 +97,7 @@ double norm_basic::get_kkt(double sigma) {
 
 	//cout << "z_norm" << z.norm() << endl;
 	kkt_v = (w.cwiseProduct(x) - z).norm() / (1 + z.norm());
-	kkt_z = (v - pi_c(x + v, 1)).norm() / (1 + z.norm());
+	kkt_z = (v - pi_c(z + v, 1)).norm() / (1 + z.norm());
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);
 	//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
@@ -256,8 +256,9 @@ Eigen::VectorXd norm_2::get_direction(double sigma, Eigen::VectorXd rhs, vector<
 	cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
 
 	MatrixReplacement2 A(aj1, var_num, a, &wx, &w, sigma);
-	//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
+
 	Eigen::ConjugateGradient<MatrixReplacement2, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+	cg.setTolerance(1e-12);
 	cg.compute(A);
 
 
@@ -282,6 +283,7 @@ void norm_2::init() {
 	norm_basic::init();
 	for (int i = 0; i < var_num; i++)
 		w[i] = sqrt(w[i]);
+	cout << w.sum() << endl;
 }
 
 
