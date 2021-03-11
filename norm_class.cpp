@@ -101,7 +101,12 @@ double norm_basic::get_kkt(double sigma) {
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);
 	//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
-	return max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
+	double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
+	cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+	cout << "kkt:" << kkt_final << endl;
+
+
+	return kkt_final;
 
 	//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
 
@@ -163,8 +168,10 @@ void norm_basic::run() {
 	init();
 	double sigma = 1;
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
+		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
 		for (int iter_1 = 0; iter_1 < 50; iter_1++) {
+			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<tri*>aj1;
 			axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
