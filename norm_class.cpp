@@ -241,3 +241,43 @@ inline Eigen::VectorXd norm_1::pi_c(Eigen::VectorXd x, double sigma) {
 
 
 
+norm_2::norm_2(string graph_name) :norm_basic(graph_name)
+{
+}
+
+norm_2::~norm_2()
+{
+}
+
+Eigen::VectorXd norm_2::get_direction(double sigma, Eigen::VectorXd rhs, vector<tri*>* aj1) {
+
+	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
+	Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
+	cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
+
+	MatrixReplacement2 A(aj1, var_num, a, &wx, &w, sigma);
+	//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
+	Eigen::ConjugateGradient<MatrixReplacement2, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+	cg.compute(A);
+
+
+	Eigen::VectorXd direction = cg.solve(-rhs);
+
+	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+
+
+	return direction;
+}
+
+double norm_2::func_p(Eigen::VectorXd x) {
+	return x.norm();
+}
+
+inline Eigen::VectorXd norm_2::pi_c(Eigen::VectorXd x, double sigma) {
+	if (x.norm() <= 1 / sigma)
+		return x;
+	return x * (1 / sigma) / x.norm();
+}
+
+
+
