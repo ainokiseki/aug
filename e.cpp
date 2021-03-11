@@ -56,11 +56,12 @@ time_t start, t_end;
 inline Eigen::VectorXd pi_c(Eigen::VectorXd x,  double sigma) {
 	if (x.norm() <= 1 / sigma)
 		return x;
-	return x * (1 / sigma) * x.norm();
-
-
-
+	return x * (1 / sigma) / x.norm();
 }
+inline double function_p(Eigen::VectorXd x) {
+	return x.norm();
+}
+
 
 
 void m_calc_rhs_and_aj1(int pnum,Eigen::VectorXd&rhs,vector<tri*>&aj1,int n,axbu_eigen axbu) {
@@ -129,7 +130,7 @@ int main()
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph14.txt", ios::in);
+    ifstream graph("graph150.txt", ios::in);
     ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
 
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
@@ -222,7 +223,7 @@ int main()
 
     double sigma = 1;
 
-    for (int iter_all = 0; iter_all < 1000&&sigma<8; iter_all++) {
+    for (int iter_all = 0; iter_all < 1000; iter_all++) {
         cout << "start main loop, sigma=" << sigma << "\n";
         prt_res << "\nmain loop,time=" << iter_all + 1 << endl;
         prt_res << "iter_time\trhs\tcg\talpha\n";
@@ -295,8 +296,8 @@ int main()
 
             Eigen::VectorXd direction = cg.solve(-rhs);
             
-            //cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
-            cout << "CG:" << cg.iterations() << std::endl;
+            cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+            //cout << "CG:" << cg.iterations() << std::endl;
 			
 
 
@@ -375,7 +376,7 @@ int main()
 
         //cout << "z_norm" << z.norm() << endl;
         kkt_v = (w.cwiseProduct(x) - z).norm() / (1 +z.norm());
-        //kkt_z = (z - prox_p(x + v,w,1)).norm() / (1 + z.norm());
+        kkt_z = (v - pi_c(z + v,1)).norm() / (1 + v.norm());
         //for (int i = 0; i < var_num; i++)
         //    t_res += abs(x[i] * w[i]);
         //prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
@@ -385,12 +386,8 @@ int main()
         //cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
         if (kkt_final < 1e-5)
             break;
-
     }
-
     cout << "function value:" << w.cwiseProduct(x).norm()<<endl;
-
-
     return 0;
 }
 
