@@ -198,7 +198,7 @@ void norm_basic::run() {
 		delete axbu;
 
 	}
-
+	cout << "func_value:"<<func_p(w.cwiseProduct(x)) << endl;
 
 
 
@@ -278,6 +278,10 @@ inline Eigen::VectorXd norm_2::pi_c(Eigen::VectorXd x, double sigma) {
 		return x;
 	return x * (1 / sigma) / x.norm();
 }
-
+void norm_2::init() {
+	norm_basic::init();
+	for (int i = 0; i < var_num; i++)
+		w[i] = sqrt(w[i]);
+}
 
 

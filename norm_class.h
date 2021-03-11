@@ -18,7 +18,7 @@
 #include <Eigen/IterativeLinearSolvers>
 #include <unsupported/Eigen/IterativeSolvers>
 #include"cg.h"
-
+#include"cg2.h"
 #include"axbu_eigen.h"
 #include<omp.h>
 using namespace std;
@@ -74,6 +74,7 @@ public:
 	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<tri*>* aj1);
 	double func_p(Eigen::VectorXd x);
 	inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma);
+	void init();
 private:
 
 };
