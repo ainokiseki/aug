@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="cg.h" />
     <ClInclude Include="cg2.h" />
+    <ClInclude Include="cg_inf.h" />
     <ClInclude Include="multi_tri.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>

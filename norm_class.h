@@ -19,6 +19,7 @@
 #include <unsupported/Eigen/IterativeSolvers>
 #include"cg.h"
 #include"cg2.h"
+#include"cg_inf.h"
 #include"axbu_eigen.h"
 #include<omp.h>
 using namespace std;

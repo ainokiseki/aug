@@ -170,7 +170,7 @@ void norm_basic::run() {
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
 		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
-		for (int iter_1 = 0; iter_1 < 50; iter_1++) {
+		for (int iter_1 = 0; iter_1 < 150; iter_1++) {
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<tri*>aj1;
@@ -301,10 +301,11 @@ Eigen::VectorXd norm_inf::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 	Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
 	//cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
-
-	MatrixReplacement2 A(aj1, var_num, a, &wx, &w, sigma);
-
-	Eigen::ConjugateGradient<MatrixReplacement2, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+	Eigen::VectorXd r = pi_c(wx,sigma);
+	r = Eigen::VectorXd::Ones(var_num)-r.cwiseEqual(0).cast<double>();
+	MatrixReplacement_inf A(aj1, var_num, a, &wx, &w,&r, sigma);
+	
+	Eigen::ConjugateGradient<MatrixReplacement_inf, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
 	cg.setTolerance(1e-12);
 	cg.compute(A);
 
@@ -334,7 +335,7 @@ inline Eigen::VectorXd norm_inf::pi_c(Eigen::VectorXd x, double sigma) {
 	double act;
 	int len = tmp.size();
 	for (int i = 0; i < len; i++) {
-		cout << "gap:" << gap << "\ti:" << i << endl;
+
 		if ((len - i ) * tmp[i] >= gap) {
 			act = gap / (len - i );
 			break;

@@ -38,6 +38,9 @@
     <ClInclude Include="cg2.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="cg_inf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleApplication1.cpp">

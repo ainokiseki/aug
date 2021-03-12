@@ -97,7 +97,6 @@ namespace Eigen {
 					Eigen::VectorXd xx = lhs.x->dot(lhs.w->cwiseProduct(rhs)) * lhs.w->cwiseProduct(*(lhs.x)) / (xnorm * xnorm);
 					dst = ap * lhs.sigma + lhs.a * rhs + 1 / xnorm * (ix - xx);
 				}
-
 			}
 		};
 
