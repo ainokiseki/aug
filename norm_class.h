@@ -79,3 +79,15 @@ private:
 
 };
 
+class norm_inf :public norm_basic
+{
+public:
+	norm_inf(string graph_name);
+	~norm_inf();
+	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<tri*>* aj1);
+	double func_p(Eigen::VectorXd x);
+	inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma);
+private:
+
+};
+

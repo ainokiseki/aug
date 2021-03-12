@@ -287,3 +287,64 @@ void norm_2::init() {
 }
 
 
+
+norm_inf::norm_inf(string graph_name) :norm_basic(graph_name)
+{
+}
+
+norm_inf::~norm_inf()
+{
+}
+
+Eigen::VectorXd norm_inf::get_direction(double sigma, Eigen::VectorXd rhs, vector<tri*>* aj1) {
+
+	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
+	Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
+	//cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
+
+	MatrixReplacement2 A(aj1, var_num, a, &wx, &w, sigma);
+
+	Eigen::ConjugateGradient<MatrixReplacement2, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+	cg.setTolerance(1e-12);
+	cg.compute(A);
+
+
+	Eigen::VectorXd direction = cg.solve(-rhs);
+
+	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+
+
+	return direction;
+}
+
+double norm_inf::func_p(Eigen::VectorXd x) {
+	return x.cwiseAbs().maxCoeff();
+}
+
+inline Eigen::VectorXd norm_inf::pi_c(Eigen::VectorXd x, double sigma) {
+	
+
+	Eigen::VectorXd tmp = x.cwiseAbs();
+	double gap = tmp.sum() - 1 / sigma;
+
+	if (gap <= 0)
+		return x;
+	
+	sort(tmp.data(), tmp.data() + tmp.size());
+	double act;
+	int len = tmp.size();
+	for (int i = 0; i < len; i++) {
+		cout << "gap:" << gap << "\ti:" << i << endl;
+		if ((len - i ) * tmp[i] >= gap) {
+			act = gap / (len - i );
+			break;
+		}
+		else {
+			gap -= tmp[i];
+		}
+	}
+	return x.cwiseSign().cwiseProduct(x - act * x.cwiseSign()).cwiseMax(0).cwiseProduct(x.cwiseSign());
+}
+
+
+
