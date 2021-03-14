@@ -41,6 +41,18 @@
     <ClInclude Include="cg_inf.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="cg3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="admm_class.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="metric.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="cg_admm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleApplication1.cpp">
@@ -65,6 +77,12 @@
       <Filter>头文件</Filter>
     </ClCompile>
     <ClCompile Include="norm_class.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="metric.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="admm_class.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

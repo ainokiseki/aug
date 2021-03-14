@@ -2,7 +2,7 @@
 #include"norm_class.h"
 
 
-norm_basic::norm_basic(string graph_name) :graph_name(graph_name)
+norm_basic::norm_basic(string graph_name) :metric(graph_name)
 {
 }
 
@@ -12,71 +12,6 @@ norm_basic::~norm_basic()
 
 
 
-void norm_basic::init() {
-	ifstream graph(graph_name, ios::in);
-	map<int, set<int> > g;
-	int tmp_a, tmp_b;
-	int input_ct = 0;
-	while (graph >> tmp_a >> tmp_b) {
-		g[tmp_a].insert(tmp_b);
-		g[tmp_b].insert(tmp_a);
-		input_ct++;
-	}
-
-	cout << "line:" << input_ct << endl;
-	//point list
-	vector<int> target;
-	//int n= 50;
-	for (auto it = g.begin(); it != g.end(); it++) {
-		target.push_back(it->first);
-	}
-	n = target.size();
-	cout << "n:" << n << endl;
-	var_num = n * (n - 1) / 2;
-	cons_num = n * (n - 1) * (n - 2) / 6;
-	w = Eigen::VectorXd::Zero(var_num);
-	b = Eigen::VectorXd::Zero(var_num);
-
-	int tmp_it = 0;
-	const double delta = 0.05;
-	const double epsi = 0.01;
-	//calculate w
-	for (int i = 0; i < n; i++)
-	{
-		int t_i = target[i];
-		for (int j = i + 1; j < n; j++, tmp_it++) {
-			//calculate w
-			set<int>tmp1;
-			set<int>tmp2;
-			int t_j = target[j];
-			set_intersection(g[t_i].begin(), g[t_i].end(), g[t_j].begin(), g[t_j].end(), inserter(tmp1, tmp1.begin()));
-			set_union(g[t_i].begin(), g[t_i].end(), g[t_j].begin(), g[t_j].end(), inserter(tmp2, tmp2.begin()));
-			double tmp = 1.0 * tmp1.size() / tmp2.size();
-			tmp = log((1 + tmp - delta) / (1 - tmp + delta));
-			if (tmp > 0) {
-				tmp += epsi;
-			}
-			else if (tmp < 0) {
-				tmp -= epsi;
-			}
-			else {
-				if (g[t_i].find(t_j) != g[t_i].end())
-					tmp = epsi;
-				else
-					tmp = -epsi;
-			}
-			b[tmp_it] = (tmp < 0);
-			w[tmp_it] = abs(tmp);
-			//calculate d
-		}
-	}
-
-	cout << "w:" << w.sum() << endl;
-	cout << "b:" << b.sum() << endl;
-	v = Eigen::VectorXd::Zero(var_num);
-	x = Eigen::VectorXd::Zero(var_num);
-	return;
-}
 
 double norm_basic::get_kkt(double sigma) {
 	double y_norm = 0;
@@ -349,3 +284,226 @@ inline Eigen::VectorXd norm_inf::pi_c(Eigen::VectorXd x, double sigma) {
 
 
 
+norm_2_if::norm_2_if(string graph_name) :graph_name(graph_name)
+{
+}
+
+norm_2_if::~norm_2_if()
+{
+}
+
+
+
+void norm_2_if::init() {
+	ifstream graph(graph_name, ios::in);
+	map<int, set<int> > g;
+	int tmp_a, tmp_b;
+	int input_ct = 0;
+	while (graph >> tmp_a >> tmp_b) {
+		g[tmp_a].insert(tmp_b);
+		g[tmp_b].insert(tmp_a);
+		input_ct++;
+	}
+
+	cout << "line:" << input_ct << endl;
+	//point list
+	vector<int> target;
+	//int n= 50;
+	for (auto it = g.begin(); it != g.end(); it++) {
+		target.push_back(it->first);
+	}
+	n = target.size();
+	cout << "n:" << n << endl;
+	var_num = n * (n - 1) / 2;
+	cons_num = n * (n - 1) * (n - 2) / 6;
+	w = Eigen::VectorXd::Zero(var_num);
+	b = Eigen::VectorXd::Zero(var_num);
+
+	int tmp_it = 0;
+	const double delta = 0.05;
+	const double epsi = 0.01;
+	//calculate w
+	for (int i = 0; i < n; i++)
+	{
+		int t_i = target[i];
+		for (int j = i + 1; j < n; j++, tmp_it++) {
+			//calculate w
+			set<int>tmp1;
+			set<int>tmp2;
+			int t_j = target[j];
+			set_intersection(g[t_i].begin(), g[t_i].end(), g[t_j].begin(), g[t_j].end(), inserter(tmp1, tmp1.begin()));
+			set_union(g[t_i].begin(), g[t_i].end(), g[t_j].begin(), g[t_j].end(), inserter(tmp2, tmp2.begin()));
+			double tmp = 1.0 * tmp1.size() / tmp2.size();
+			tmp = log((1 + tmp - delta) / (1 - tmp + delta));
+			if (tmp > 0) {
+				tmp += epsi;
+			}
+			else if (tmp < 0) {
+				tmp -= epsi;
+			}
+			else {
+				if (g[t_i].find(t_j) != g[t_i].end())
+					tmp = epsi;
+				else
+					tmp = -epsi;
+			}
+			b[tmp_it] = (tmp < 0);
+			w[tmp_it] = sqrt(abs(tmp));
+			//calculate d
+		}
+	}
+
+	cout << "w:" << w.sum() << endl;
+	cout << "b:" << b.sum() << endl;
+	x = Eigen::VectorXd::Ones(var_num);
+
+	return;
+}
+
+double norm_2_if::get_kkt(double sigma) {
+	double y_norm = 0;
+	double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
+	kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
+	axbu->set_function(new func_eigen_u(&u, sigma, &y_norm, &kkt_y, &kkt_u));
+	(*axbu)();
+	cout << "u:" << u.size() << endl;
+
+	y_norm = sqrt(y_norm);
+	kkt_u = sqrt(kkt_u) / (1 + y_norm);
+	kkt_y = sqrt(kkt_y) / (1 + y_norm);
+	cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
+	Eigen::VectorXd v = Eigen::VectorXd::Zero(var_num);
+	kkt_x = au_eigen(n, &u, v, w)();
+	
+	kkt_x = kkt_x / (1 + x.norm());
+
+	//cout << "z_norm" << z.norm() << endl;
+	//for (int i = 0; i < var_num; i++)
+	//    t_res += abs(x[i] * w[i]);
+	//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
+	double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
+	cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+	cout << "kkt:" << kkt_final << endl;
+
+
+	return kkt_final;
+
+	//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
+
+
+
+
+}
+
+double norm_2_if::get_step_length(Eigen::VectorXd& direction, double sigma) {
+
+	//cg end,result saved at direction
+	//find step length
+	double alpha = 1;
+	const double c1 = 1e-4;
+	double lx0 = 0;
+	axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
+	(*axbu)();
+	auto square = [](double x) {return x * x; };
+
+
+	lx0 = sigma / 2 * lx0 ;
+
+	lx0 += func_p(w.cwiseProduct(x));
+
+	double down = lx0 + c1 * alpha * rhs.dot(direction);
+	//cout << "down:" << down << "\tlx0:" << lx0 << endl;
+
+	cout << "lx0:" << lx0 << "\tdown" << down << endl;
+
+	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
+	axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
+	(*axbu)();
+	//m_calc_rhs(8, nrhs, n, axbu, alpha, &direction);
+	nrhs = sigma * nrhs;
+	nrhs += w.cwiseProduct(w).cwiseProduct(x+alpha*direction)/(w.cwiseProduct(x+alpha*direction).norm());
+	if (nrhs.dot(direction) < 0)
+		return 1.0;
+
+	for (int i = 0; i < 20; i++) {
+		//cout << "start find step,alpha=" << alpha << endl;
+		double lx = 0;
+		axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
+		(*axbu)();
+		//m_calc_phi(8, lx, n, axbu, alpha, &direction);
+		lx = sigma / 2 * lx;
+		lx += func_p(w.cwiseProduct(x+alpha*direction));
+		if (lx <= down) {
+			break;
+		}
+		alpha *= 0.5;
+	}
+	return alpha;
+
+
+}
+
+void norm_2_if::run() {
+	init();
+	double sigma = 1;
+	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
+		cout << "start main loop,sigma=" << sigma << endl;
+		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
+		for (int iter_1 = 0; iter_1 < 150; iter_1++) {
+			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
+			rhs = Eigen::VectorXd::Zero(var_num);
+			vector<tri*>aj1;
+			axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+			(*axbu)();
+			rhs = sigma * rhs + w.cwiseProduct(w).cwiseProduct(x)/(w.cwiseProduct(x).norm());
+			if (rhs.norm() < 1e-6) {
+				for (int i = 0; i < aj1.size(); i++)
+					delete aj1[i];
+				break;
+			}
+			cout << "rhs:" << rhs.norm() << endl;
+			Eigen::VectorXd direction = get_direction(sigma, rhs, &aj1);
+			double alpha = get_step_length(direction, sigma);
+			cout << "alpha=" << alpha << endl;
+			x = x + alpha * direction;
+			for (int i = 0; i < aj1.size(); i++)
+				delete aj1[i];
+		}
+		double k = get_kkt(sigma);
+
+		if (k < 1e-5)
+			break;
+
+		delete axbu;
+
+	}
+	cout << "func_value:" << func_p(w.cwiseProduct(x)) << endl;
+
+
+
+}
+
+Eigen::VectorXd norm_2_if::get_direction(double sigma, Eigen::VectorXd rhs, vector<tri*>* aj1) {
+
+	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
+	Eigen::VectorXd wx = w.cwiseProduct(x);
+	cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
+
+	MatrixReplacement3 A(aj1, var_num, a, &wx, &w, 1e9);
+
+	Eigen::ConjugateGradient<MatrixReplacement3, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+	cg.setTolerance(1e-12);
+	cg.compute(A);
+
+
+	Eigen::VectorXd direction = cg.solve(-rhs);
+
+	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+
+
+	return direction;
+}
+
+double norm_2_if::func_p(Eigen::VectorXd x) {
+	return x.norm();
+}

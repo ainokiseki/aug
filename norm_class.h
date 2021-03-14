@@ -1,18 +1,10 @@
-#include <iostream>
-#include <fstream>
-#include<vector>
-#include<set>
-#include<map>
-#include<algorithm>
-#include <iterator> 
+#include"metric.h"
+
+
 #include<math.h>
 #include<numeric>
-#include<ctime>
-#include <thread>
 #include<string>
 #include<sstream>
-#include<mutex>
-#include<chrono>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
@@ -20,17 +12,17 @@
 #include"cg.h"
 #include"cg2.h"
 #include"cg_inf.h"
+#include"cg3.h"
 #include"axbu_eigen.h"
 #include<omp.h>
-using namespace std;
 
-class norm_basic
+
+class norm_basic:public metric
 {
 public:
 	norm_basic(string graph_name);
 	~norm_basic();
 	virtual inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma)=0;
-	virtual void init();
 	virtual Eigen::VectorXd get_direction(double sigma,Eigen::VectorXd rhs,vector<tri*>*aj1)=0;
 	virtual double func_p(Eigen::VectorXd x)=0;
 	double get_kkt(double sigma);
@@ -38,21 +30,13 @@ public:
 	void run();
 
 protected:
-	string graph_name;
-	int n,var_num;
-	long long cons_num;
-	Eigen::VectorXd w;
-	Eigen::VectorXd b;
 
-	Eigen::VectorXd v;
-	Eigen::VectorXd x;
+
+
 	Eigen::VectorXd rhs;
 	map<long long, double>u;
 	axbu_eigen* axbu;
 };
-
-
-
 
 
 class norm_1:public norm_basic
@@ -92,3 +76,27 @@ private:
 
 };
 
+
+class norm_2_if
+{
+public:
+	norm_2_if(string graph_name);
+	~norm_2_if();
+	virtual void init();
+	virtual Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<tri*>* aj1);
+	virtual double func_p(Eigen::VectorXd x);
+	double get_kkt(double sigma);
+	double get_step_length(Eigen::VectorXd& direction, double sigma);;
+	void run();
+
+protected:
+	string graph_name;
+	int n, var_num;
+	long long cons_num;
+	Eigen::VectorXd w;
+	Eigen::VectorXd b;
+	Eigen::VectorXd x;
+	Eigen::VectorXd rhs;
+	map<long long, double>u;
+	axbu_eigen* axbu;
+};
