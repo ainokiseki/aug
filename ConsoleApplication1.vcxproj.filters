@@ -73,8 +73,8 @@
     <ClCompile Include="axbu_eigen.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="norm_class.h">
-      <Filter>头文件</Filter>
+    <ClCompile Include="norm_class.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="norm_class.cpp">
       <Filter>源文件</Filter>
