@@ -76,9 +76,6 @@
     <ClCompile Include="norm_class.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="norm_class.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="metric.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

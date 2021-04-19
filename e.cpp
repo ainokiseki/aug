@@ -14,10 +14,11 @@
 #include<sstream>
 #include<mutex>
 #include<chrono>
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
-#include <unsupported/Eigen/IterativeSolvers>
+
 #include"cg.h"
 #include "tri.h"
 #include"axbu_eigen.h"
@@ -123,7 +124,7 @@ int main()
     string prt_name = to_string(ck.time_since_epoch().count() / 10000);
     vector<double>test_norm;
     start = clock();
-    ifstream graph("graph14.txt", ios::in);
+    ifstream graph("graph350.txt", ios::in);
     ofstream prt_res("prt_res"+ prt_name+".txt", ios::out);
 
     prt_res.setf(ios_base::scientific, ios_base::floatfield);
