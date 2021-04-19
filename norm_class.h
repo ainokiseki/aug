@@ -1,3 +1,6 @@
+
+
+#define	EIGEN_USE_MKL_ALL
 #include"metric.h"
 
 
@@ -8,7 +11,7 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
-#include <unsupported/Eigen/IterativeSolvers>
+
 #include"cg.h"
 #include"cg2.h"
 #include"cg_inf.h"
