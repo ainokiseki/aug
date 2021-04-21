@@ -172,7 +172,9 @@
     <ClInclude Include="prox.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="axbu_eigen.h" />
+    <ClInclude Include="axbu_eigen.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="tri.h" />
     <ClInclude Include="tri_class.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -204,6 +206,7 @@
     <ClCompile Include="axbu_eigen.cpp" />
     <ClCompile Include="func_eigen.cpp" />
     <ClCompile Include="norm_class.cpp" />
+    <ClCompile Include="tri.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

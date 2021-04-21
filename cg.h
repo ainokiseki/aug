@@ -1,6 +1,7 @@
 #pragma once
 #include"tri.h"
-#include<vector>
+//#include<vector>
+//#include<thread>
 class MatrixReplacement;
 using Eigen::SparseMatrix;
 
@@ -70,21 +71,46 @@ namespace Eigen {
 
                 // Here we could simply call dst.noalias() += lhs.my_matrix() * rhs,
                 // but let's do something fancier (and less efficient):
-
                 Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
+                if (lhs.aj1->size() > 120000) {
 
-                for (int i = 0; i < lhs.aj1->size(); i++) {
-                    tri* tem = (*(lhs.aj1))[i];
-                    double num = -(rhs[tem->idx[0]] + rhs[tem->idx[1]] + rhs[tem->idx[2]]) + 2 * rhs[tem->idx[tem->symbol]];
 
-                    ap[tem->idx[0]] -= num;
+                    int thnum = lhs.aj1->size()/120000+1;
+                    Eigen::VectorXd* apres = new Eigen::VectorXd[thnum];
+                    for (int i = 0; i < thnum; i++)
+                        apres[i] = Eigen::VectorXd::Zero(lhs.var_num);
+                    Eigen::VectorXd rhscopy(lhs.var_num);
+                    for (int i = 0; i < lhs.var_num; i++)
+                        rhscopy[i] = rhs[i];
+                    std::vector<std::thread>tv;
+                    for (int i = 0; i < thnum; i++)
+                        tv.push_back(std::thread(cacap, apres + i, i * lhs.aj1->size() / thnum, (i + 1) * lhs.aj1->size() / thnum, lhs.aj1, &rhscopy));
 
-                    ap[tem->idx[1]] -= num;
+                    for (int i = 0; i < thnum; i++)
+                        tv[i].join();
 
-                    ap[tem->idx[2]] -= num;
+                    for (int i = 0; i < thnum; i++)
+                        ap += apres[i];
+                    delete[] apres;
+                }
+                else {
 
-                    ap[tem->idx[tem->symbol]] += 2 * num;
 
+                    //Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
+
+                    for (int i = 0; i < lhs.aj1->size(); i++) {
+                        tri* tem = (*(lhs.aj1))[i];
+                        double num = -(rhs[tem->idx[0]] + rhs[tem->idx[1]] + rhs[tem->idx[2]]) + 2 * rhs[tem->idx[tem->symbol]];
+
+                        ap[tem->idx[0]] -= num;
+
+                        ap[tem->idx[1]] -= num;
+
+                        ap[tem->idx[2]] -= num;
+
+                        ap[tem->idx[tem->symbol]] += 2 * num;
+
+                    }
                 }
                 dst = ap * lhs.sigma + lhs.sigma * lhs.aj2->cwiseProduct(rhs) + lhs.a * rhs;
 
@@ -108,6 +134,8 @@ namespace Eigen {
                 //dst = ap[0]*lhs.sigma + lhs.sigma * (lhs.vaj2.array() * rhs.array()).matrix() +lhs.a*rhs;
                 //delete[] ap;
                 //delete[]drhs;
+
+
             }
         };
 

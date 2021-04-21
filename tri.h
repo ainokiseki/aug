@@ -1,4 +1,6 @@
 #pragma once
+#include<Eigen/Dense>
+#include<vector>
 class tri
 {
 public:
@@ -15,3 +17,5 @@ public:
     ~tri() {}
 
 };
+
+void cacap(Eigen::VectorXd* res, int start, int end, std::vector<tri*>* aj1, Eigen::VectorXd* rhs);

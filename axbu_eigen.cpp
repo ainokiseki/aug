@@ -28,15 +28,15 @@ void axbu_eigen::operator() (int init,int end){
 				idx[2] = ij(j, k, n);
 				double axbu = 0;
 				for (int time = 0; time < 3; time++) {
-					axbu -= (*x)[idx[time]] + (*b)[idx[time]]; 
+					axbu -= (*x)[idx[time]] + (*b)[idx[time]];
 				}
-				for (int time = 0; time < 3; time++,index++) {
+				for (int time = 0; time < 3; time++, index++) {
 					double axbu2 = axbu;
 					if (u->find(index) != u->end()) {
 						axbu2 += (*u)[index] / sigma;
 					}
-					axbu2 += 2* ((*x)[idx[time]] + (*b)[idx[time]]);
-					(*f)(axbu2,idx,time,index);
+					axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
+					(*f)(axbu2, idx, time, index);
 				}
 
 			}

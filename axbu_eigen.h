@@ -2,7 +2,7 @@
 #include<Eigen/Dense>
 #include<map>
 #include"func_eigen.h"
-#include"cg_inf.h"
+//#include"cg_inf.h"
 class axbu_eigen
 {
 public:

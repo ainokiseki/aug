@@ -3,7 +3,7 @@
 #define	EIGEN_USE_MKL_ALL
 #include"metric.h"
 
-
+#include<thread>
 #include<math.h>
 #include<numeric>
 #include<string>
@@ -40,7 +40,28 @@ protected:
 	map<long long, double>u;
 	axbu_eigen* axbu;
 };
+class norm_ori :public metric
+{
+public:
+	norm_ori(string graph_name);
+	~norm_ori();
 
+	inline Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma) ;
+	inline Eigen::VectorXd prox_p_star (Eigen::VectorXd x, double sigma);
+	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<tri*>* aj1);
+	inline double func_p(Eigen::VectorXd x);
+	double get_kkt(double sigma);
+	double get_step_length(Eigen::VectorXd& direction, double sigma);
+	void run();
+
+protected:
+
+
+
+	Eigen::VectorXd rhs;
+	map<long long, double>u;
+	axbu_eigen* axbu;
+};
 
 class norm_1:public norm_basic
 {
