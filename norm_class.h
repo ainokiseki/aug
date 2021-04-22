@@ -1,6 +1,6 @@
 
 
-#define	EIGEN_USE_MKL_ALL
+
 #include"metric.h"
 
 #include<thread>

@@ -21,6 +21,24 @@ void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<tri*>* aj1, int n
 	delete[]mrhs;
 	delete[]maj1;
 }
+void m_calc_rhs(int pnum, Eigen::VectorXd* rhs, int n, axbu_eigen axbu) {
+	int var_num = n * (n - 1) / 2;
+	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
+
+	for (int i = 0; i < pnum; i++)
+		mrhs[i] = Eigen::VectorXd::Zero(var_num);
+	vector<thread>tv;
+	for (int i = 0; i < pnum; i++) {
+		axbu.set_function(new func_eigen_rhs_aj1(mrhs + i, NULL));
+		tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
+	}
+	for (int i = 0; i < pnum; i++)
+		tv[i].join();
+	for (int i = 0; i < pnum; i++)
+		* rhs += mrhs[i];
+
+	delete[]mrhs;
+}
 void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eigen::VectorXd* direction) {
 	int var_num = n * (n - 1) / 2;
 	double* mphi = new double[pnum];
@@ -244,7 +262,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	double lx0 = 0;
 	//axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
 	//(*axbu)();
-	m_calc_phi(8, lx0, n, *axbu, 0, &direction);
+	m_calc_phi(4, lx0, n, *axbu, 0, &direction);
 	auto square = [](double x) {return x * x; };
 
 
@@ -258,9 +276,9 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	cout << "lx0:" << lx0 << "\tdown" << down << endl;
 
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
-	axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
-	(*axbu)();
-	//m_calc_rhs(8, nrhs, n, axbu, alpha, &direction);
+	//axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
+	//(*axbu)();
+	m_calc_rhs(4, &nrhs, n, *axbu);
 	nrhs = sigma * nrhs;
 	nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, sigma);
 	if (nrhs.dot(direction) < 0)
@@ -271,7 +289,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 		double lx = 0;
 		//axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
 		//(*axbu)();
-		m_calc_phi(8, lx, n, *axbu, alpha, &direction);
+		m_calc_phi(4, lx, n, *axbu, alpha, &direction);
 		lx = sigma / 2 * lx;
 		lx += sigma / 2 * square(prox_p_star(x+alpha*direction + v / sigma, sigma).norm());
 		lx += func_p(prox_p(x + alpha*direction +v / sigma, sigma));
@@ -316,7 +334,7 @@ void norm_ori::run() {
 			vector<tri*>aj1;
 			//axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
 			//(*axbu)();
-			m_calc_rhs_and_aj1(8,&rhs,&aj1,n,*axbu);
+			m_calc_rhs_and_aj1(4,&rhs,&aj1,n,*axbu);
 			cout << "aj1:" << aj1.size() << endl;
 			//cout << "r1:" << rhs.norm() << endl;
 			rhs = sigma * rhs + sigma * prox_p_star(x+v/sigma,sigma);

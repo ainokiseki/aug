@@ -53,6 +53,9 @@
     <ClInclude Include="cg_admm.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="dk.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleApplication1.cpp">
