@@ -74,8 +74,8 @@ namespace Eigen {
                 Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
                 if (lhs.aj1->size() > 120000) {
 
-
-                    int thnum = lhs.aj1->size()/120000+1;
+                    //int thnum = 8;
+                    int thnum = std::fmin(lhs.aj1->size()/120000+1,8);
                     Eigen::VectorXd* apres = new Eigen::VectorXd[thnum];
                     for (int i = 0; i < thnum; i++)
                         apres[i] = Eigen::VectorXd::Zero(lhs.var_num);

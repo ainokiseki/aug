@@ -36,7 +36,6 @@ void m_calc_rhs(int pnum, Eigen::VectorXd* rhs, int n, axbu_eigen axbu) {
 		tv[i].join();
 	for (int i = 0; i < pnum; i++)
 		* rhs += mrhs[i];
-
 	delete[]mrhs;
 }
 void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eigen::VectorXd* direction) {
