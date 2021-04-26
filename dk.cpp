@@ -111,10 +111,10 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 		v.clear();
 		for (int th = 0; th < tnum; th++) {
 			int istart, iend, kstart;
-			istart = int(cbrt(double(tnum - 1 - th) / tnum) * ((blocknum - t + 1) / 2));
-			iend = int(cbrt(double(tnum - th) / tnum) * ((blocknum - t + 1) / 2));
+			iend = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - 1 - th) / tnum) * ((blocknum - t + 1) / 2));
+			istart = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - th) / tnum) * ((blocknum - t + 1) / 2));
 			kstart = std::min(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
-			if (th == 0) {
+			if (th == tnum-1) {
 				iend = (blocknum + 1 - t) / 2;
 				kstart = (blocknum - t) / 2;
 			}
@@ -131,10 +131,10 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 			v.clear();
 			for (int th = 0; th < tnum; th++) {
 				int istart, iend, kstart;
-				istart = int(cbrt(double(tnum - 1 - th) / tnum) * ((blocknum - t + 1) / 2));
-				iend = int(cbrt(double(tnum - th) / tnum) * ((blocknum - t + 1) / 2));
+				iend = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - 1 - th) / tnum) * ((blocknum - t + 1) / 2));
+				istart = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - th) / tnum) * ((blocknum - t + 1) / 2));
 				kstart = std::min(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
-				if (th == 0) {
+				if (th == tnum-1) {
 					iend = (blocknum + 1 - t) / 2;
 					kstart = (blocknum - t) / 2;
 				}
