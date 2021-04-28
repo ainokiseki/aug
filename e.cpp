@@ -5,7 +5,7 @@
 
 int main() {
 
-	dk nm("graph4.txt");
+	norm_ori nm("graph500.txt");
 	nm.run();
 	//norm_ori s("graph150.txt");
 	//s.run();

@@ -17,8 +17,8 @@
 #include"cg_inf.h"
 #include"cg3.h"
 #include"axbu_eigen.h"
-#include<omp.h>
-
+//#include<omp.h>
+#include<mat.h>
 
 class norm_basic:public metric
 {
@@ -57,7 +57,7 @@ public:
 protected:
 
 
-
+	ofstream prt_res;
 	Eigen::VectorXd rhs;
 	map<long long, double>u;
 	axbu_eigen* axbu;
