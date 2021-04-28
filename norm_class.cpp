@@ -159,10 +159,16 @@ double norm_basic::get_step_length(Eigen::VectorXd& direction, double sigma) {
 void norm_basic::run() {
 	init();
 	double sigma = 1;
+
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
+
+
 		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
 		for (int iter_1 = 0; iter_1 < 150; iter_1++) {
+
+
+
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<tri*>aj1;
@@ -190,6 +196,7 @@ void norm_basic::run() {
 		delete axbu;
 
 	}
+
 	cout << "func_value:"<<func_p(w.cwiseProduct(x)) << endl;
 
 
@@ -215,6 +222,7 @@ inline double norm_ori::func_p(Eigen::VectorXd x) {
 	return w.cwiseProduct(x.cwiseAbs()).sum();
 }
 double norm_ori::get_kkt(double sigma) {
+
 	double y_norm = 0;
 	double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
 	kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
@@ -273,7 +281,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	//cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
 	cout << "lx0:" << lx0 << "\tdown" << down << endl;
-
+	prt_res << lx0 << "  ";
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
 	//axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
 	//(*axbu)();
@@ -306,15 +314,17 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 
-	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
+	double a = min(pow(rhs.norm(), 1.5) * 0.5,20.0);
 
 	MatrixReplacement A(aj1, var_num, a, &aj2, sigma);
 
 	//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
 	Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
 	cg.compute(A);
+	//cg.setTolerance(5e-18);
 	Eigen::VectorXd direction = cg.solve(-rhs);
 	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	cout << "pro_res:" << (A * direction+rhs).norm() << endl;
 	//cout << "CG:" << cg.iterations() << std::endl;
 	//cout << "di:" << direction.norm() << endl;
 	return direction;
@@ -322,11 +332,41 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 void norm_ori::run() {
 	init();
+	bool matflag = false;
+	MATFile* pmatFile =NULL;
+	mxArray* tpMxArray = NULL;
+	string s("x"), s2("r"), s3("d");
+	if (matflag) {
+		pmatFile = matOpen("c.mat", "w");
+
+
+		
+		tpMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+		mxSetData(tpMxArray, w.data());
+
+		matPutVariable(pmatFile, "cw", tpMxArray);
+	}
+	mxArray* pMxArray = NULL;
+
+
+	int ttl = 0;
+	prt_res = ofstream("123.txt");
+	prt_res.setf(std::ios::scientific);
 	double sigma = 1;
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
 		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
 		for (int iter_1 = 0; iter_1 < 150; iter_1++) {
+			ttl += 1;
+			if (matflag) {
+
+
+				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+				mxSetData(pMxArray, x.data());
+
+				matPutVariable(pmatFile, (s + to_string(ttl)).c_str(), pMxArray);
+			}
+
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
@@ -335,8 +375,24 @@ void norm_ori::run() {
 			//(*axbu)();
 			m_calc_rhs_and_aj1(4,&rhs,&aj1,n,*axbu);
 			cout << "aj1:" << aj1.size() << endl;
+			prt_res << aj1.size() << "   ";
 			//cout << "r1:" << rhs.norm() << endl;
+			if (matflag) {
+
+
+				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+				mxSetData(pMxArray, rhs.data());
+
+				matPutVariable(pmatFile, (string("ra") + to_string(ttl)).c_str(), pMxArray);
+				Eigen::VectorXd rb = sigma * prox_p_star(x + v / sigma, sigma);
+
+				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+				mxSetData(pMxArray, rb.data());
+
+				matPutVariable(pmatFile, (string("rb") + to_string(ttl)).c_str(), pMxArray);
+			}
 			rhs = sigma * rhs + sigma * prox_p_star(x+v/sigma,sigma);
+			prt_res << iter_1<<"  "<<rhs.norm() << "  ";
 			if (rhs.norm() < 1e-6) {
 				for (int i = 0; i < aj1.size(); i++)
 					delete aj1[i];
@@ -345,15 +401,32 @@ void norm_ori::run() {
 			cout << "rhs:" << rhs.norm() << endl;
 			Eigen::VectorXd direction = get_direction(sigma, rhs, &aj1);
 			cout << "di:" << direction.norm() << endl;
+
+			//for (int i = 0; i < var_num; i++)
+			//	direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
+
+			if (matflag) {
+
+
+				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+				mxSetData(pMxArray, rhs.data());
+
+				matPutVariable(pmatFile, (s2 + to_string(ttl)).c_str(), pMxArray);
+
+				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+				mxSetData(pMxArray, direction.data());
+
+				matPutVariable(pmatFile, (s3 + to_string(ttl)).c_str(), pMxArray);
+			}
 			double alpha = get_step_length(direction, sigma);
 			cout << "alpha=" << alpha << endl;
 			x = x + alpha * direction;
-
+			prt_res << alpha << std::endl;
 			for (int i = 0; i < aj1.size(); i++)
 				delete aj1[i];
 		}
 		double k = get_kkt(sigma);
-
+		prt_res << "==================\n";
 		if (k < 1e-5)
 			break;
 
@@ -361,9 +434,11 @@ void norm_ori::run() {
 
 	}
 	cout << "func_value:" << func_p(x) << endl;
+	if (matflag) {
 
 
-
+		matClose(pmatFile);
+	}
 }
 norm_1::norm_1(string graph_name) :norm_basic(graph_name)
 {

@@ -22,12 +22,16 @@ func_eigen_rhs_aj1::~func_eigen_rhs_aj1()
 
 void func_eigen_rhs_aj1::operator()(double axbu, int* idx, int time, long long index)
 {
-	if (axbu > 0) {
-		for (int i = 0; i < 3; i++) {
-			if (i == time)continue;
-			(*rhs)(idx[i]) -= axbu;
+	if (axbu >= 0) {
+		if (axbu > 0) {
+
+
+			for (int i = 0; i < 3; i++) {
+				if (i == time)continue;
+				(*rhs)(idx[i]) -= axbu;
+			}
+			(*rhs)(idx[time]) += axbu;
 		}
-		(*rhs)(idx[time]) += axbu;
 		if(aj1!=NULL)
 		aj1->push_back(new tri(index,idx[0], idx[1], idx[2],  time));
 	}
@@ -114,7 +118,7 @@ void func_eigen_rhs::operator()(double axbu, int* idx, int time, long long index
 		axbu += 2 * alpha * (*direction)[idx[time]];
 	}
 
-	if (axbu > 0) {
+	if (axbu >= 0) {
 		for (int i = 0; i < 3; i++) {
 			if (i == time)continue;
 			(*rhs)(idx[i]) -= axbu;
