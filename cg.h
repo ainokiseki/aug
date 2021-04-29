@@ -72,10 +72,10 @@ namespace Eigen {
                 // Here we could simply call dst.noalias() += lhs.my_matrix() * rhs,
                 // but let's do something fancier (and less efficient):
                 Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
-                if (false &&lhs.aj1->size() > 120000) {
+                if (lhs.aj1->size() > 120000) {
 
                     //int thnum = 8;
-                    int thnum = std::fmin(lhs.aj1->size()/120000+1,8);
+                    int thnum = std::fmin(lhs.aj1->size()/120000+1,4);
                     Eigen::VectorXd* apres = new Eigen::VectorXd[thnum];
                     for (int i = 0; i < thnum; i++)
                         apres[i] = Eigen::VectorXd::Zero(lhs.var_num);

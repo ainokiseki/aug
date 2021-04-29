@@ -67,7 +67,11 @@ norm_basic::~norm_basic()
 {
 }
 
+inline long long ij(long long x, long long y, long long n) {
+	long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 
+	return res;
+}
 
 
 double norm_basic::get_kkt(double sigma) {
@@ -267,9 +271,9 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	double alpha = 1;
 	const double c1 = 1e-4;
 	double lx0 = 0;
-	//axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
-	//(*axbu)();
-	m_calc_phi(4, lx0, n, *axbu, 0, &direction);
+	axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
+	(*axbu)();
+	//m_calc_phi(4, lx0, n, *axbu, 0, &direction);
 	auto square = [](double x) {return x * x; };
 
 
@@ -283,9 +287,9 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	cout << "lx0:" << lx0 << "\tdown" << down << endl;
 	prt_res << lx0 << "  ";
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
-	//axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
-	//(*axbu)();
-	m_calc_rhs(4, &nrhs, n, *axbu);
+	axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
+	(*axbu)();
+	//m_calc_rhs(4, &nrhs, n, *axbu);
 	nrhs = sigma * nrhs;
 	nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, sigma);
 	if (nrhs.dot(direction) < 0)
@@ -294,9 +298,9 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	for (int i = 0; i < 20; i++) {
 		//cout << "start find step,alpha=" << alpha << endl;
 		double lx = 0;
-		//axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
-		//(*axbu)();
-		m_calc_phi(4, lx, n, *axbu, alpha, &direction);
+		axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
+		(*axbu)();
+		//m_calc_phi(4, lx, n, *axbu, alpha, &direction);
 		lx = sigma / 2 * lx;
 		lx += sigma / 2 * square(prox_p_star(x+alpha*direction + v / sigma, sigma).norm());
 		lx += func_p(prox_p(x + alpha*direction +v / sigma, sigma));
@@ -332,7 +336,7 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 void norm_ori::run() {
 	init();
-	bool matflag = false;
+	bool matflag =true;
 	MATFile* pmatFile =NULL;
 	mxArray* tpMxArray = NULL;
 	string s("x"), s2("r"), s3("d");
@@ -371,9 +375,9 @@ void norm_ori::run() {
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<tri*>aj1;
-			//axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-			//(*axbu)();
-			m_calc_rhs_and_aj1(4,&rhs,&aj1,n,*axbu);
+			axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+			(*axbu)();
+			//m_calc_rhs_and_aj1(4,&rhs,&aj1,n,*axbu);
 			cout << "aj1:" << aj1.size() << endl;
 			prt_res << aj1.size() << "   ";
 			//cout << "r1:" << rhs.norm() << endl;
@@ -390,6 +394,38 @@ void norm_ori::run() {
 				mxSetData(pMxArray, rb.data());
 
 				matPutVariable(pmatFile, (string("rb") + to_string(ttl)).c_str(), pMxArray);
+				if (iter_all == 0 && iter_1 <25) {
+					Eigen::VectorXd axburec = Eigen::VectorXd::Zero(1653900);
+					long long index = 0;
+					for (int i = 0; i < n; i++) {
+						for (int j = i + 1; j < n; j++) {
+							for (int k = j + 1; k < n; k++) {
+								int idx[3];
+								idx[0] = ij(i, j, n);
+								idx[1] = ij(i, k, n);
+								idx[2] = ij(j, k, n);
+								double axbu = 0;
+								for (int time = 0; time < 3; time++) {
+									axbu -= x[idx[time]] + b[idx[time]];
+								}
+								for (int time = 0; time < 3; time++, index++) {
+									
+
+									axburec[index]=axbu+ 2 * (x[idx[time]] + b[idx[time]]);
+
+								}
+
+							}
+						}
+
+					}
+					pMxArray = mxCreateDoubleMatrix(1653900, 1, mxREAL);
+					mxSetData(pMxArray, axburec.data());
+
+					matPutVariable(pmatFile, (string("axbu") + to_string(ttl)).c_str(), pMxArray);
+
+
+				}
 			}
 			rhs = sigma * rhs + sigma * prox_p_star(x+v/sigma,sigma);
 			prt_res << iter_1<<"  "<<rhs.norm() << "  ";
@@ -402,8 +438,8 @@ void norm_ori::run() {
 			Eigen::VectorXd direction = get_direction(sigma, rhs, &aj1);
 			cout << "di:" << direction.norm() << endl;
 
-			//for (int i = 0; i < var_num; i++)
-			//	direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
+			for (int i = 0; i < var_num; i++)
+				direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
 
 			if (matflag) {
 
@@ -429,6 +465,26 @@ void norm_ori::run() {
 		prt_res << "==================\n";
 		if (k < 1e-5)
 			break;
+		if (matflag) {
+
+
+
+			pMxArray = mxCreateDoubleMatrix(1653900, 1, mxREAL);
+			Eigen::VectorXd cu = Eigen::VectorXd::Zero(1653900);
+			for (auto i = u.begin(); i != u.end(); i++) {
+				cu[i->first] = i->second;
+			}
+			mxSetData(pMxArray, cu.data());
+
+			matPutVariable(pmatFile, (string("cu") + to_string(iter_all)).c_str(), pMxArray);
+
+			pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+
+			mxSetData(pMxArray, v.data());
+
+			matPutVariable(pmatFile, (string("cv") + to_string(iter_all)).c_str(), pMxArray);
+		}
+
 
 		delete axbu;
 
