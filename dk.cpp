@@ -176,28 +176,59 @@ void dk::run()
 
 
 		kkt_1 = kkt_2 = 0.0;
-		if (k % 100 == 0) {
+		if (k % 20 == 0) {
 
 
 			for (int ii = 0; ii < n; ii++) {
 				for (int jj = ii + 1; jj < n; jj++) {
 					for (int kk = jj + 1; kk < n; kk++) {
+						int64_t ijk = static_cast<int64_t>(ii) * n * n + jj * n + kk;
+						double ty;
 						double fm = inv_w(ii, jj) + inv_w(ii, kk) + inv_w(jj, kk);
 						double mu = y(ii, jj) + mat_b(ii, jj) - (y(ii, kk) + mat_b(ii, kk)) - (y(jj, kk) + mat_b(jj, kk));
-						if (mu > 0)kkt_2 += mu * mu / fm;
-						kkt_1 = std::fmax(kkt_1, mu);
+						kkt_2 += mu * mu;
+						if (c1->find(ijk) == c1->end()) {
+							ty = 0;
+						}else {
+							ty = (*c1)[ijk]/(fm*gam);
+						}
+						if (mu+ty > 0) {
+							kkt_1 += mu*mu;
+						}else {
+							kkt_1 += ty * ty;
+						}
+						ijk = static_cast<int64_t>(ii) * n * n + kk * n + jj;
 						mu = y(ii, kk) + mat_b(ii, kk) - (y(ii, jj) + mat_b(ii, jj)) - (y(jj, kk) + mat_b(jj, kk));
-						if (mu > 0)kkt_2 += mu * mu / fm;
-						kkt_1 = std::fmax(kkt_1, mu);
+						if (c1->find(ijk) == c1->end()) {
+							ty = 0;
+						}else {
+							ty = (*c1)[ijk] / (fm * gam);
+						}
+						if (mu > 0) {
+							kkt_1 += mu * mu;
+						}else {
+							kkt_1 += ty * ty;
+						}
+						kkt_2 += mu * mu;
+						ijk = static_cast<int64_t>(jj) * n * n + ii * n + kk;
 						mu = y(jj, kk) + mat_b(jj, kk) - (y(ii, kk) + mat_b(ii, kk)) - (y(ii, jj) + mat_b(ii, jj));
-						if (mu > 0)kkt_2 += mu * mu / fm;
-						kkt_1 = std::fmax(kkt_1, mu);
+						if (c1->find(ijk) == c1->end()) {
+							ty = 0;
+						}else {
+							ty = (*c1)[ijk] / (fm * gam);
+						}
+						if (mu > 0) {
+							kkt_1 += mu * mu;
+						}else {
+							kkt_1 += ty * ty;
+						}
+						kkt_2 += mu * mu;
 					}
 				}
 			}
-			std::cout << k<<" "<<pobj << "\t" << lastobj - pobj << "\tkkt1:" << kkt_1 << "\tkkt_2:" << kkt_2 << std::endl;
+			std::cout << k<<" "<<pobj << "\t" << lastobj - pobj << "\tkkt1:" << sqrt(kkt_1)/(1+sqrt(kkt_2)) << std::endl;
 			lastobj = pobj;
-			if (std::fmax(kkt_1, kkt_2) < 1e-5)break;
+			if (std::fmax(kkt_1, kkt_2) < 1e-6)break;
 		}
 
 	}
