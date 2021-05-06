@@ -6,10 +6,20 @@ class dk : public metric
 {
 public:
 	dk(string graph_name);
+	dk(string graph_name, double g);
 	~dk();
 	void triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction);
 	void biloop();
 	void multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction);
+
+
+
+
+
+
+	int run_test(double threshod);
+
+
 
 	
 
@@ -30,7 +40,7 @@ public:
 	~dk_triloop();
 	void operator()(int istart,int iend, int kstart, int blocksize);
 	
-private:
+
 	int n;
 	Eigen::MatrixXd* y;
 	Eigen::MatrixXd* m;

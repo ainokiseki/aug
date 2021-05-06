@@ -324,8 +324,9 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 	//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
 	Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+	cg.setTolerance(1e-10);
 	cg.compute(A);
-	cg.setTolerance(1e-14);
+
 	Eigen::VectorXd direction = cg.solve(-rhs);
 	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
@@ -336,6 +337,9 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 void norm_ori::run() {
 	init();
+	auto i_start = std::chrono::high_resolution_clock::now();
+
+
 	prt_res = ofstream("123.txt");
 	prt_res.setf(std::ios::scientific);
 	double sigma = 1;
@@ -389,7 +393,10 @@ void norm_ori::run() {
 
 	}
 	cout << "func_value:" << std::setprecision(8)<< func_p(x) << endl;
-
+	auto i_end = std::chrono::high_resolution_clock::now();
+	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
+	double tm = double(eld.count()) * 1.0 * 1e-9;
+	cout << "time is:" << tm << endl;
 }
 norm_1::norm_1(string graph_name) :norm_basic(graph_name)
 {

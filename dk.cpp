@@ -1,13 +1,21 @@
 #include"dk.h"
+#include<iomanip>
 dk::dk(string graph_name) :metric(graph_name)
 {
-	gam = 10;
+	gam =1;
 }
-
+dk::dk(string graph_name,double g) : metric(graph_name)
+{
+	gam = g;
+}
 dk::~dk()
 {
 }
+inline long long ij(long long x, long long y, long long n) {
+	long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 
+	return res;
+}
 void dk::triloop(std::map<int64_t,double>*correction, std::map<int64_t, double>* next_correction)
 {
 
@@ -150,6 +158,225 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 	}
 }
 
+void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, double* kkt_3, dk* th ,int start = 0,int end=-1) {
+	if (end < 0)end = th->n;
+	for (int ii = start; ii < end; ii++) {
+		for (int jj = ii + 1; jj < th->n; jj++) {
+			for (int kk = jj + 1; kk < th->n; kk++) {
+				int64_t ijk = static_cast<int64_t>(ii) * th->n * th->n + jj * th->n + kk;
+				double ty;
+				double fm = th->inv_w(ii, jj) + th->inv_w(ii, kk) + th->inv_w(jj, kk);
+				double mu = th->y(ii, jj) + th->mat_b(ii, jj) - (th->y(ii, kk) + th->mat_b(ii, kk)) - (th->y(jj, kk) + th->mat_b(jj, kk));
+
+				if (c1->find(ijk) == c1->end()) {
+					ty = 0;
+				}
+				else {
+					ty = (*c1)[ijk] / (fm * th->gam);
+				}
+
+				(*kkt_3) += ty * mu;
+
+				ijk = static_cast<int64_t>(ii) * th->n * th->n + kk * th->n + jj;
+				mu = th->y(ii, kk) + th->mat_b(ii, kk) - (th->y(ii, jj) + th->mat_b(ii, jj)) - (th->y(jj, kk) + th->mat_b(jj, kk));
+				if (c1->find(ijk) == c1->end()) {
+					ty = 0;
+				}
+				else {
+					ty = (*c1)[ijk] / (fm * th->gam);
+				}
+
+				(*kkt_3) += ty * mu;
+
+				ijk = static_cast<int64_t>(jj) * th->n * th->n + ii * th->n + kk;
+				mu = th->y(jj, kk) + th->mat_b(jj, kk) - (th->y(ii, kk) + th->mat_b(ii, kk)) - (th->y(ii, jj) + th->mat_b(ii, jj));
+				if (c1->find(ijk) == c1->end()) {
+					ty = 0;
+				}
+				else {
+					ty = (*c1)[ijk] / (fm * th->gam);
+				}
+
+				(*kkt_3) += ty * mu;
+			}
+		}
+	}
+
+}
+
+
+int dk::run_test(double threshod)
+{
+	init();
+	auto i_start = std::chrono::high_resolution_clock::now();
+	double pobj = 0.0;
+	double lastobj = 0.0;
+	std::map<int64_t, double>correction;
+	std::map<int64_t, double>next_correction;
+	std::map<int64_t, double>* c1;
+	std::map<int64_t, double>* c2;
+	c1 = &correction;
+	c2 = &next_correction;
+	kkt_1 = kkt_2 = 0.0;
+	int k;
+	for (k = 0; k < 1000; k++) {
+		kkt_2 = kkt_1 = 0.0;
+		//triloop(c1,c2);
+		multi_triloop(c1, c2);
+		biloop();
+		c1->clear();
+		std::swap(c1, c2);
+		pobj = 0.0;
+		int index = 0;
+
+		pobj = Eigen::MatrixXd(m.cwiseProduct(inv_w.transpose()).triangularView<Eigen::StrictlyUpper>()).sum();
+
+
+		kkt_1 = kkt_2 = 0.0;
+		double kkt_3 = 0;
+		if (k % 20 == 0) {
+			double kkt_3 = 0;
+
+			vector<thread>v;
+			int pnum = 8;
+
+
+			double* mphi = new double[pnum];
+			for (int i = 0; i < pnum; i++)
+				mphi[i] = 0;
+			vector<thread>tv;
+			for (int i = 0; i < pnum; i++) {
+				int a, b;
+				a = n - (int)(cbrt((i + 1) * 1.0 / pnum) * n);
+				b = n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n);
+				tv.push_back(std::thread(get_kkt,c1,c2,mphi+i,this, a, b));
+
+			}
+			for (int i = 0; i < pnum; i++)
+				tv[i].join();
+			for (int i = 0; i < pnum; i++)
+				kkt_3 += mphi[i];
+
+			delete[]mphi;
+
+
+			//for (int ii = 0; ii < n; ii++) {
+			//	for (int jj = ii + 1; jj < n; jj++) {
+			//		for (int kk = jj + 1; kk < n; kk++) {
+			//			int64_t ijk = static_cast<int64_t>(ii) * n * n + jj * n + kk;
+			//			double ty;
+			//			double fm = inv_w(ii, jj) + inv_w(ii, kk) + inv_w(jj, kk);
+			//			double mu = y(ii, jj) + mat_b(ii, jj) - (y(ii, kk) + mat_b(ii, kk)) - (y(jj, kk) + mat_b(jj, kk));
+			//			kkt_2 += mu * mu;
+			//			if (c1->find(ijk) == c1->end()) {
+			//				ty = 0;
+			//			}
+			//			else {
+			//				ty = (*c1)[ijk] / (fm * gam);
+			//			}
+
+			//			kkt_3 += ty * mu;
+
+			//			ijk = static_cast<int64_t>(ii) * n * n + kk * n + jj;
+			//			mu = y(ii, kk) + mat_b(ii, kk) - (y(ii, jj) + mat_b(ii, jj)) - (y(jj, kk) + mat_b(jj, kk));
+			//			if (c1->find(ijk) == c1->end()) {
+			//				ty = 0;
+			//			}
+			//			else {
+			//				ty = (*c1)[ijk] / (fm * gam);
+			//			}
+			//			if (mu > 0) {
+			//				kkt_1 += mu * mu;
+			//			}
+			//			else {
+			//				kkt_1 += ty * ty;
+			//			}
+			//			kkt_3 += ty * mu;
+			//			kkt_2 += mu * mu;
+			//			ijk = static_cast<int64_t>(jj) * n * n + ii * n + kk;
+			//			mu = y(jj, kk) + mat_b(jj, kk) - (y(ii, kk) + mat_b(ii, kk)) - (y(ii, jj) + mat_b(ii, jj));
+			//			if (c1->find(ijk) == c1->end()) {
+			//				ty = 0;
+			//			}
+			//			else {
+			//				ty = (*c1)[ijk] / (fm * gam);
+			//			}
+			//			if (mu > 0) {
+			//				kkt_1 += mu * mu;
+			//			}
+			//			else {
+			//				kkt_1 += ty * ty;
+			//			}
+			//			kkt_2 += mu * mu;
+			//			kkt_3 += ty * mu;
+			//		}
+			//	}
+			//}
+			/*
+			Eigen::VectorXd ay = Eigen::VectorXd::Zero(var_num);
+			for (int i = 0; i < n; i++) {
+				for (int j = i + 1; j < n; j++) {
+					for (int kk = j + 1; kk < n; kk++) {
+						int idx[3];
+						double fm = inv_w(i, j) + inv_w(i, kk) + inv_w(j, kk);
+						idx[0] = ij(i, j, n);
+						idx[1] = ij(i, kk, n);
+						idx[2] = ij(j, kk, n);
+						int64_t ijk= static_cast<int64_t>(i) * n * n + j * n + kk;
+
+						if (c1->find(ijk) != c1->end()) {
+							double tem = (*c1)[ijk]/fm;
+							ay[idx[0]] += tem;
+							ay[idx[1]] -= tem;
+							ay[idx[2]] -= tem;
+						}
+						 ijk = static_cast<int64_t>(i) * n * n + kk * n + j;
+
+						if (c1->find(ijk) != c1->end()) {
+							double tem = (*c1)[ijk] / fm;
+							ay[idx[1]] += tem;
+							ay[idx[0]] -= tem;
+							ay[idx[2]] -= tem;
+						}
+						 ijk = static_cast<int64_t>(kk) * n * n + i * n + j;
+
+						if (c1->find(ijk) != c1->end()) {
+							double tem = (*c1)[ijk] / fm;
+							ay[idx[2]] += tem;
+							ay[idx[1]] -= tem;
+							ay[idx[0]] -= tem;
+						}
+					}
+				}
+
+			}
+			std::cout << "spkkt:" << ay.norm() << endl;
+			*/
+			//std::cout << k << " " << std::setprecision(8) << pobj << "\t" << lastobj - pobj << "\tkkt1:" << sqrt(kkt_1) / (1 + sqrt(kkt_2)) << "\tkkt_3:" << kkt_3 << std::endl;
+			lastobj = pobj;
+			kkt_3 *= gam;
+			if (std::fabs(kkt_3) < threshod)break;
+		}
+
+	}
+	double trueobj = 0.0;
+	auto square = [](double x) {return x * x; };
+	int index = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++, index++) {
+			trueobj += square(y(i, j)) * w[index];
+			trueobj += square(m(i, j)) * w[index];
+
+		}
+	}
+	std::cout << "final res:" << trueobj / (2 * gam) + pobj << "k1:" << kkt_1 << "k2:" << kkt_2 << std::endl;
+	std::cout << "gam:" << gam << "\tobj:"<< lastobj << endl;
+	auto i_end = std::chrono::high_resolution_clock::now();
+	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
+	double tm = double(eld.count()) * 1.0 * 1e-9;
+	cout << "time is:" << tm << endl;
+	return k;
+}
 void dk::run()
 {
 	init();
@@ -162,7 +389,7 @@ void dk::run()
 	c1 = &correction;
 	c2 = &next_correction;
 	kkt_1 = kkt_2 = 0.0;
-	for (int k = 0; k < 100000; k++) {
+	for (int k = 0; k < 1000; k++) {
 		kkt_2 = kkt_1=0.0;
 		//triloop(c1,c2);
 		multi_triloop(c1, c2);
@@ -176,7 +403,8 @@ void dk::run()
 
 
 		kkt_1 = kkt_2 = 0.0;
-		if (k % 20 == 0) {
+		double kkt_3 = 0;
+		if (k % 1 == 0) {
 
 
 			for (int ii = 0; ii < n; ii++) {
@@ -192,11 +420,9 @@ void dk::run()
 						}else {
 							ty = (*c1)[ijk]/(fm*gam);
 						}
-						if (mu+ty > 0) {
-							kkt_1 += mu*mu;
-						}else {
-							kkt_1 += ty * ty;
-						}
+
+						kkt_3 += ty* mu;
+
 						ijk = static_cast<int64_t>(ii) * n * n + kk * n + jj;
 						mu = y(ii, kk) + mat_b(ii, kk) - (y(ii, jj) + mat_b(ii, jj)) - (y(jj, kk) + mat_b(jj, kk));
 						if (c1->find(ijk) == c1->end()) {
@@ -209,6 +435,7 @@ void dk::run()
 						}else {
 							kkt_1 += ty * ty;
 						}
+						kkt_3 += ty * mu;
 						kkt_2 += mu * mu;
 						ijk = static_cast<int64_t>(jj) * n * n + ii * n + kk;
 						mu = y(jj, kk) + mat_b(jj, kk) - (y(ii, kk) + mat_b(ii, kk)) - (y(ii, jj) + mat_b(ii, jj));
@@ -223,12 +450,53 @@ void dk::run()
 							kkt_1 += ty * ty;
 						}
 						kkt_2 += mu * mu;
+						kkt_3 += ty * mu;
 					}
 				}
 			}
-			std::cout << k<<" "<<pobj << "\t" << lastobj - pobj << "\tkkt1:" << sqrt(kkt_1)/(1+sqrt(kkt_2)) << std::endl;
+			/*
+			Eigen::VectorXd ay = Eigen::VectorXd::Zero(var_num);
+			for (int i = 0; i < n; i++) {
+				for (int j = i + 1; j < n; j++) {
+					for (int kk = j + 1; kk < n; kk++) {
+						int idx[3];
+						double fm = inv_w(i, j) + inv_w(i, kk) + inv_w(j, kk);
+						idx[0] = ij(i, j, n);
+						idx[1] = ij(i, kk, n);
+						idx[2] = ij(j, kk, n);
+						int64_t ijk= static_cast<int64_t>(i) * n * n + j * n + kk;
+
+						if (c1->find(ijk) != c1->end()) {							
+							double tem = (*c1)[ijk]/fm;
+							ay[idx[0]] += tem;
+							ay[idx[1]] -= tem;
+							ay[idx[2]] -= tem;
+						}
+						 ijk = static_cast<int64_t>(i) * n * n + kk * n + j;
+
+						if (c1->find(ijk) != c1->end()) {
+							double tem = (*c1)[ijk] / fm;
+							ay[idx[1]] += tem;
+							ay[idx[0]] -= tem;
+							ay[idx[2]] -= tem;
+						}
+						 ijk = static_cast<int64_t>(kk) * n * n + i * n + j;
+
+						if (c1->find(ijk) != c1->end()) {
+							double tem = (*c1)[ijk] / fm;
+							ay[idx[2]] += tem;
+							ay[idx[1]] -= tem;
+							ay[idx[0]] -= tem;
+						}
+					}
+				}
+
+			}
+			std::cout << "spkkt:" << ay.norm() << endl;
+			*/
+			std::cout << k<<" "<<std::setprecision(8)<<pobj << "\t" << lastobj - pobj << "\tkkt1:" << sqrt(kkt_1)/(1+sqrt(kkt_2))<<"\tkkt_3:"<<kkt_3<< std::endl;
 			lastobj = pobj;
-			if (std::fmax(kkt_1, kkt_2) < 1e-6)break;
+			//if (std::fabs(kkt_3) < 1e-3)break;
 		}
 
 	}

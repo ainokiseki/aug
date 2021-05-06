@@ -32,7 +32,6 @@ public:
 	double get_step_length(Eigen::VectorXd& direction, double sigma);;
 	void run();
 
-protected:
 
 
 
@@ -54,7 +53,7 @@ public:
 	double get_step_length(Eigen::VectorXd& direction, double sigma);
 	void run();
 
-protected:
+
 
 
 	ofstream prt_res;

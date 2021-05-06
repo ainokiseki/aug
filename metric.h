@@ -16,7 +16,7 @@ public:
 	metric(std::string graph_name);
 	~metric();
 	void init();
-protected:
+
 	string graph_name;
 	int n, var_num;
 	long long cons_num;
