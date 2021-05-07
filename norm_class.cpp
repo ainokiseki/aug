@@ -120,6 +120,7 @@ double norm_basic::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	double lx0 = 0;
 	axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
 	(*axbu)();
+
 	auto square = [](double x) {return x * x; };
 
 
@@ -178,6 +179,7 @@ void norm_basic::run() {
 			vector<tri*>aj1;
 			axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
 			(*axbu)();
+
 			rhs = sigma * rhs + sigma * w.cwiseProduct(pi_c(w.cwiseProduct(x) + v / sigma, sigma));
 			if (rhs.norm() < 1e-6) {
 				for (int i = 0; i < aj1.size(); i++)
@@ -452,7 +454,7 @@ Eigen::VectorXd norm_2::get_direction(double sigma, Eigen::VectorXd rhs, vector<
 	MatrixReplacement2 A(aj1, var_num, a, &wx, &w, sigma);
 
 	Eigen::ConjugateGradient<MatrixReplacement2, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
-	cg.setTolerance(1e-12);
+	cg.setTolerance(1e-10);
 	cg.compute(A);
 
 
