@@ -282,6 +282,8 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	lx0 = sigma / 2 * lx0 + sigma / 2 * square(prox_p_star(x + v / sigma, sigma).norm());
 
 	lx0 += func_p(prox_p(x+v/sigma,sigma));
+	
+	lx0 += cst / 2 * square((x - x0).norm());
 
 	double down = lx0 + c1 * alpha * rhs.dot(direction);
 	//cout << "down:" << down << "\tlx0:" << lx0 << endl;
@@ -289,13 +291,17 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	cout << "lx0:" << lx0 << "\tdown" << down << endl;
 	prt_res << lx0 << "  ";
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
-	//axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
-	//(*axbu)();
-	m_calc_rhs(4, &nrhs, n, *axbu);
+	axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
+	(*axbu)();
+	//m_calc_rhs(4, &nrhs, n, *axbu);
 	nrhs = sigma * nrhs;
 	nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, sigma);
-	if (nrhs.dot(direction) < 0)
+	nrhs += cst * (x + alpha * direction - x0);
+	if (nrhs.dot(direction) < 0) {
+		cout << "green\n";
 		return 1.0;
+	}
+
 
 	for (int i = 0; i < 20; i++) {
 		//cout << "start find step,alpha=" << alpha << endl;
@@ -306,6 +312,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 		lx = sigma / 2 * lx;
 		lx += sigma / 2 * square(prox_p_star(x+alpha*direction + v / sigma, sigma).norm());
 		lx += func_p(prox_p(x + alpha*direction +v / sigma, sigma));
+		lx += cst / 2 * square((x+alpha*direction - x0).norm());
 		if (lx <= down) {
 			break;
 		}
@@ -321,7 +328,7 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 
 	double a = min(pow(rhs.norm(), 1.5) * 0.5,20.0);
-
+	a += cst;
 	MatrixReplacement A(aj1, var_num, a, &aj2, sigma);
 
 	//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
@@ -342,12 +349,15 @@ void norm_ori::run() {
 	auto i_start = std::chrono::high_resolution_clock::now();
 
 
+
 	prt_res = ofstream("123.txt");
 	prt_res.setf(std::ios::scientific);
 	double sigma = 1;
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
+		cst = 1 / sigma;
 		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
+		x0 = x;
 		for (int iter_1 = 0; iter_1 < 1500; iter_1++) {
 
 
@@ -363,6 +373,7 @@ void norm_ori::run() {
 			//cout << "r1:" << rhs.norm() << endl;
 			
 			rhs = sigma * rhs + sigma * prox_p_star(x+v/sigma,sigma);
+			rhs += cst * (x - x0);
 			prt_res << iter_1<<"  "<<rhs.norm() << "  ";
 			if (rhs.norm() < 1e-6) {
 				for (int i = 0; i < aj1.size(); i++)

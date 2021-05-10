@@ -1,19 +1,25 @@
 #include"norm_class.h"
 #include"dk.h"
 #include<chrono>
+#include<string>
 //#include"admm_class.h"
 
 
 int main() {
 
-	//vector<double>vx = { 1,2,5,10,20,40,60,80,100,150,200 };
-	//vector<double>vt = { 1e-2};
+	//vector<double>vx = { 1,5,20};
+	//vector<double>vt = { 1e-5};
+	//vector<string>vf = { "100","150","200","300","500" };
 	//for (auto i : vx) {
 
 	//	for (auto j : vt) {
-	//		dk nm("graph300.txt", i);
-	//		int k=nm.run_test(j);
-	//		cout << "gam:" << i << "\tthreshold:" << j <<"\ttimes:"<<k<< endl;
+	//		for (auto k : vf) {
+
+	//			dk nm("graph"+k+".txt", i);
+	//			int k = nm.run_test(j);
+	//			cout << "gam:" << i << "\tthreshold:" << j << "\ttimes:" << k << endl;
+	//		}
+
 	//	}
 	//}
 
@@ -29,10 +35,15 @@ int main() {
 	//dk s("graph500.txt",5);
 	//s.run_test(1e-2);
 	// 
-	//dk s2("graph500.txt", 5);
-	//s2.run_test(1e-3);
+	norm_ori s2("graph100.txt");
+	s2.run();
 	// 
-	norm_ori s("graph1.txt");
-	s.run();
+	// 
+	//string dataname;
+	//cin >> dataname;
+	//norm_2 s(dataname+string(".txt"));
+	//s.run();
+	//string tem;
+	//cin >> tem;
     return 0;
 }

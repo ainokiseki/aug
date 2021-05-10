@@ -158,7 +158,7 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 	}
 }
 
-void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, double* kkt_3, dk* th ,int start = 0,int end=-1) {
+void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, double* kkt_1,double* kkt_2, dk* th ,int start = 0,int end=-1) {
 	if (end < 0)end = th->n;
 	for (int ii = start; ii < end; ii++) {
 		for (int jj = ii + 1; jj < th->n; jj++) {
@@ -174,8 +174,10 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 				else {
 					ty = (*c1)[ijk] / (fm * th->gam);
 				}
-
-				(*kkt_3) += ty * mu;
+				if (mu + ty > 0) {
+					(*kkt_1) += mu * mu;
+				}
+				(*kkt_2) += mu * mu;
 
 				ijk = static_cast<int64_t>(ii) * th->n * th->n + kk * th->n + jj;
 				mu = th->y(ii, kk) + th->mat_b(ii, kk) - (th->y(ii, jj) + th->mat_b(ii, jj)) - (th->y(jj, kk) + th->mat_b(jj, kk));
@@ -185,8 +187,10 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 				else {
 					ty = (*c1)[ijk] / (fm * th->gam);
 				}
-
-				(*kkt_3) += ty * mu;
+				if (mu + ty > 0) {
+					(*kkt_1) += mu * mu;
+				}
+				(*kkt_2) += mu * mu;
 
 				ijk = static_cast<int64_t>(jj) * th->n * th->n + ii * th->n + kk;
 				mu = th->y(jj, kk) + th->mat_b(jj, kk) - (th->y(ii, kk) + th->mat_b(ii, kk)) - (th->y(ii, jj) + th->mat_b(ii, jj));
@@ -196,8 +200,10 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 				else {
 					ty = (*c1)[ijk] / (fm * th->gam);
 				}
-
-				(*kkt_3) += ty * mu;
+				if (mu + ty > 0) {
+					(*kkt_1) += mu * mu;
+				}
+				(*kkt_2) += mu * mu;
 			}
 		}
 	}
@@ -235,29 +241,32 @@ int dk::run_test(double threshod)
 		kkt_1 = kkt_2 = 0.0;
 		double kkt_3 = 0;
 		if (k % 20 == 0) {
-			double kkt_3 = 0;
-
+			double kkt_1 = 0;
+			double kkt_2 = 0;
 			vector<thread>v;
 			int pnum = 8;
 
 
 			double* mphi = new double[pnum];
+			double* mphi2 = new double[pnum];
 			for (int i = 0; i < pnum; i++)
-				mphi[i] = 0;
+				mphi[i] =mphi2[i]= 0;
 			vector<thread>tv;
 			for (int i = 0; i < pnum; i++) {
 				int a, b;
 				a = n - (int)(cbrt((i + 1) * 1.0 / pnum) * n);
 				b = n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n);
-				tv.push_back(std::thread(get_kkt,c1,c2,mphi+i,this, a, b));
+				tv.push_back(std::thread(get_kkt,c1,c2,mphi+i,mphi2+i,this, a, b));
 
 			}
 			for (int i = 0; i < pnum; i++)
 				tv[i].join();
 			for (int i = 0; i < pnum; i++)
-				kkt_3 += mphi[i];
-
+				kkt_1 += mphi[i];
+			for (int i = 0; i < pnum; i++)
+				kkt_2 += mphi2[i];
 			delete[]mphi;
+			delete[]mphi2;
 
 
 			//for (int ii = 0; ii < n; ii++) {
@@ -352,9 +361,10 @@ int dk::run_test(double threshod)
 			}
 			std::cout << "spkkt:" << ay.norm() << endl;
 			*/
-			//std::cout << k << " " << std::setprecision(8) << pobj << "\t" << lastobj - pobj << "\tkkt1:" << sqrt(kkt_1) / (1 + sqrt(kkt_2)) << "\tkkt_3:" << kkt_3 << std::endl;
+
 			lastobj = pobj;
-			kkt_3 *= gam;
+			kkt_3 = sqrt(kkt_1) / (1 + sqrt(kkt_2));
+			std::cout << k << " " << std::setprecision(8) << pobj << "\tkkt_3:" << kkt_3 << std::endl;
 			if (std::fabs(kkt_3) < threshod)break;
 		}
 
@@ -420,7 +430,12 @@ void dk::run()
 						}else {
 							ty = (*c1)[ijk]/(fm*gam);
 						}
-
+						if (mu+ty > 0) {
+							kkt_1 += mu * mu;
+						}
+						else {
+							kkt_1 += ty * ty;
+						}
 						kkt_3 += ty* mu;
 
 						ijk = static_cast<int64_t>(ii) * n * n + kk * n + jj;
@@ -430,7 +445,7 @@ void dk::run()
 						}else {
 							ty = (*c1)[ijk] / (fm * gam);
 						}
-						if (mu > 0) {
+						if (mu + ty > 0) {
 							kkt_1 += mu * mu;
 						}else {
 							kkt_1 += ty * ty;
@@ -444,7 +459,7 @@ void dk::run()
 						}else {
 							ty = (*c1)[ijk] / (fm * gam);
 						}
-						if (mu > 0) {
+						if (mu + ty > 0) {
 							kkt_1 += mu * mu;
 						}else {
 							kkt_1 += ty * ty;
@@ -494,9 +509,10 @@ void dk::run()
 			}
 			std::cout << "spkkt:" << ay.norm() << endl;
 			*/
-			std::cout << k<<" "<<std::setprecision(8)<<pobj << "\t" << lastobj - pobj << "\tkkt1:" << sqrt(kkt_1)/(1+sqrt(kkt_2))<<"\tkkt_3:"<<kkt_3<< std::endl;
+			kkt_1 = sqrt(kkt_1) / (1 + sqrt(kkt_2));
+			std::cout << k<<" "<<std::setprecision(8)<<pobj << "\t" << lastobj - pobj << "\tkkt1:" << kkt_1<<"\tkkt_3:"<<kkt_3<< std::endl;
 			lastobj = pobj;
-			//if (std::fabs(kkt_3) < 1e-3)break;
+			if (std::fabs(kkt_1) < 1e-5)break;
 		}
 
 	}

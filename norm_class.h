@@ -53,11 +53,11 @@ public:
 	double get_step_length(Eigen::VectorXd& direction, double sigma);
 	void run();
 
-
+	double cst = 0;
 
 
 	ofstream prt_res;
-	Eigen::VectorXd rhs;
+	Eigen::VectorXd rhs,x0;
 	map<long long, double>u;
 	axbu_eigen* axbu;
 };
