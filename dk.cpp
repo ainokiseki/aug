@@ -2,7 +2,7 @@
 #include<iomanip>
 dk::dk(string graph_name) :metric(graph_name)
 {
-	gam =1;
+	gam =5;
 }
 dk::dk(string graph_name,double g) : metric(graph_name)
 {
@@ -211,7 +211,7 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 }
 
 
-int dk::run_test(double threshod)
+int dk::run_test(double threshod=1e-5)
 {
 	init();
 	auto i_start = std::chrono::high_resolution_clock::now();

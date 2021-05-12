@@ -1,0 +1,5149 @@
+line:25571
+n:1005
+w:50713.4
+b:425932
+x,v0    0
+start main loop,sigma=1
+start find minimum of phi(x),iter time:0
+x:0
+aj1:120852808
+rhs:67734.6
+CG:       #iterations: 0, estimated error: 0.242472
+lx0:4.12904e+06 down4.12879e+06
+green
+alpha=1
+start find minimum of phi(x),iter time:1
+x:37.8905
+aj1:8297038
+rhs:46113.3
+CG:       #iterations: 0, estimated error: 0.12194
+lx0:1.97326e+06 down1.97289e+06
+green
+alpha=1
+start find minimum of phi(x),iter time:2
+x:116.612
+aj1:5044327
+rhs:5767.14
+CG:       #iterations: 0, estimated error: 0.305724
+lx0:78970       down78959
+green
+alpha=1
+start find minimum of phi(x),iter time:3
+x:130.24
+aj1:1720172
+rhs:1626.91
+CG:       #iterations: 0, estimated error: 0.228914
+lx0:15112.5     down15110.9
+green
+alpha=1
+start find minimum of phi(x),iter time:4
+x:134.923
+aj1:826835
+rhs:473.577
+CG:       #iterations: 0, estimated error: 0.20357
+lx0:5124.55     down5124.32
+green
+alpha=1
+start find minimum of phi(x),iter time:5
+x:136.644
+aj1:564222
+rhs:159.574
+CG:       #iterations: 0, estimated error: 0.228705
+lx0:3683.94     down3683.9
+green
+alpha=1
+start find minimum of phi(x),iter time:6
+x:137.242
+aj1:501993
+rhs:67.1443
+CG:       #iterations: 0, estimated error: 0.290892
+lx0:3423.13     down3423.12
+green
+alpha=1
+start find minimum of phi(x),iter time:7
+x:137.376
+aj1:530603
+rhs:36.7102
+CG:       #iterations: 0, estimated error: 0.338006
+lx0:3350.24     down3350.24
+green
+alpha=1
+start find minimum of phi(x),iter time:8
+x:137.326
+aj1:591280
+rhs:26.2143
+CG:       #iterations: 0, estimated error: 0.318775
+lx0:3315.14     down3315.14
+green
+alpha=1
+start find minimum of phi(x),iter time:9
+x:137.243
+aj1:652658
+rhs:22.665
+CG:       #iterations: 1, estimated error: 0.176201
+lx0:3289.97     down3289.97
+green
+alpha=1
+start find minimum of phi(x),iter time:10
+x:137.197
+aj1:706535
+rhs:20.7112
+CG:       #iterations: 1, estimated error: 0.186354
+lx0:3268.64     down3268.64
+green
+alpha=1
+start find minimum of phi(x),iter time:11
+x:137.203
+aj1:738520
+rhs:19.0954
+CG:       #iterations: 1, estimated error: 0.153198
+lx0:3250.22     down3250.22
+green
+alpha=1
+start find minimum of phi(x),iter time:12
+x:137.229
+aj1:777219
+rhs:18.088
+CG:       #iterations: 1, estimated error: 0.163224
+lx0:3233.78     down3233.78
+green
+alpha=1
+start find minimum of phi(x),iter time:13
+x:137.295
+aj1:797425
+rhs:17.3039
+CG:       #iterations: 1, estimated error: 0.142913
+lx0:3218.79     down3218.79
+green
+alpha=1
+start find minimum of phi(x),iter time:14
+x:137.369
+aj1:825013
+rhs:16.6367
+CG:       #iterations: 2, estimated error: 0.155579
+lx0:3204.93     down3204.93
+green
+alpha=1
+start find minimum of phi(x),iter time:15
+x:137.47
+aj1:830589
+rhs:16.1049
+CG:       #iterations: 2, estimated error: 0.130207
+lx0:3192.01     down3192.01
+green
+alpha=1
+start find minimum of phi(x),iter time:16
+x:137.575
+aj1:849286
+rhs:15.5731
+CG:       #iterations: 1, estimated error: 0.164103
+lx0:3179.87     down3179.87
+green
+alpha=1
+start find minimum of phi(x),iter time:17
+x:137.699
+aj1:858774
+rhs:15.192
+CG:       #iterations: 1, estimated error: 0.15927
+lx0:3168.44     down3168.43
+green
+alpha=1
+start find minimum of phi(x),iter time:18
+x:137.823
+aj1:876454
+rhs:14.7847
+CG:       #iterations: 1, estimated error: 0.205664
+lx0:3157.61     down3157.61
+green
+alpha=1
+start find minimum of phi(x),iter time:19
+x:137.963
+aj1:881707
+rhs:14.5137
+CG:       #iterations: 1, estimated error: 0.206969
+lx0:3147.35     down3147.35
+green
+alpha=1
+start find minimum of phi(x),iter time:20
+x:138.1
+aj1:897328
+rhs:14.1714
+CG:       #iterations: 1, estimated error: 0.285994
+lx0:3137.59     down3137.59
+green
+alpha=1
+start find minimum of phi(x),iter time:21
+x:138.251
+aj1:898949
+rhs:14.0794
+CG:       #iterations: 2, estimated error: 0.274023
+lx0:3128.32     down3128.31
+green
+alpha=1
+start find minimum of phi(x),iter time:22
+x:138.395
+aj1:912622
+rhs:13.714
+CG:       #iterations: 1, estimated error: 0.360968
+lx0:3119.46     down3119.46
+green
+alpha=1
+start find minimum of phi(x),iter time:23
+x:138.555
+aj1:909878
+rhs:13.7416
+CG:       #iterations: 1, estimated error: 0.41443
+lx0:3111.07     down3111.07
+green
+alpha=1
+start find minimum of phi(x),iter time:24
+x:138.699
+aj1:927511
+rhs:13.6213
+CG:       #iterations: 2, estimated error: 0.0780708
+lx0:3103.14     down3103.13
+green
+alpha=1
+start find minimum of phi(x),iter time:25
+x:138.866
+aj1:928392
+rhs:12.725
+CG:       #iterations: 1, estimated error: 0.112534
+lx0:3095.06     down3095.06
+green
+alpha=1
+start find minimum of phi(x),iter time:26
+x:139.032
+aj1:931978
+rhs:12.4196
+CG:       #iterations: 1, estimated error: 0.0951945
+lx0:3087.36     down3087.36
+green
+alpha=1
+start find minimum of phi(x),iter time:27
+x:139.199
+aj1:935662
+rhs:12.1669
+CG:       #iterations: 1, estimated error: 0.105017
+lx0:3079.94     down3079.94
+green
+alpha=1
+start find minimum of phi(x),iter time:28
+x:139.368
+aj1:940089
+rhs:11.9776
+CG:       #iterations: 1, estimated error: 0.138204
+lx0:3072.8      down3072.8
+green
+alpha=1
+start find minimum of phi(x),iter time:29
+x:139.537
+aj1:945283
+rhs:11.7854
+CG:       #iterations: 1, estimated error: 0.14442
+lx0:3065.91     down3065.91
+green
+alpha=1
+start find minimum of phi(x),iter time:30
+x:139.709
+aj1:946582
+rhs:11.5957
+CG:       #iterations: 1, estimated error: 0.187321
+lx0:3059.27     down3059.27
+green
+alpha=1
+start find minimum of phi(x),iter time:31
+x:139.88
+aj1:953034
+rhs:11.4722
+CG:       #iterations: 1, estimated error: 0.235906
+lx0:3052.78     down3052.78
+green
+alpha=1
+start find minimum of phi(x),iter time:32
+x:140.058
+aj1:952437
+rhs:11.3029
+CG:       #iterations: 1, estimated error: 0.278775
+lx0:3046.44     down3046.44
+green
+alpha=1
+start find minimum of phi(x),iter time:33
+x:140.235
+aj1:960416
+rhs:11.3802
+CG:       #iterations: 1, estimated error: 0.445764
+lx0:3040.23     down3040.23
+green
+alpha=1
+start find minimum of phi(x),iter time:34
+x:140.412
+aj1:958074
+rhs:11.4931
+CG:       #iterations: 1, estimated error: 0.373739
+lx0:3034.4      down3034.4
+green
+alpha=1
+start find minimum of phi(x),iter time:35
+x:140.58
+aj1:965690
+rhs:11.4712
+CG:       #iterations: 2, estimated error: 0.0644087
+lx0:3028.85     down3028.85
+green
+alpha=1
+start find minimum of phi(x),iter time:36
+x:140.761
+aj1:967073
+rhs:10.5764
+CG:       #iterations: 1, estimated error: 0.122791
+lx0:3023.13     down3023.13
+green
+alpha=1
+start find minimum of phi(x),iter time:37
+x:140.964
+aj1:967546
+rhs:10.3114
+CG:       #iterations: 1, estimated error: 0.147189
+lx0:3016.96     down3016.96
+green
+alpha=1
+start find minimum of phi(x),iter time:38
+x:141.172
+aj1:971738
+rhs:10.174
+CG:       #iterations: 1, estimated error: 0.243601
+lx0:3010.8      down3010.8
+green
+alpha=1
+start find minimum of phi(x),iter time:39
+x:141.386
+aj1:971146
+rhs:10.078
+CG:       #iterations: 1, estimated error: 0.299215
+lx0:3004.77     down3004.77
+green
+alpha=1
+start find minimum of phi(x),iter time:40
+x:141.595
+aj1:976477
+rhs:10.3855
+CG:       #iterations: 2, estimated error: 0.0618901
+lx0:2998.97     down2998.97
+green
+alpha=1
+start find minimum of phi(x),iter time:41
+x:141.803
+aj1:974642
+rhs:9.61762
+CG:       #iterations: 1, estimated error: 0.0922279
+lx0:2993.41     down2993.41
+green
+alpha=1
+start find minimum of phi(x),iter time:42
+x:142.033
+aj1:976180
+rhs:9.42419
+CG:       #iterations: 1, estimated error: 0.112607
+lx0:2987.44     down2987.44
+green
+alpha=1
+start find minimum of phi(x),iter time:43
+x:142.269
+aj1:977502
+rhs:9.27133
+CG:       #iterations: 1, estimated error: 0.206251
+lx0:2981.51     down2981.51
+green
+alpha=1
+start find minimum of phi(x),iter time:44
+x:142.509
+aj1:978964
+rhs:9.17462
+CG:       #iterations: 1, estimated error: 0.318821
+lx0:2975.7      down2975.7
+green
+alpha=1
+start find minimum of phi(x),iter time:45
+x:142.746
+aj1:979591
+rhs:9.47952
+CG:       #iterations: 2, estimated error: 0.120575
+lx0:2970.13     down2970.12
+green
+alpha=1
+start find minimum of phi(x),iter time:46
+x:142.976
+aj1:981795
+rhs:8.97503
+CG:       #iterations: 1, estimated error: 0.26347
+lx0:2964.84     down2964.84
+green
+alpha=1
+start find minimum of phi(x),iter time:47
+x:143.222
+aj1:980825
+rhs:8.75837
+CG:       #iterations: 1, estimated error: 0.371889
+lx0:2959.39     down2959.39
+green
+alpha=1
+start find minimum of phi(x),iter time:48
+x:143.469
+aj1:982741
+rhs:9.20423
+CG:       #iterations: 2, estimated error: 0.153647
+lx0:2954.08     down2954.08
+green
+alpha=1
+start find minimum of phi(x),iter time:49
+x:143.702
+aj1:986022
+rhs:8.39643
+CG:       #iterations: 1, estimated error: 0.443244
+lx0:2949.12     down2949.12
+green
+alpha=1
+start find minimum of phi(x),iter time:50
+x:143.963
+aj1:984718
+rhs:8.63175
+CG:       #iterations: 1, estimated error: 0.43346
+lx0:2943.83     down2943.83
+green
+alpha=1
+start find minimum of phi(x),iter time:51
+x:144.204
+aj1:985614
+rhs:9.56461
+CG:       #iterations: 2, estimated error: 0.285923
+lx0:2939.15     down2939.15
+green
+alpha=1
+start find minimum of phi(x),iter time:52
+x:144.415
+aj1:987077
+rhs:8.29336
+CG:       #iterations: 2, estimated error: 0.170444
+lx0:2934.96     down2934.96
+green
+alpha=1
+start find minimum of phi(x),iter time:53
+x:144.678
+aj1:989114
+rhs:7.82876
+CG:       #iterations: 2, estimated error: 0.149956
+lx0:2929.97     down2929.97
+green
+alpha=1
+start find minimum of phi(x),iter time:54
+x:144.962
+aj1:988783
+rhs:7.58844
+CG:       #iterations: 1, estimated error: 0.270977
+lx0:2924.76     down2924.76
+green
+alpha=1
+start find minimum of phi(x),iter time:55
+x:145.255
+aj1:986408
+rhs:7.5776
+CG:       #iterations: 2, estimated error: 0.192787
+lx0:2919.59     down2919.59
+green
+alpha=1
+start find minimum of phi(x),iter time:56
+x:145.544
+aj1:989825
+rhs:7.38187
+CG:       #iterations: 1, estimated error: 0.49133
+lx0:2914.57     down2914.57
+green
+alpha=1
+start find minimum of phi(x),iter time:57
+x:145.833
+aj1:991344
+rhs:7.59465
+CG:       #iterations: 2, estimated error: 0.209903
+lx0:2909.72     down2909.72
+green
+alpha=1
+start find minimum of phi(x),iter time:58
+x:146.112
+aj1:992215
+rhs:8.7662
+CG:       #iterations: 1, estimated error: 0.438447
+lx0:2905.25     down2905.25
+green
+alpha=1
+start find minimum of phi(x),iter time:59
+x:146.324
+aj1:988252
+rhs:7.32895
+CG:       #iterations: 2, estimated error: 0.304416
+lx0:2901.81     down2901.81
+green
+alpha=1
+start find minimum of phi(x),iter time:60
+x:146.608
+aj1:990949
+rhs:7.54841
+CG:       #iterations: 2, estimated error: 0.273347
+lx0:2897.43     down2897.43
+green
+alpha=1
+start find minimum of phi(x),iter time:61
+x:146.877
+aj1:991116
+rhs:6.85289
+CG:       #iterations: 2, estimated error: 0.354485
+lx0:2893.31     down2893.3
+green
+alpha=1
+start find minimum of phi(x),iter time:62
+x:147.183
+aj1:987808
+rhs:6.64642
+CG:       #iterations: 2, estimated error: 0.267795
+lx0:2888.81     down2888.81
+green
+alpha=1
+start find minimum of phi(x),iter time:63
+x:147.498
+aj1:991446
+rhs:6.78743
+CG:       #iterations: 2, estimated error: 0.483276
+lx0:2884.31     down2884.31
+green
+alpha=1
+start find minimum of phi(x),iter time:64
+x:147.792
+aj1:989649
+rhs:6.66277
+CG:       #iterations: 2, estimated error: 0.310439
+lx0:2880.23     down2880.23
+green
+alpha=1
+start find minimum of phi(x),iter time:65
+x:148.095
+aj1:988127
+rhs:6.6228
+CG:       #iterations: 3, estimated error: 0.161134
+lx0:2876.16     down2876.16
+green
+alpha=1
+start find minimum of phi(x),iter time:66
+x:148.397
+aj1:990647
+rhs:6.04185
+CG:       #iterations: 2, estimated error: 0.362307
+lx0:2872.16     down2872.16
+green
+alpha=1
+start find minimum of phi(x),iter time:67
+x:148.734
+aj1:987923
+rhs:5.88786
+CG:       #iterations: 2, estimated error: 0.26756
+lx0:2867.88     down2867.87
+green
+alpha=1
+start find minimum of phi(x),iter time:68
+x:149.076
+aj1:988566
+rhs:6.34396
+CG:       #iterations: 3, estimated error: 0.151642
+lx0:2863.69     down2863.69
+green
+alpha=1
+start find minimum of phi(x),iter time:69
+x:149.379
+aj1:987703
+rhs:5.50369
+CG:       #iterations: 2, estimated error: 0.318369
+lx0:2860.02     down2860.02
+green
+alpha=1
+start find minimum of phi(x),iter time:70
+x:149.742
+aj1:984658
+rhs:5.36661
+CG:       #iterations: 2, estimated error: 0.362865
+lx0:2855.82     down2855.82
+green
+alpha=1
+start find minimum of phi(x),iter time:71
+x:150.104
+aj1:988144
+rhs:7.98547
+CG:       #iterations: 2, estimated error: 0.335904
+lx0:2851.87     down2851.87
+green
+alpha=1
+start find minimum of phi(x),iter time:72
+x:150.295
+aj1:995336
+rhs:5.47067
+CG:       #iterations: 2, estimated error: 0.454217
+lx0:2849.68     down2849.68
+green
+alpha=1
+start find minimum of phi(x),iter time:73
+x:150.622
+aj1:1010053
+rhs:5.98881
+CG:       #iterations: 3, estimated error: 0.230774
+lx0:2846.25     down2846.25
+green
+alpha=1
+start find minimum of phi(x),iter time:74
+x:150.896
+aj1:1019772
+rhs:5.37752
+CG:       #iterations: 3, estimated error: 0.2468
+lx0:2843.3      down2843.3
+green
+alpha=1
+start find minimum of phi(x),iter time:75
+x:151.211
+aj1:1031409
+rhs:4.63911
+CG:       #iterations: 3, estimated error: 0.250847
+lx0:2840.04     down2840.04
+green
+alpha=1
+start find minimum of phi(x),iter time:76
+x:151.584
+aj1:1038811
+rhs:4.4786
+CG:       #iterations: 3, estimated error: 0.396203
+lx0:2836.3      down2836.3
+green
+alpha=1
+start find minimum of phi(x),iter time:77
+x:151.956
+aj1:1054989
+rhs:4.53781
+CG:       #iterations: 4, estimated error: 0.192053
+lx0:2832.72     down2832.72
+green
+alpha=1
+start find minimum of phi(x),iter time:78
+x:152.304
+aj1:1064406
+rhs:4.50616
+CG:       #iterations: 3, estimated error: 0.395996
+lx0:2829.45     down2829.45
+green
+alpha=1
+start find minimum of phi(x),iter time:79
+x:152.634
+aj1:1081593
+rhs:4.35342
+CG:       #iterations: 3, estimated error: 0.450114
+lx0:2826.44     down2826.44
+green
+alpha=1
+start find minimum of phi(x),iter time:80
+x:152.957
+aj1:1092536
+rhs:4.35858
+CG:       #iterations: 4, estimated error: 0.331186
+lx0:2823.6      down2823.6
+green
+alpha=1
+start find minimum of phi(x),iter time:81
+x:153.262
+aj1:1108694
+rhs:4.1665
+CG:       #iterations: 4, estimated error: 0.2651
+lx0:2820.95     down2820.95
+green
+alpha=1
+start find minimum of phi(x),iter time:82
+x:153.573
+aj1:1118355
+rhs:3.50131
+CG:       #iterations: 4, estimated error: 0.344735
+lx0:2818.3      down2818.3
+green
+alpha=1
+start find minimum of phi(x),iter time:83
+x:153.951
+aj1:1133758
+rhs:3.37694
+CG:       #iterations: 5, estimated error: 0.25084
+lx0:2815.25     down2815.25
+green
+alpha=1
+start find minimum of phi(x),iter time:84
+x:154.323
+aj1:1145817
+rhs:3.09176
+CG:       #iterations: 4, estimated error: 0.416255
+lx0:2812.33     down2812.33
+green
+alpha=1
+start find minimum of phi(x),iter time:85
+x:154.714
+aj1:1153407
+rhs:3.44867
+CG:       #iterations: 4, estimated error: 0.498157
+lx0:2809.43     down2809.43
+green
+alpha=1
+start find minimum of phi(x),iter time:86
+x:155.019
+aj1:1167835
+rhs:3.15028
+CG:       #iterations: 5, estimated error: 0.409571
+lx0:2807.25     down2807.25
+green
+alpha=1
+start find minimum of phi(x),iter time:87
+x:155.351
+aj1:1173125
+rhs:2.91355
+CG:       #iterations: 6, estimated error: 0.316939
+lx0:2804.96     down2804.96
+green
+alpha=1
+start find minimum of phi(x),iter time:88
+x:155.699
+aj1:1182039
+rhs:2.66975
+CG:       #iterations: 6, estimated error: 0.358037
+lx0:2802.65     down2802.65
+green
+alpha=1
+start find minimum of phi(x),iter time:89
+x:156.064
+aj1:1188429
+rhs:2.40934
+CG:       #iterations: 6, estimated error: 0.466263
+lx0:2800.36     down2800.36
+green
+alpha=1
+start find minimum of phi(x),iter time:90
+x:156.451
+aj1:1197998
+rhs:2.37459
+CG:       #iterations: 7, estimated error: 0.311082
+lx0:2798.06     down2798.06
+green
+alpha=1
+start find minimum of phi(x),iter time:91
+x:156.812
+aj1:1205929
+rhs:2.16817
+CG:       #iterations: 6, estimated error: 0.432001
+lx0:2796.01     down2796.01
+green
+alpha=1
+start find minimum of phi(x),iter time:92
+x:157.182
+aj1:1212390
+rhs:2.01296
+CG:       #iterations: 7, estimated error: 0.447283
+lx0:2794.04     down2794.04
+green
+alpha=1
+start find minimum of phi(x),iter time:93
+x:157.549
+aj1:1224321
+rhs:1.93744
+CG:       #iterations: 8, estimated error: 0.387094
+lx0:2792.19     down2792.19
+green
+alpha=1
+start find minimum of phi(x),iter time:94
+x:157.894
+aj1:1231556
+rhs:1.70498
+CG:       #iterations: 8, estimated error: 0.486229
+lx0:2790.53     down2790.53
+green
+alpha=1
+start find minimum of phi(x),iter time:95
+x:158.257
+aj1:1243912
+rhs:1.6644
+CG:       #iterations: 10, estimated error: 0.374719
+lx0:2788.89     down2788.89
+green
+alpha=1
+start find minimum of phi(x),iter time:96
+x:158.585
+aj1:1247898
+rhs:1.45106
+CG:       #iterations: 9, estimated error: 0.493226
+lx0:2787.49     down2787.49
+green
+alpha=1
+start find minimum of phi(x),iter time:97
+x:158.926
+aj1:1261400
+rhs:1.48593
+CG:       #iterations: 11, estimated error: 0.469793
+lx0:2786.11     down2786.11
+green
+alpha=1
+start find minimum of phi(x),iter time:98
+x:159.207
+aj1:1265664
+rhs:1.24231
+CG:       #iterations: 12, estimated error: 0.409553
+lx0:2785.04     down2785.04
+green
+alpha=1
+start find minimum of phi(x),iter time:99
+x:159.517
+aj1:1284139
+rhs:1.07509
+CG:       #iterations: 15, estimated error: 0.471813
+lx0:2783.92     down2783.92
+green
+alpha=1
+start find minimum of phi(x),iter time:100
+x:159.831
+aj1:1282376
+rhs:0.959706
+CG:       #iterations: 16, estimated error: 0.39421
+lx0:2782.88     down2782.88
+green
+alpha=1
+start find minimum of phi(x),iter time:101
+x:160.129
+aj1:1298421
+rhs:0.77906
+CG:       #iterations: 19, estimated error: 0.467428
+lx0:2781.97     down2781.97
+green
+alpha=1
+start find minimum of phi(x),iter time:102
+x:160.443
+aj1:1297531
+rhs:0.744267
+CG:       #iterations: 21, estimated error: 0.443055
+lx0:2781.12     down2781.12
+green
+alpha=1
+start find minimum of phi(x),iter time:103
+x:160.7
+aj1:1309907
+rhs:0.728771
+CG:       #iterations: 22, estimated error: 0.420627
+lx0:2780.51     down2780.51
+green
+alpha=1
+start find minimum of phi(x),iter time:104
+x:160.906
+aj1:1299546
+rhs:0.485545
+CG:       #iterations: 24, estimated error: 0.456047
+lx0:2780.09     down2780.09
+green
+alpha=1
+start find minimum of phi(x),iter time:105
+x:161.172
+aj1:1318126
+rhs:0.812169
+CG:       #iterations: 19, estimated error: 0.41208
+lx0:2779.66     down2779.66
+green
+alpha=1
+start find minimum of phi(x),iter time:106
+x:161.266
+aj1:1310092
+rhs:0.404429
+CG:       #iterations: 33, estimated error: 0.381541
+lx0:2779.53     down2779.53
+green
+alpha=1
+start find minimum of phi(x),iter time:107
+x:161.455
+aj1:1316310
+rhs:0.464977
+CG:       #iterations: 26, estimated error: 0.410114
+lx0:2779.33     down2779.33
+green
+alpha=1
+start find minimum of phi(x),iter time:108
+x:161.559
+aj1:1316965
+rhs:0.227741
+CG:       #iterations: 52, estimated error: 0.211896
+lx0:2779.25     down2779.25
+green
+alpha=1
+start find minimum of phi(x),iter time:109
+x:161.708
+aj1:1319520
+rhs:0.1634
+CG:       #iterations: 76, estimated error: 0.161442
+lx0:2779.17     down2779.17
+green
+alpha=1
+start find minimum of phi(x),iter time:110
+x:161.791
+aj1:1312490
+rhs:0.120458
+CG:       #iterations: 68, estimated error: 0.119041
+lx0:2779.15     down2779.15
+green
+alpha=1
+start find minimum of phi(x),iter time:111
+x:161.826
+aj1:1310769
+rhs:0.0280723
+CG:       #iterations: 350, estimated error: 0.0271686
+lx0:2779.15     down2779.15
+alpha=0.125
+start find minimum of phi(x),iter time:112
+x:161.827
+aj1:1310785
+rhs:0.0317591
+CG:       #iterations: 171, estimated error: 0.0312958
+lx0:2779.15     down2779.15
+green
+alpha=1
+start find minimum of phi(x),iter time:113
+x:161.838
+aj1:1326875
+rhs:0.00703492
+CG:       #iterations: 310, estimated error: 0.00702524
+lx0:2779.15     down2779.15
+green
+alpha=1
+start find minimum of phi(x),iter time:114
+x:161.838
+aj1:1318851
+rhs:0.000337251
+CG:       #iterations: 368, estimated error: 0.000333181
+lx0:2779.15     down2779.15
+green
+alpha=1
+start find minimum of phi(x),iter time:115
+x:161.838
+aj1:1316808
+u:1296814
+kkt_u:0 kkt_y:0.000237135
+kkt_x:3.00891e-09       kkt_z:0 kkt_v:0.251746
+kkt:0.251746
+start main loop,sigma=2
+start find minimum of phi(x),iter time:0
+x:161.838
+aj1:1316808
+rhs:66.3014
+CG:       #iterations: 1, estimated error: 0.378578
+lx0:4050.42     down4050.41
+green
+alpha=1
+start find minimum of phi(x),iter time:1
+x:162.105
+aj1:1038843
+rhs:26.1712
+CG:       #iterations: 2, estimated error: 0.432387
+lx0:4034.79     down4034.79
+green
+alpha=1
+start find minimum of phi(x),iter time:2
+x:162.317
+aj1:1131746
+rhs:14.7872
+CG:       #iterations: 3, estimated error: 0.341917
+lx0:4027.97     down4027.97
+green
+alpha=1
+start find minimum of phi(x),iter time:3
+x:162.534
+aj1:1224724
+rhs:21.7479
+CG:       #iterations: 2, estimated error: 0.455977
+lx0:4023.03     down4023.03
+green
+alpha=1
+start find minimum of phi(x),iter time:4
+x:162.738
+aj1:1180685
+rhs:11.9717
+CG:       #iterations: 3, estimated error: 0.383195
+lx0:4018.84     down4018.84
+green
+alpha=1
+start find minimum of phi(x),iter time:5
+x:162.932
+aj1:1300127
+rhs:22.1831
+CG:       #iterations: 0, estimated error: 0.49487
+lx0:4015.39     down4015.39
+green
+alpha=1
+start find minimum of phi(x),iter time:6
+x:162.941
+aj1:1290879
+rhs:9.84157
+CG:       #iterations: 3, estimated error: 0.341825
+lx0:4014.88     down4014.88
+green
+alpha=1
+start find minimum of phi(x),iter time:7
+x:163.198
+aj1:1330894
+rhs:31.7054
+CG:       #iterations: 0, estimated error: 0.270904
+lx0:4011.14     down4011.14
+green
+alpha=1
+start find minimum of phi(x),iter time:8
+x:163.204
+aj1:1327480
+rhs:8.49442
+CG:       #iterations: 3, estimated error: 0.402792
+lx0:4010.33     down4010.33
+green
+alpha=1
+start find minimum of phi(x),iter time:9
+x:163.507
+aj1:1390455
+rhs:15.2021
+CG:       #iterations: 2, estimated error: 0.496297
+lx0:4005.72     down4005.72
+green
+alpha=1
+start find minimum of phi(x),iter time:10
+x:163.668
+aj1:1334517
+rhs:11.5234
+CG:       #iterations: 3, estimated error: 0.477937
+lx0:4003.28     down4003.28
+green
+alpha=1
+start find minimum of phi(x),iter time:11
+x:163.833
+aj1:1454086
+rhs:12.8454
+CG:       #iterations: 4, estimated error: 0.30863
+lx0:4000.91     down4000.91
+green
+alpha=1
+start find minimum of phi(x),iter time:12
+x:164.001
+aj1:1447120
+rhs:10.3978
+CG:       #iterations: 3, estimated error: 0.327289
+lx0:3998.48     down3998.48
+green
+alpha=1
+start find minimum of phi(x),iter time:13
+x:164.192
+aj1:1482919
+rhs:11.125
+CG:       #iterations: 4, estimated error: 0.305384
+lx0:3995.94     down3995.94
+green
+alpha=1
+start find minimum of phi(x),iter time:14
+x:164.358
+aj1:1523640
+rhs:8.04551
+CG:       #iterations: 4, estimated error: 0.350559
+lx0:3993.73     down3993.73
+green
+alpha=1
+start find minimum of phi(x),iter time:15
+x:164.62
+aj1:1552417
+rhs:11.6645
+CG:       #iterations: 3, estimated error: 0.236746
+lx0:3990.56     down3990.56
+green
+alpha=1
+start find minimum of phi(x),iter time:16
+x:164.76
+aj1:1571658
+rhs:7.88334
+CG:       #iterations: 5, estimated error: 0.223075
+lx0:3988.81     down3988.81
+green
+alpha=1
+start find minimum of phi(x),iter time:17
+x:165.006
+aj1:1622875
+rhs:6.11415
+CG:       #iterations: 5, estimated error: 0.344005
+lx0:3985.93     down3985.93
+green
+alpha=1
+start find minimum of phi(x),iter time:18
+x:165.339
+aj1:1677762
+rhs:7.79596
+CG:       #iterations: 4, estimated error: 0.359812
+lx0:3982.3      down3982.3
+green
+alpha=1
+start find minimum of phi(x),iter time:19
+x:165.553
+aj1:1718401
+rhs:9.59008
+CG:       #iterations: 3, estimated error: 0.462154
+lx0:3980.06     down3980.06
+green
+alpha=1
+start find minimum of phi(x),iter time:20
+x:165.69
+aj1:1728430
+rhs:9.79166
+CG:       #iterations: 4, estimated error: 0.407356
+lx0:3978.68     down3978.68
+green
+alpha=1
+start find minimum of phi(x),iter time:21
+x:165.824
+aj1:1780994
+rhs:6.89978
+CG:       #iterations: 5, estimated error: 0.432333
+lx0:3977.29     down3977.29
+green
+alpha=1
+start find minimum of phi(x),iter time:22
+x:166.05
+aj1:1815267
+rhs:12.0572
+CG:       #iterations: 0, estimated error: 0.443167
+lx0:3975.18     down3975.18
+green
+alpha=1
+start find minimum of phi(x),iter time:23
+x:166.055
+aj1:1808372
+rhs:4.7853
+CG:       #iterations: 5, estimated error: 0.49021
+lx0:3975.02     down3975.02
+green
+alpha=1
+start find minimum of phi(x),iter time:24
+x:166.42
+aj1:1903063
+rhs:19.5345
+CG:       #iterations: 0, estimated error: 0.243035
+lx0:3971.9      down3971.9
+green
+alpha=1
+start find minimum of phi(x),iter time:25
+x:166.423
+aj1:1893561
+rhs:4.75788
+CG:       #iterations: 6, estimated error: 0.369832
+lx0:3971.61     down3971.61
+green
+alpha=1
+start find minimum of phi(x),iter time:26
+x:166.763
+aj1:1977745
+rhs:4.96296
+CG:       #iterations: 6, estimated error: 0.462851
+lx0:3968.62     down3968.62
+green
+alpha=1
+start find minimum of phi(x),iter time:27
+x:167.057
+aj1:2027516
+rhs:11.214
+CG:       #iterations: 0, estimated error: 0.376361
+lx0:3966.22     down3966.22
+green
+alpha=1
+start find minimum of phi(x),iter time:28
+x:167.059
+aj1:2012770
+rhs:4.02698
+CG:       #iterations: 7, estimated error: 0.425619
+lx0:3966.12     down3966.12
+green
+alpha=1
+start find minimum of phi(x),iter time:29
+x:167.434
+aj1:2102524
+rhs:5.61121
+CG:       #iterations: 6, estimated error: 0.363836
+lx0:3963.13     down3963.13
+green
+alpha=1
+start find minimum of phi(x),iter time:30
+x:167.645
+aj1:2111819
+rhs:4.52645
+CG:       #iterations: 8, estimated error: 0.349631
+lx0:3961.48     down3961.48
+green
+alpha=1
+start find minimum of phi(x),iter time:31
+x:167.923
+aj1:2164775
+rhs:12.2487
+CG:       #iterations: 0, estimated error: 0.306353
+lx0:3959.49     down3959.49
+green
+alpha=1
+start find minimum of phi(x),iter time:32
+x:167.925
+aj1:2155498
+rhs:3.56053
+CG:       #iterations: 8, estimated error: 0.44361
+lx0:3959.37     down3959.37
+green
+alpha=1
+start find minimum of phi(x),iter time:33
+x:168.293
+aj1:2196770
+rhs:38.5583
+CG:       #iterations: 0, estimated error: 0.0910986
+lx0:3957.65     down3957.65
+green
+alpha=1
+start find minimum of phi(x),iter time:34
+x:168.294
+aj1:2189248
+rhs:4.71994
+CG:       #iterations: 6, estimated error: 0.383516
+lx0:3956.74     down3956.74
+green
+alpha=1
+start find minimum of phi(x),iter time:35
+x:168.518
+aj1:2212408
+rhs:4.73671
+CG:       #iterations: 7, estimated error: 0.420475
+lx0:3955.2      down3955.2
+green
+alpha=1
+start find minimum of phi(x),iter time:36
+x:168.729
+aj1:2236747
+rhs:5.33722
+CG:       #iterations: 6, estimated error: 0.358485
+lx0:3953.79     down3953.79
+green
+alpha=1
+start find minimum of phi(x),iter time:37
+x:168.896
+aj1:2252415
+rhs:5.40321
+CG:       #iterations: 6, estimated error: 0.482223
+lx0:3952.71     down3952.71
+green
+alpha=1
+start find minimum of phi(x),iter time:38
+x:169.045
+aj1:2279276
+rhs:25.6172
+CG:       #iterations: 0, estimated error: 0.123619
+lx0:3952.13     down3952.13
+green
+alpha=1
+start find minimum of phi(x),iter time:39
+x:169.046
+aj1:2268222
+rhs:3.59997
+CG:       #iterations: 9, estimated error: 0.471218
+lx0:3951.73     down3951.73
+green
+alpha=1
+start find minimum of phi(x),iter time:40
+x:169.33
+aj1:2309650
+rhs:3.94979
+CG:       #iterations: 8, estimated error: 0.436114
+lx0:3949.98     down3949.98
+green
+alpha=1
+start find minimum of phi(x),iter time:41
+x:169.562
+aj1:2309412
+rhs:4.49268
+CG:       #iterations: 8, estimated error: 0.395151
+lx0:3948.59     down3948.59
+green
+alpha=1
+start find minimum of phi(x),iter time:42
+x:169.743
+aj1:2312538
+rhs:3.99066
+CG:       #iterations: 8, estimated error: 0.473929
+lx0:3947.52     down3947.52
+green
+alpha=1
+start find minimum of phi(x),iter time:43
+x:169.951
+aj1:2330662
+rhs:25.1914
+CG:       #iterations: 0, estimated error: 0.350054
+lx0:3946.48     down3946.48
+green
+alpha=1
+start find minimum of phi(x),iter time:44
+x:169.951
+aj1:2327158
+rhs:8.32739
+CG:       #iterations: 0, estimated error: 0.356714
+lx0:3946.38     down3946.38
+green
+alpha=1
+start find minimum of phi(x),iter time:45
+x:169.952
+aj1:2317144
+rhs:2.73725
+CG:       #iterations: 10, estimated error: 0.450208
+lx0:3946.33     down3946.33
+green
+alpha=1
+start find minimum of phi(x),iter time:46
+x:170.3
+aj1:2343619
+rhs:18.387
+CG:       #iterations: 0, estimated error: 0.139341
+lx0:3944.63     down3944.63
+green
+alpha=1
+start find minimum of phi(x),iter time:47
+x:170.301
+aj1:2335985
+rhs:3.05008
+CG:       #iterations: 10, estimated error: 0.482368
+lx0:3944.44     down3944.44
+green
+alpha=1
+start find minimum of phi(x),iter time:48
+x:170.576
+aj1:2340232
+rhs:4.5587
+CG:       #iterations: 7, estimated error: 0.452552
+lx0:3943.06     down3943.06
+green
+alpha=1
+start find minimum of phi(x),iter time:49
+x:170.717
+aj1:2337868
+rhs:4.15425
+CG:       #iterations: 8, estimated error: 0.444288
+lx0:3942.32     down3942.32
+green
+alpha=1
+start find minimum of phi(x),iter time:50
+x:170.873
+aj1:2357591
+rhs:3.70973
+CG:       #iterations: 10, estimated error: 0.427956
+lx0:3941.55     down3941.55
+green
+alpha=1
+start find minimum of phi(x),iter time:51
+x:171.053
+aj1:2357653
+rhs:3.15165
+CG:       #iterations: 10, estimated error: 0.494916
+lx0:3940.68     down3940.68
+green
+alpha=1
+start find minimum of phi(x),iter time:52
+x:171.273
+aj1:2358298
+rhs:3.07487
+CG:       #iterations: 11, estimated error: 0.40848
+lx0:3939.66     down3939.66
+green
+alpha=1
+start find minimum of phi(x),iter time:53
+x:171.491
+aj1:2371960
+rhs:2.41783
+CG:       #iterations: 13, estimated error: 0.490218
+lx0:3938.68     down3938.68
+green
+alpha=1
+start find minimum of phi(x),iter time:54
+x:171.786
+aj1:2365218
+rhs:3.28782
+CG:       #iterations: 9, estimated error: 0.418486
+lx0:3937.43     down3937.43
+green
+alpha=1
+start find minimum of phi(x),iter time:55
+x:171.958
+aj1:2369947
+rhs:2.54035
+CG:       #iterations: 14, estimated error: 0.471751
+lx0:3936.71     down3936.71
+green
+alpha=1
+start find minimum of phi(x),iter time:56
+x:172.202
+aj1:2375754
+rhs:4.98651
+CG:       #iterations: 0, estimated error: 0.44288
+lx0:3935.75     down3935.75
+green
+alpha=1
+start find minimum of phi(x),iter time:57
+x:172.203
+aj1:2363906
+rhs:1.82096
+CG:       #iterations: 16, estimated error: 0.42153
+lx0:3935.73     down3935.73
+green
+alpha=1
+start find minimum of phi(x),iter time:58
+x:172.577
+aj1:2392765
+rhs:11.2774
+CG:       #iterations: 0, estimated error: 0.160898
+lx0:3934.39     down3934.39
+green
+alpha=1
+start find minimum of phi(x),iter time:59
+x:172.578
+aj1:2373679
+rhs:1.93411
+CG:       #iterations: 14, estimated error: 0.481081
+lx0:3934.32     down3934.32
+green
+alpha=1
+start find minimum of phi(x),iter time:60
+x:172.89
+aj1:2387378
+rhs:2.94144
+CG:       #iterations: 12, estimated error: 0.408385
+lx0:3933.22     down3933.22
+green
+alpha=1
+start find minimum of phi(x),iter time:61
+x:173.043
+aj1:2387446
+rhs:1.75663
+CG:       #iterations: 22, estimated error: 0.452856
+lx0:3932.69     down3932.69
+green
+alpha=1
+start find minimum of phi(x),iter time:62
+x:173.362
+aj1:2393193
+rhs:2.0848
+CG:       #iterations: 17, estimated error: 0.422039
+lx0:3931.65     down3931.65
+green
+alpha=1
+start find minimum of phi(x),iter time:63
+x:173.591
+aj1:2380998
+rhs:1.76446
+CG:       #iterations: 19, estimated error: 0.438822
+lx0:3930.93     down3930.93
+green
+alpha=1
+start find minimum of phi(x),iter time:64
+x:173.866
+aj1:2391823
+rhs:2.31094
+CG:       #iterations: 15, estimated error: 0.35039
+lx0:3930.11     down3930.11
+green
+alpha=1
+start find minimum of phi(x),iter time:65
+x:174.037
+aj1:2368013
+rhs:1.25729
+CG:       #iterations: 23, estimated error: 0.459197
+lx0:3929.61     down3929.61
+green
+alpha=1
+start find minimum of phi(x),iter time:66
+x:174.434
+aj1:2390984
+rhs:2.27544
+CG:       #iterations: 16, estimated error: 0.418202
+lx0:3928.55     down3928.55
+green
+alpha=1
+start find minimum of phi(x),iter time:67
+x:174.583
+aj1:2382775
+rhs:1.32856
+CG:       #iterations: 23, estimated error: 0.471322
+lx0:3928.16     down3928.16
+green
+alpha=1
+start find minimum of phi(x),iter time:68
+x:174.899
+aj1:2374926
+rhs:2.54841
+CG:       #iterations: 0, estimated error: 0.491754
+lx0:3927.39     down3927.39
+green
+alpha=1
+start find minimum of phi(x),iter time:69
+x:174.9
+aj1:2356230
+rhs:1.13714
+CG:       #iterations: 23, estimated error: 0.499388
+lx0:3927.38     down3927.38
+green
+alpha=1
+start find minimum of phi(x),iter time:70
+x:175.26
+aj1:2394155
+rhs:2.58954
+CG:       #iterations: 2, estimated error: 0.486533
+lx0:3926.56     down3926.56
+green
+alpha=1
+start find minimum of phi(x),iter time:71
+x:175.263
+aj1:2359643
+rhs:1.01033
+CG:       #iterations: 27, estimated error: 0.490933
+lx0:3926.55     down3926.55
+green
+alpha=1
+start find minimum of phi(x),iter time:72
+x:175.643
+aj1:2384502
+rhs:5.98131
+CG:       #iterations: 0, estimated error: 0.329525
+lx0:3925.81     down3925.81
+green
+alpha=1
+start find minimum of phi(x),iter time:73
+x:175.644
+aj1:2351119
+rhs:1.3376
+CG:       #iterations: 21, estimated error: 0.451671
+lx0:3925.75     down3925.75
+green
+alpha=1
+start find minimum of phi(x),iter time:74
+x:175.869
+aj1:2388509
+rhs:3.53723
+CG:       #iterations: 0, estimated error: 0.362776
+lx0:3925.31     down3925.31
+green
+alpha=1
+start find minimum of phi(x),iter time:75
+x:175.87
+aj1:2362472
+rhs:0.785162
+CG:       #iterations: 31, estimated error: 0.48954
+lx0:3925.3      down3925.3
+green
+alpha=1
+start find minimum of phi(x),iter time:76
+x:176.312
+aj1:2391018
+rhs:4.97665
+CG:       #iterations: 1, estimated error: 0.406736
+lx0:3924.56     down3924.56
+green
+alpha=1
+start find minimum of phi(x),iter time:77
+x:176.313
+aj1:2374964
+rhs:1.61731
+CG:       #iterations: 24, estimated error: 0.371083
+lx0:3924.52     down3924.52
+green
+alpha=1
+start find minimum of phi(x),iter time:78
+x:176.446
+aj1:2372429
+rhs:5.84416
+CG:       #iterations: 0, estimated error: 0.216339
+lx0:3924.32     down3924.32
+green
+alpha=1
+start find minimum of phi(x),iter time:79
+x:176.447
+aj1:2355485
+rhs:1.04065
+CG:       #iterations: 24, estimated error: 0.403647
+lx0:3924.28     down3924.28
+green
+alpha=1
+start find minimum of phi(x),iter time:80
+x:176.691
+aj1:2389917
+rhs:4.2983
+CG:       #iterations: 0, estimated error: 0.360088
+lx0:3923.9      down3923.9
+green
+alpha=1
+start find minimum of phi(x),iter time:81
+x:176.691
+aj1:2360485
+rhs:1.10987
+CG:       #iterations: 23, estimated error: 0.461813
+lx0:3923.89     down3923.89
+green
+alpha=1
+start find minimum of phi(x),iter time:82
+x:176.891
+aj1:2387253
+rhs:2.15406
+CG:       #iterations: 2, estimated error: 0.313351
+lx0:3923.59     down3923.59
+green
+alpha=1
+start find minimum of phi(x),iter time:83
+x:176.892
+aj1:2365713
+rhs:0.569542
+CG:       #iterations: 42, estimated error: 0.476857
+lx0:3923.58     down3923.58
+green
+alpha=1
+start find minimum of phi(x),iter time:84
+x:177.352
+aj1:2381071
+rhs:5.33175
+CG:       #iterations: 0, estimated error: 0.182773
+lx0:3923.01     down3923.01
+green
+alpha=1
+start find minimum of phi(x),iter time:85
+x:177.353
+aj1:2359171
+rhs:1.02842
+CG:       #iterations: 27, estimated error: 0.444711
+lx0:3922.97     down3922.97
+green
+alpha=1
+start find minimum of phi(x),iter time:86
+x:177.514
+aj1:2390904
+rhs:0.64227
+CG:       #iterations: 43, estimated error: 0.460203
+lx0:3922.76     down3922.76
+green
+alpha=1
+start find minimum of phi(x),iter time:87
+x:177.809
+aj1:2379915
+rhs:1.75793
+CG:       #iterations: 1, estimated error: 0.354178
+lx0:3922.44     down3922.44
+green
+alpha=1
+start find minimum of phi(x),iter time:88
+x:177.809
+aj1:2372885
+rhs:0.61666
+CG:       #iterations: 47, estimated error: 0.398623
+lx0:3922.44     down3922.44
+green
+alpha=1
+start find minimum of phi(x),iter time:89
+x:178.075
+aj1:2381556
+rhs:1.91707
+CG:       #iterations: 0, estimated error: 0.253016
+lx0:3922.17     down3922.17
+green
+alpha=1
+start find minimum of phi(x),iter time:90
+x:178.075
+aj1:2363123
+rhs:0.476204
+CG:       #iterations: 46, estimated error: 0.463697
+lx0:3922.17     down3922.17
+green
+alpha=1
+start find minimum of phi(x),iter time:91
+x:178.395
+aj1:2392528
+rhs:2.47238
+CG:       #iterations: 0, estimated error: 0.231563
+lx0:3921.9      down3921.9
+green
+alpha=1
+start find minimum of phi(x),iter time:92
+x:178.395
+aj1:2365344
+rhs:0.546321
+CG:       #iterations: 39, estimated error: 0.48503
+lx0:3921.89     down3921.89
+green
+alpha=1
+start find minimum of phi(x),iter time:93
+x:178.608
+aj1:2392367
+rhs:0.716819
+CG:       #iterations: 2, estimated error: 0.499424
+lx0:3921.73     down3921.73
+green
+alpha=1
+start find minimum of phi(x),iter time:94
+x:178.609
+aj1:2374263
+rhs:0.318679
+CG:       #iterations: 84, estimated error: 0.317619
+lx0:3921.73     down3921.73
+green
+alpha=1
+start find minimum of phi(x),iter time:95
+x:178.964
+aj1:2385299
+rhs:4.59267
+CG:       #iterations: 0, estimated error: 0.203546
+lx0:3921.54     down3921.54
+green
+alpha=1
+start find minimum of phi(x),iter time:96
+x:178.964
+aj1:2364066
+rhs:0.964957
+CG:       #iterations: 5, estimated error: 0.459768
+lx0:3921.51     down3921.51
+green
+alpha=1
+start find minimum of phi(x),iter time:97
+x:178.967
+aj1:2376788
+rhs:0.429008
+CG:       #iterations: 49, estimated error: 0.405707
+lx0:3921.5      down3921.5
+green
+alpha=1
+start find minimum of phi(x),iter time:98
+x:179.139
+aj1:2381888
+rhs:0.706756
+CG:       #iterations: 3, estimated error: 0.362764
+lx0:3921.41     down3921.41
+green
+alpha=1
+start find minimum of phi(x),iter time:99
+x:179.14
+aj1:2377635
+rhs:0.247555
+CG:       #iterations: 132, estimated error: 0.233657
+lx0:3921.41     down3921.41
+green
+alpha=1
+start find minimum of phi(x),iter time:100
+x:179.41
+aj1:2379391
+rhs:3.27237
+CG:       #iterations: 0, estimated error: 0.299176
+lx0:3921.32     down3921.32
+green
+alpha=1
+start find minimum of phi(x),iter time:101
+x:179.41
+aj1:2369264
+rhs:0.866053
+CG:       #iterations: 1, estimated error: 0.319027
+lx0:3921.3      down3921.3
+green
+alpha=1
+start find minimum of phi(x),iter time:102
+x:179.411
+aj1:2373891
+rhs:0.268389
+CG:       #iterations: 83, estimated error: 0.260675
+lx0:3921.3      down3921.3
+green
+alpha=1
+start find minimum of phi(x),iter time:103
+x:179.581
+aj1:2375955
+rhs:0.938607
+CG:       #iterations: 0, estimated error: 0.174086
+lx0:3921.25     down3921.25
+green
+alpha=1
+start find minimum of phi(x),iter time:104
+x:179.581
+aj1:2373410
+rhs:0.180117
+CG:       #iterations: 174, estimated error: 0.17501
+lx0:3921.25     down3921.25
+green
+alpha=1
+start find minimum of phi(x),iter time:105
+x:179.763
+aj1:2380454
+rhs:1.3045
+CG:       #iterations: 0, estimated error: 0.219941
+lx0:3921.21     down3921.21
+green
+alpha=1
+start find minimum of phi(x),iter time:106
+x:179.763
+aj1:2375834
+rhs:0.291764
+CG:       #iterations: 78, estimated error: 0.282918
+lx0:3921.21     down3921.21
+green
+alpha=1
+start find minimum of phi(x),iter time:107
+x:179.833
+aj1:2383201
+rhs:0.12888
+CG:       #iterations: 314, estimated error: 0.12692
+lx0:3921.2      down3921.2
+alpha=0.015625
+start find minimum of phi(x),iter time:108
+x:179.835
+aj1:2381282
+rhs:0.136799
+CG:       #iterations: 254, estimated error: 0.132504
+lx0:3921.19     down3921.19
+green
+alpha=1
+start find minimum of phi(x),iter time:109
+x:179.941
+aj1:2395098
+rhs:0.127011
+CG:       #iterations: 291, estimated error: 0.125878
+lx0:3921.18     down3921.18
+green
+alpha=1
+start find minimum of phi(x),iter time:110
+x:180.008
+aj1:2384523
+rhs:0.0460561
+CG:       #iterations: 692, estimated error: 0.0456503
+lx0:3921.17     down3921.17
+alpha=0.125
+start find minimum of phi(x),iter time:111
+x:180.02
+aj1:2380540
+rhs:0.588879
+CG:       #iterations: 0, estimated error: 0.230619
+lx0:3921.16     down3921.16
+green
+alpha=1
+start find minimum of phi(x),iter time:112
+x:180.02
+aj1:2374030
+rhs:0.138341
+CG:       #iterations: 128, estimated error: 0.135686
+lx0:3921.16     down3921.16
+green
+alpha=1
+start find minimum of phi(x),iter time:113
+x:180.054
+aj1:2374413
+rhs:0.025255
+CG:       #iterations: 818, estimated error: 0.0248913
+lx0:3921.16     down3921.16
+alpha=0.125
+start find minimum of phi(x),iter time:114
+x:180.063
+aj1:2374413
+rhs:0.0554467
+CG:       #iterations: 571, estimated error: 0.0549125
+lx0:3921.16     down3921.16
+alpha=0.5
+start find minimum of phi(x),iter time:115
+x:180.08
+aj1:2374403
+rhs:0.111944
+CG:       #iterations: 168, estimated error: 0.109614
+lx0:3921.16     down3921.16
+green
+alpha=1
+start find minimum of phi(x),iter time:116
+x:180.091
+aj1:2398377
+rhs:0.0392669
+CG:       #iterations: 851, estimated error: 0.0391934
+lx0:3921.16     down3921.16
+alpha=0.000488281
+start find minimum of phi(x),iter time:117
+x:180.091
+aj1:2398383
+rhs:0.0377463
+CG:       #iterations: 812, estimated error: 0.0374148
+lx0:3921.16     down3921.16
+alpha=0.5
+start find minimum of phi(x),iter time:118
+x:180.099
+aj1:2396445
+rhs:0.0343675
+CG:       #iterations: 498, estimated error: 0.0340698
+lx0:3921.16     down3921.16
+green
+alpha=1
+start find minimum of phi(x),iter time:119
+x:180.108
+aj1:2382426
+rhs:0.013293
+CG:       #iterations: 1305, estimated error: 0.0130907
+lx0:3921.16     down3921.16
+alpha=0.125
+start find minimum of phi(x),iter time:120
+x:180.109
+aj1:2382422
+rhs:0.0119924
+CG:       #iterations: 697, estimated error: 0.0118808
+lx0:3921.16     down3921.16
+green
+alpha=1
+start find minimum of phi(x),iter time:121
+x:180.111
+aj1:2386344
+rhs:0.00218967
+CG:       #iterations: 1013, estimated error: 0.00218894
+lx0:3921.16     down3921.16
+green
+alpha=1
+start find minimum of phi(x),iter time:122
+x:180.111
+aj1:2392267
+rhs:1.31207e-05
+CG:       #iterations: 1792, estimated error: 1.30447e-05
+lx0:3921.16     down3921.16
+green
+alpha=1
+start find minimum of phi(x),iter time:123
+x:180.111
+aj1:2398139
+u:2369386
+kkt_u:6.35378e-06       kkt_y:4.89307e-05
+kkt_x:1.03056e-10       kkt_z:6.22952e-17       kkt_v:0.0356927
+kkt:0.0356927
+start main loop,sigma=4
+start find minimum of phi(x),iter time:0
+x:180.111
+aj1:2312266
+rhs:27.8008
+CG:       #iterations: 2, estimated error: 0.389152
+lx0:3887.22     down3887.22
+green
+alpha=1
+start find minimum of phi(x),iter time:1
+x:180.141
+aj1:2320136
+rhs:10.0052
+CG:       #iterations: 5, estimated error: 0.497124
+lx0:3886.05     down3886.05
+green
+alpha=1
+start find minimum of phi(x),iter time:2
+x:180.186
+aj1:2479546
+rhs:22.2057
+CG:       #iterations: 0, estimated error: 0.210775
+lx0:3885.37     down3885.37
+green
+alpha=1
+start find minimum of phi(x),iter time:3
+x:180.187
+aj1:2443757
+rhs:4.57239
+CG:       #iterations: 15, estimated error: 0.458276
+lx0:3885.2      down3885.2
+green
+alpha=1
+start find minimum of phi(x),iter time:4
+x:180.313
+aj1:2633323
+rhs:14.7785
+CG:       #iterations: 0, estimated error: 0.242961
+lx0:3883.82     down3883.82
+green
+alpha=1
+start find minimum of phi(x),iter time:5
+x:180.314
+aj1:2574951
+rhs:3.27505
+CG:       #iterations: 22, estimated error: 0.456696
+lx0:3883.74     down3883.74
+green
+alpha=1
+start find minimum of phi(x),iter time:6
+x:180.494
+aj1:2689418
+rhs:22.9759
+CG:       #iterations: 0, estimated error: 0.141241
+lx0:3882.83     down3882.83
+green
+alpha=1
+start find minimum of phi(x),iter time:7
+x:180.494
+aj1:2664089
+rhs:3.1957
+CG:       #iterations: 16, estimated error: 0.450035
+lx0:3882.67     down3882.67
+green
+alpha=1
+start find minimum of phi(x),iter time:8
+x:180.653
+aj1:2755630
+rhs:6.11627
+CG:       #iterations: 0, estimated error: 0.384238
+lx0:3882.04     down3882.04
+green
+alpha=1
+start find minimum of phi(x),iter time:9
+x:180.653
+aj1:2724695
+rhs:2.0084
+CG:       #iterations: 26, estimated error: 0.449215
+lx0:3882.03     down3882.03
+green
+alpha=1
+start find minimum of phi(x),iter time:10
+x:180.925
+aj1:2797814
+rhs:20.3015
+CG:       #iterations: 0, estimated error: 0.218954
+lx0:3881.26     down3881.26
+green
+alpha=1
+start find minimum of phi(x),iter time:11
+x:180.925
+aj1:2748905
+rhs:4.08737
+CG:       #iterations: 12, estimated error: 0.478493
+lx0:3881.14     down3881.14
+alpha=1
+start find minimum of phi(x),iter time:12
+x:180.995
+aj1:2757097
+rhs:24.7321
+CG:       #iterations: 0, estimated error: 0.0984728
+lx0:3881.04     down3881.04
+green
+alpha=1
+start find minimum of phi(x),iter time:13
+x:180.995
+aj1:2748832
+rhs:3.54139
+CG:       #iterations: 0, estimated error: 0.473943
+lx0:3880.89     down3880.89
+green
+alpha=1
+start find minimum of phi(x),iter time:14
+x:180.995
+aj1:2739264
+rhs:1.49013
+CG:       #iterations: 30, estimated error: 0.472207
+lx0:3880.88     down3880.88
+green
+alpha=1
+start find minimum of phi(x),iter time:15
+x:181.317
+aj1:2806955
+rhs:25.1548
+CG:       #iterations: 0, estimated error: 0.253572
+lx0:3880.21     down3880.21
+green
+alpha=1
+start find minimum of phi(x),iter time:16
+x:181.317
+aj1:2750403
+rhs:5.66062
+CG:       #iterations: 1, estimated error: 0.458849
+lx0:3880.01     down3880.01
+green
+alpha=1
+start find minimum of phi(x),iter time:17
+x:181.318
+aj1:2736289
+rhs:2.29777
+CG:       #iterations: 23, estimated error: 0.458291
+lx0:3879.98     down3879.98
+green
+alpha=1
+start find minimum of phi(x),iter time:18
+x:181.455
+aj1:2772028
+rhs:12.0459
+CG:       #iterations: 0, estimated error: 0.232469
+lx0:3879.68     down3879.68
+green
+alpha=1
+start find minimum of phi(x),iter time:19
+x:181.455
+aj1:2703307
+rhs:2.13921
+CG:       #iterations: 23, estimated error: 0.452753
+lx0:3879.59     down3879.59
+alpha=0.25
+start find minimum of phi(x),iter time:20
+x:181.491
+aj1:2724011
+rhs:16.0655
+CG:       #iterations: 0, estimated error: 0.0911198
+lx0:3879.55     down3879.55
+green
+alpha=1
+start find minimum of phi(x),iter time:21
+x:181.491
+aj1:2725555
+rhs:1.71535
+CG:       #iterations: 24, estimated error: 0.410569
+lx0:3879.49     down3879.49
+green
+alpha=1
+start find minimum of phi(x),iter time:22
+x:181.686
+aj1:2758564
+rhs:1.89983
+CG:       #iterations: 26, estimated error: 0.490816
+lx0:3878.99     down3878.99
+green
+alpha=1
+start find minimum of phi(x),iter time:23
+x:181.833
+aj1:2759563
+rhs:2.84224
+CG:       #iterations: 18, estimated error: 0.498777
+lx0:3878.64     down3878.64
+green
+alpha=1
+start find minimum of phi(x),iter time:24
+x:181.901
+aj1:2757692
+rhs:2.18853
+CG:       #iterations: 24, estimated error: 0.488613
+lx0:3878.47     down3878.47
+alpha=1
+start find minimum of phi(x),iter time:25
+x:182.004
+aj1:2771245
+rhs:11.6002
+CG:       #iterations: 1, estimated error: 0.324916
+lx0:3878.35     down3878.35
+green
+alpha=1
+start find minimum of phi(x),iter time:26
+x:182.004
+aj1:2730689
+rhs:3.54745
+CG:       #iterations: 2, estimated error: 0.338888
+lx0:3878.26     down3878.26
+green
+alpha=1
+start find minimum of phi(x),iter time:27
+x:182.006
+aj1:2723946
+rhs:2.07179
+CG:       #iterations: 0, estimated error: 0.463991
+lx0:3878.23     down3878.23
+green
+alpha=1
+start find minimum of phi(x),iter time:28
+x:182.006
+aj1:2715811
+rhs:0.86891
+CG:       #iterations: 45, estimated error: 0.498667
+lx0:3878.22     down3878.22
+alpha=0.5
+start find minimum of phi(x),iter time:29
+x:182.189
+aj1:2725183
+rhs:11.2368
+CG:       #iterations: 1, estimated error: 0.332448
+lx0:3878.04     down3878.04
+green
+alpha=1
+start find minimum of phi(x),iter time:30
+x:182.19
+aj1:2716950
+rhs:3.42953
+CG:       #iterations: 2, estimated error: 0.290005
+lx0:3877.82     down3877.82
+green
+alpha=1
+start find minimum of phi(x),iter time:31
+x:182.191
+aj1:2709884
+rhs:1.05059
+CG:       #iterations: 33, estimated error: 0.470672
+lx0:3877.81     down3877.81
+alpha=1
+start find minimum of phi(x),iter time:32
+x:182.451
+aj1:2741883
+rhs:24.5212
+CG:       #iterations: 0, estimated error: 0.0870007
+lx0:3877.61     down3877.61
+green
+alpha=1
+start find minimum of phi(x),iter time:33
+x:182.451
+aj1:2686444
+rhs:2.48726
+CG:       #iterations: 0, estimated error: 0.409358
+lx0:3877.27     down3877.27
+green
+alpha=1
+start find minimum of phi(x),iter time:34
+x:182.451
+aj1:2702549
+rhs:1.00939
+CG:       #iterations: 38, estimated error: 0.489313
+lx0:3877.27     down3877.27
+green
+alpha=1
+start find minimum of phi(x),iter time:35
+x:182.688
+aj1:2745516
+rhs:18.8561
+CG:       #iterations: 0, estimated error: 0.168498
+lx0:3876.95     down3876.95
+green
+alpha=1
+start find minimum of phi(x),iter time:36
+x:182.688
+aj1:2707653
+rhs:3.14825
+CG:       #iterations: 0, estimated error: 0.299091
+lx0:3876.82     down3876.82
+green
+alpha=1
+start find minimum of phi(x),iter time:37
+x:182.689
+aj1:2701336
+rhs:0.890853
+CG:       #iterations: 45, estimated error: 0.45985
+lx0:3876.81     down3876.81
+green
+alpha=1
+start find minimum of phi(x),iter time:38
+x:182.936
+aj1:2729329
+rhs:8.86651
+CG:       #iterations: 0, estimated error: 0.318043
+lx0:3876.41     down3876.41
+green
+alpha=1
+start find minimum of phi(x),iter time:39
+x:182.936
+aj1:2689595
+rhs:2.2825
+CG:       #iterations: 0, estimated error: 0.372562
+lx0:3876.37     down3876.37
+green
+alpha=1
+start find minimum of phi(x),iter time:40
+x:182.936
+aj1:2686124
+rhs:0.79381
+CG:       #iterations: 50, estimated error: 0.489633
+lx0:3876.37     down3876.37
+green
+alpha=1
+start find minimum of phi(x),iter time:41
+x:183.195
+aj1:2707891
+rhs:16.9119
+CG:       #iterations: 0, estimated error: 0.178831
+lx0:3876.06     down3876.06
+green
+alpha=1
+start find minimum of phi(x),iter time:42
+x:183.195
+aj1:2689543
+rhs:2.9404
+CG:       #iterations: 0, estimated error: 0.256729
+lx0:3875.96     down3875.96
+green
+alpha=1
+start find minimum of phi(x),iter time:43
+x:183.195
+aj1:2684788
+rhs:0.712546
+CG:       #iterations: 54, estimated error: 0.486395
+lx0:3875.95     down3875.95
+green
+alpha=1
+start find minimum of phi(x),iter time:44
+x:183.461
+aj1:2695247
+rhs:8.21059
+CG:       #iterations: 0, estimated error: 0.283135
+lx0:3875.6      down3875.6
+green
+alpha=1
+start find minimum of phi(x),iter time:45
+x:183.461
+aj1:2682691
+rhs:2.00692
+CG:       #iterations: 0, estimated error: 0.406945
+lx0:3875.57     down3875.57
+green
+alpha=1
+start find minimum of phi(x),iter time:46
+x:183.462
+aj1:2678858
+rhs:0.724876
+CG:       #iterations: 51, estimated error: 0.499648
+lx0:3875.57     down3875.57
+green
+alpha=1
+start find minimum of phi(x),iter time:47
+x:183.692
+aj1:2692539
+rhs:15.7577
+CG:       #iterations: 0, estimated error: 0.114381
+lx0:3875.36     down3875.36
+green
+alpha=1
+start find minimum of phi(x),iter time:48
+x:183.692
+aj1:2680200
+rhs:1.68177
+CG:       #iterations: 2, estimated error: 0.474805
+lx0:3875.27     down3875.27
+green
+alpha=1
+start find minimum of phi(x),iter time:49
+x:183.693
+aj1:2682803
+rhs:0.742605
+CG:       #iterations: 55, estimated error: 0.486554
+lx0:3875.26     down3875.26
+alpha=1
+start find minimum of phi(x),iter time:50
+x:183.89
+aj1:2682644
+rhs:12.2208
+CG:       #iterations: 0, estimated error: 0.211236
+lx0:3875.23     down3875.23
+green
+alpha=1
+start find minimum of phi(x),iter time:51
+x:183.89
+aj1:2654163
+rhs:2.15574
+CG:       #iterations: 1, estimated error: 0.398163
+lx0:3875.03     down3875.03
+alpha=1
+start find minimum of phi(x),iter time:52
+x:183.891
+aj1:2677075
+rhs:1.43224
+CG:       #iterations: 0, estimated error: 0.489791
+lx0:3875.03     down3875.03
+green
+alpha=1
+start find minimum of phi(x),iter time:53
+x:183.891
+aj1:2667849
+rhs:0.583084
+CG:       #iterations: 65, estimated error: 0.49843
+lx0:3875.03     down3875.03
+alpha=0.25
+start find minimum of phi(x),iter time:54
+x:183.953
+aj1:2672134
+rhs:10.1974
+CG:       #iterations: 0, estimated error: 0.0523693
+lx0:3874.99     down3874.99
+green
+alpha=1
+start find minimum of phi(x),iter time:55
+x:183.953
+aj1:2671195
+rhs:0.559066
+CG:       #iterations: 56, estimated error: 0.460234
+lx0:3874.95     down3874.95
+green
+alpha=1
+start find minimum of phi(x),iter time:56
+x:184.213
+aj1:2685684
+rhs:5.59721
+CG:       #iterations: 0, estimated error: 0.197296
+lx0:3874.71     down3874.71
+green
+alpha=1
+start find minimum of phi(x),iter time:57
+x:184.213
+aj1:2665645
+rhs:1.0436
+CG:       #iterations: 37, estimated error: 0.45129
+lx0:3874.69     down3874.69
+green
+alpha=1
+start find minimum of phi(x),iter time:58
+x:184.302
+aj1:2703709
+rhs:1.74038
+CG:       #iterations: 0, estimated error: 0.27448
+lx0:3874.6      down3874.6
+green
+alpha=1
+start find minimum of phi(x),iter time:59
+x:184.302
+aj1:2677087
+rhs:0.454108
+CG:       #iterations: 79, estimated error: 0.430609
+lx0:3874.6      down3874.6
+green
+alpha=1
+start find minimum of phi(x),iter time:60
+x:184.583
+aj1:2683118
+rhs:5.18656
+CG:       #iterations: 0, estimated error: 0.219874
+lx0:3874.37     down3874.37
+green
+alpha=1
+start find minimum of phi(x),iter time:61
+x:184.583
+aj1:2665092
+rhs:1.06994
+CG:       #iterations: 36, estimated error: 0.484471
+lx0:3874.35     down3874.35
+green
+alpha=1
+start find minimum of phi(x),iter time:62
+x:184.646
+aj1:2703271
+rhs:1.25273
+CG:       #iterations: 0, estimated error: 0.476206
+lx0:3874.29     down3874.29
+green
+alpha=1
+start find minimum of phi(x),iter time:63
+x:184.647
+aj1:2664933
+rhs:0.561892
+CG:       #iterations: 57, estimated error: 0.480418
+lx0:3874.29     down3874.29
+green
+alpha=1
+start find minimum of phi(x),iter time:64
+x:184.812
+aj1:2677924
+rhs:1.32372
+CG:       #iterations: 1, estimated error: 0.361102
+lx0:3874.16     down3874.16
+green
+alpha=1
+start find minimum of phi(x),iter time:65
+x:184.812
+aj1:2668243
+rhs:0.423889
+CG:       #iterations: 75, estimated error: 0.411856
+lx0:3874.16     down3874.16
+green
+alpha=1
+start find minimum of phi(x),iter time:66
+x:185.028
+aj1:2673847
+rhs:6.50196
+CG:       #iterations: 0, estimated error: 0.312074
+lx0:3874.04     down3874.04
+green
+alpha=1
+start find minimum of phi(x),iter time:67
+x:185.028
+aj1:2661644
+rhs:1.13598
+CG:       #iterations: 2, estimated error: 0.450503
+lx0:3874.01     down3874.01
+alpha=1
+start find minimum of phi(x),iter time:68
+x:185.028
+aj1:2673113
+rhs:2.47909
+CG:       #iterations: 0, estimated error: 0.123871
+lx0:3874.01     down3874.01
+green
+alpha=1
+start find minimum of phi(x),iter time:69
+x:185.028
+aj1:2670894
+rhs:0.306288
+CG:       #iterations: 152, estimated error: 0.302734
+lx0:3874.01     down3874.01
+green
+alpha=1
+start find minimum of phi(x),iter time:70
+x:185.303
+aj1:2700213
+rhs:5.27417
+CG:       #iterations: 0, estimated error: 0.275468
+lx0:3873.87     down3873.87
+green
+alpha=1
+start find minimum of phi(x),iter time:71
+x:185.303
+aj1:2654371
+rhs:1.42342
+CG:       #iterations: 5, estimated error: 0.472069
+lx0:3873.85     down3873.85
+green
+alpha=1
+start find minimum of phi(x),iter time:72
+x:185.304
+aj1:2674286
+rhs:0.746829
+CG:       #iterations: 44, estimated error: 0.471339
+lx0:3873.84     down3873.84
+green
+alpha=1
+start find minimum of phi(x),iter time:73
+x:185.363
+aj1:2706055
+rhs:1.23777
+CG:       #iterations: 4, estimated error: 0.358149
+lx0:3873.81     down3873.81
+green
+alpha=1
+start find minimum of phi(x),iter time:74
+x:185.363
+aj1:2685742
+rhs:0.438478
+CG:       #iterations: 94, estimated error: 0.425779
+lx0:3873.81     down3873.81
+alpha=0.25
+start find minimum of phi(x),iter time:75
+x:185.395
+aj1:2682364
+rhs:0.490004
+CG:       #iterations: 76, estimated error: 0.485718
+lx0:3873.79     down3873.79
+alpha=1
+start find minimum of phi(x),iter time:76
+x:185.499
+aj1:2679234
+rhs:6.72464
+CG:       #iterations: 0, estimated error: 0.0617906
+lx0:3873.76     down3873.76
+green
+alpha=1
+start find minimum of phi(x),iter time:77
+x:185.499
+aj1:2666126
+rhs:0.443793
+CG:       #iterations: 73, estimated error: 0.434937
+lx0:3873.74     down3873.74
+green
+alpha=1
+start find minimum of phi(x),iter time:78
+x:185.604
+aj1:2674925
+rhs:0.736585
+CG:       #iterations: 4, estimated error: 0.494612
+lx0:3873.69     down3873.69
+green
+alpha=1
+start find minimum of phi(x),iter time:79
+x:185.605
+aj1:2673411
+rhs:0.340581
+CG:       #iterations: 97, estimated error: 0.337141
+lx0:3873.69     down3873.69
+alpha=0.25
+start find minimum of phi(x),iter time:80
+x:185.637
+aj1:2673027
+rhs:0.781036
+CG:       #iterations: 3, estimated error: 0.369938
+lx0:3873.68     down3873.68
+green
+alpha=1
+start find minimum of phi(x),iter time:81
+x:185.638
+aj1:2666948
+rhs:0.279552
+CG:       #iterations: 114, estimated error: 0.276061
+lx0:3873.67     down3873.67
+alpha=0.0625
+start find minimum of phi(x),iter time:82
+x:185.648
+aj1:2667271
+rhs:1.98871
+CG:       #iterations: 0, estimated error: 0.11805
+lx0:3873.67     down3873.67
+green
+alpha=1
+start find minimum of phi(x),iter time:83
+x:185.648
+aj1:2666456
+rhs:0.234973
+CG:       #iterations: 198, estimated error: 0.233322
+lx0:3873.67     down3873.67
+alpha=1
+start find minimum of phi(x),iter time:84
+x:185.837
+aj1:2674538
+rhs:3.88565
+CG:       #iterations: 0, estimated error: 0.196835
+lx0:3873.6      down3873.6
+green
+alpha=1
+start find minimum of phi(x),iter time:85
+x:185.837
+aj1:2662256
+rhs:0.779996
+CG:       #iterations: 2, estimated error: 0.451702
+lx0:3873.59     down3873.59
+green
+alpha=1
+start find minimum of phi(x),iter time:86
+x:185.837
+aj1:2667534
+rhs:0.330349
+CG:       #iterations: 94, estimated error: 0.321713
+lx0:3873.59     down3873.59
+green
+alpha=1
+start find minimum of phi(x),iter time:87
+x:185.933
+aj1:2695435
+rhs:1.2958
+CG:       #iterations: 0, estimated error: 0.236304
+lx0:3873.56     down3873.56
+green
+alpha=1
+start find minimum of phi(x),iter time:88
+x:185.933
+aj1:2663146
+rhs:0.330195
+CG:       #iterations: 93, estimated error: 0.323488
+lx0:3873.56     down3873.56
+green
+alpha=1
+start find minimum of phi(x),iter time:89
+x:186.01
+aj1:2691046
+rhs:2.06073
+CG:       #iterations: 0, estimated error: 0.1349
+lx0:3873.53     down3873.53
+green
+alpha=1
+start find minimum of phi(x),iter time:90
+x:186.01
+aj1:2664475
+rhs:0.307797
+CG:       #iterations: 97, estimated error: 0.305464
+lx0:3873.53     down3873.53
+green
+alpha=1
+start find minimum of phi(x),iter time:91
+x:186.081
+aj1:2694958
+rhs:0.906415
+CG:       #iterations: 0, estimated error: 0.39574
+lx0:3873.51     down3873.51
+green
+alpha=1
+start find minimum of phi(x),iter time:92
+x:186.081
+aj1:2667966
+rhs:0.274129
+CG:       #iterations: 113, estimated error: 0.264665
+lx0:3873.51     down3873.51
+green
+alpha=1
+start find minimum of phi(x),iter time:93
+x:186.147
+aj1:2693825
+rhs:1.80045
+CG:       #iterations: 0, estimated error: 0.155266
+lx0:3873.49     down3873.49
+green
+alpha=1
+start find minimum of phi(x),iter time:94
+x:186.147
+aj1:2668198
+rhs:0.277058
+CG:       #iterations: 101, estimated error: 0.27691
+lx0:3873.49     down3873.49
+green
+alpha=1
+start find minimum of phi(x),iter time:95
+x:186.198
+aj1:2693954
+rhs:1.17022
+CG:       #iterations: 0, estimated error: 0.101541
+lx0:3873.48     down3873.48
+green
+alpha=1
+start find minimum of phi(x),iter time:96
+x:186.198
+aj1:2667676
+rhs:0.151
+CG:       #iterations: 289, estimated error: 0.150529
+lx0:3873.48     down3873.48
+alpha=0.5
+start find minimum of phi(x),iter time:97
+x:186.239
+aj1:2667991
+rhs:0.659633
+CG:       #iterations: 7, estimated error: 0.446983
+lx0:3873.47     down3873.47
+green
+alpha=1
+start find minimum of phi(x),iter time:98
+x:186.239
+aj1:2670307
+rhs:0.410393
+CG:       #iterations: 3, estimated error: 0.288224
+lx0:3873.46     down3873.46
+green
+alpha=1
+start find minimum of phi(x),iter time:99
+x:186.239
+aj1:2670087
+rhs:0.154899
+CG:       #iterations: 279, estimated error: 0.153749
+lx0:3873.46     down3873.46
+alpha=0.0078125
+start find minimum of phi(x),iter time:100
+x:186.24
+aj1:2670067
+rhs:0.173931
+CG:       #iterations: 170, estimated error: 0.172555
+lx0:3873.46     down3873.46
+alpha=0.5
+start find minimum of phi(x),iter time:101
+x:186.272
+aj1:2669584
+rhs:0.414651
+CG:       #iterations: 20, estimated error: 0.357602
+lx0:3873.46     down3873.46
+alpha=1
+start find minimum of phi(x),iter time:102
+x:186.273
+aj1:2695193
+rhs:0.179141
+CG:       #iterations: 156, estimated error: 0.172711
+lx0:3873.46     down3873.46
+alpha=0.125
+start find minimum of phi(x),iter time:103
+x:186.28
+aj1:2693309
+rhs:0.255729
+CG:       #iterations: 104, estimated error: 0.240805
+lx0:3873.46     down3873.46
+green
+alpha=1
+start find minimum of phi(x),iter time:104
+x:186.311
+aj1:2685003
+rhs:0.143633
+CG:       #iterations: 379, estimated error: 0.142812
+lx0:3873.45     down3873.45
+alpha=0.5
+start find minimum of phi(x),iter time:105
+x:186.337
+aj1:2683813
+rhs:0.0861136
+CG:       #iterations: 704, estimated error: 0.0857127
+lx0:3873.45     down3873.45
+alpha=0.25
+start find minimum of phi(x),iter time:106
+x:186.356
+aj1:2683339
+rhs:0.072648
+CG:       #iterations: 865, estimated error: 0.0726015
+lx0:3873.44     down3873.44
+alpha=0.0078125
+start find minimum of phi(x),iter time:107
+x:186.357
+aj1:2683308
+rhs:0.0873586
+CG:       #iterations: 579, estimated error: 0.0873346
+lx0:3873.44     down3873.44
+green
+alpha=1
+start find minimum of phi(x),iter time:108
+x:186.424
+aj1:2685043
+rhs:0.231603
+CG:       #iterations: 164, estimated error: 0.216622
+lx0:3873.43     down3873.43
+alpha=1
+start find minimum of phi(x),iter time:109
+x:186.44
+aj1:2679456
+rhs:0.0757139
+CG:       #iterations: 758, estimated error: 0.0750178
+lx0:3873.43     down3873.43
+alpha=0.125
+start find minimum of phi(x),iter time:110
+x:186.446
+aj1:2673547
+rhs:0.0669049
+CG:       #iterations: 738, estimated error: 0.0661953
+lx0:3873.43     down3873.43
+green
+alpha=1
+start find minimum of phi(x),iter time:111
+x:186.498
+aj1:2690776
+rhs:0.103009
+CG:       #iterations: 474, estimated error: 0.10294
+lx0:3873.43     down3873.43
+alpha=0.03125
+start find minimum of phi(x),iter time:112
+x:186.499
+aj1:2688304
+rhs:0.0998629
+CG:       #iterations: 479, estimated error: 0.0993072
+lx0:3873.43     down3873.43
+alpha=0.03125
+start find minimum of phi(x),iter time:113
+x:186.5
+aj1:2688299
+rhs:0.0968133
+CG:       #iterations: 508, estimated error: 0.0961903
+lx0:3873.43     down3873.43
+alpha=0.015625
+start find minimum of phi(x),iter time:114
+x:186.5
+aj1:2688290
+rhs:0.0952024
+CG:       #iterations: 532, estimated error: 0.0929537
+lx0:3873.43     down3873.43
+alpha=0.0078125
+start find minimum of phi(x),iter time:115
+x:186.5
+aj1:2688289
+rhs:0.0940368
+CG:       #iterations: 361, estimated error: 0.0936215
+lx0:3873.43     down3873.43
+alpha=1
+start find minimum of phi(x),iter time:116
+x:186.522
+aj1:2683017
+rhs:0.359084
+CG:       #iterations: 0, estimated error: 0.101292
+lx0:3873.43     down3873.43
+green
+alpha=1
+start find minimum of phi(x),iter time:117
+x:186.522
+aj1:2669772
+rhs:0.0358246
+CG:       #iterations: 1233, estimated error: 0.0357097
+lx0:3873.42     down3873.42
+alpha=0.5
+start find minimum of phi(x),iter time:118
+x:186.54
+aj1:2670121
+rhs:0.0407362
+CG:       #iterations: 994, estimated error: 0.0405566
+lx0:3873.42     down3873.42
+alpha=1
+start find minimum of phi(x),iter time:119
+x:186.565
+aj1:2682167
+rhs:0.0473322
+CG:       #iterations: 844, estimated error: 0.0463707
+lx0:3873.42     down3873.42
+green
+alpha=1
+start find minimum of phi(x),iter time:120
+x:186.575
+aj1:2682034
+rhs:0.0261427
+CG:       #iterations: 1706, estimated error: 0.0261181
+lx0:3873.42     down3873.42
+green
+alpha=1
+start find minimum of phi(x),iter time:121
+x:186.585
+aj1:2684334
+rhs:0.00380737
+CG:       #iterations: 4116, estimated error: 0.00375103
+lx0:3873.42     down3873.42
+alpha=0.0625
+start find minimum of phi(x),iter time:122
+x:186.589
+aj1:2684342
+rhs:0.00360246
+CG:       #iterations: 4159, estimated error: 0.00359506
+lx0:3873.42     down3873.42
+alpha=0.015625
+start find minimum of phi(x),iter time:123
+x:186.59
+aj1:2684337
+rhs:0.0036041
+CG:       #iterations: 3133, estimated error: 0.00359237
+lx0:3873.42     down3873.42
+green
+alpha=1
+start find minimum of phi(x),iter time:124
+x:186.607
+aj1:2678130
+rhs:0.00592739
+CG:       #iterations: 2012, estimated error: 0.00589619
+lx0:3873.42     down3873.42
+green
+alpha=1
+start find minimum of phi(x),iter time:125
+x:186.608
+aj1:2686267
+rhs:0.000385847
+CG:       #iterations: 3137, estimated error: 0.000383505
+lx0:3873.42     down3873.42
+alpha=1
+start find minimum of phi(x),iter time:126
+x:186.608
+aj1:2687994
+rhs:0.000177262
+CG:       #iterations: 3664, estimated error: 0.000176936
+lx0:3873.42     down3873.42
+green
+alpha=1
+start find minimum of phi(x),iter time:127
+x:186.608
+aj1:2686166
+u:2668706
+kkt_u:2.82833e-06       kkt_y:1.12866e-05
+kkt_x:2.82202e-09       kkt_z:6.88805e-17       kkt_v:0.00570173
+kkt:0.00570173
+start main loop,sigma=8
+start find minimum of phi(x),iter time:0
+x:186.608
+aj1:2598094
+rhs:9.27951
+CG:       #iterations: 5, estimated error: 0.48859
+lx0:3766.46     down3766.46
+green
+alpha=1
+start find minimum of phi(x),iter time:1
+x:186.616
+aj1:2704032
+rhs:4.81939
+CG:       #iterations: 18, estimated error: 0.42926
+lx0:3766.3      down3766.3
+green
+alpha=1
+start find minimum of phi(x),iter time:2
+x:186.637
+aj1:2927584
+rhs:11.0299
+CG:       #iterations: 0, estimated error: 0.217935
+lx0:3766.11     down3766.11
+green
+alpha=1
+start find minimum of phi(x),iter time:3
+x:186.637
+aj1:2823069
+rhs:2.31432
+CG:       #iterations: 36, estimated error: 0.472384
+lx0:3766.08     down3766.08
+alpha=1
+start find minimum of phi(x),iter time:4
+x:186.698
+aj1:2955191
+rhs:17.8056
+CG:       #iterations: 0, estimated error: 0.440846
+lx0:3766.01     down3766.01
+green
+alpha=1
+start find minimum of phi(x),iter time:5
+x:186.699
+aj1:2864145
+rhs:4.01126
+CG:       #iterations: 4, estimated error: 0.44665
+lx0:3765.96     down3765.96
+alpha=1
+start find minimum of phi(x),iter time:6
+x:186.7
+aj1:2890941
+rhs:12.841
+CG:       #iterations: 0, estimated error: 0.116392
+lx0:3765.95     down3765.95
+green
+alpha=1
+start find minimum of phi(x),iter time:7
+x:186.7
+aj1:2866163
+rhs:1.19807
+CG:       #iterations: 60, estimated error: 0.471724
+lx0:3765.93     down3765.93
+alpha=1
+start find minimum of phi(x),iter time:8
+x:186.828
+aj1:2948142
+rhs:26.0445
+CG:       #iterations: 0, estimated error: 0.305607
+lx0:3765.91     down3765.91
+green
+alpha=1
+start find minimum of phi(x),iter time:9
+x:186.828
+aj1:2822002
+rhs:5.81246
+CG:       #iterations: 0, estimated error: 0.365111
+lx0:3765.76     down3765.76
+green
+alpha=1
+start find minimum of phi(x),iter time:10
+x:186.828
+aj1:2819552
+rhs:1.92431
+CG:       #iterations: 37, estimated error: 0.486693
+lx0:3765.74     down3765.74
+alpha=0.25
+start find minimum of phi(x),iter time:11
+x:186.839
+aj1:2832680
+rhs:8.12924
+CG:       #iterations: 0, estimated error: 0.197873
+lx0:3765.73     down3765.73
+green
+alpha=1
+start find minimum of phi(x),iter time:12
+x:186.839
+aj1:2826661
+rhs:1.4427
+CG:       #iterations: 42, estimated error: 0.482714
+lx0:3765.72     down3765.72
+green
+alpha=1
+start find minimum of phi(x),iter time:13
+x:186.91
+aj1:2894236
+rhs:10.5344
+CG:       #iterations: 1, estimated error: 0.240271
+lx0:3765.64     down3765.64
+green
+alpha=1
+start find minimum of phi(x),iter time:14
+x:186.91
+aj1:2859982
+rhs:2.38812
+CG:       #iterations: 2, estimated error: 0.480931
+lx0:3765.62     down3765.62
+green
+alpha=1
+start find minimum of phi(x),iter time:15
+x:186.91
+aj1:2827160
+rhs:1.47646
+CG:       #iterations: 0, estimated error: 0.405499
+lx0:3765.62     down3765.62
+green
+alpha=1
+start find minimum of phi(x),iter time:16
+x:186.91
+aj1:2807229
+rhs:0.544583
+CG:       #iterations: 134, estimated error: 0.493036
+lx0:3765.62     down3765.62
+alpha=0.25
+start find minimum of phi(x),iter time:17
+x:186.968
+aj1:2812183
+rhs:4.0214
+CG:       #iterations: 3, estimated error: 0.224418
+lx0:3765.56     down3765.56
+green
+alpha=1
+start find minimum of phi(x),iter time:18
+x:186.969
+aj1:2827564
+rhs:0.776649
+CG:       #iterations: 63, estimated error: 0.492769
+lx0:3765.55     down3765.55
+alpha=1
+start find minimum of phi(x),iter time:19
+x:187.109
+aj1:2871573
+rhs:13.234
+CG:       #iterations: 0, estimated error: 0.339206
+lx0:3765.46     down3765.46
+green
+alpha=1
+start find minimum of phi(x),iter time:20
+x:187.109
+aj1:2816212
+rhs:3.85334
+CG:       #iterations: 1, estimated error: 0.424551
+lx0:3765.42     down3765.42
+green
+alpha=1
+start find minimum of phi(x),iter time:21
+x:187.109
+aj1:2838272
+rhs:3.24
+CG:       #iterations: 0, estimated error: 0.320496
+lx0:3765.41     down3765.41
+green
+alpha=1
+start find minimum of phi(x),iter time:22
+x:187.109
+aj1:2813956
+rhs:0.950624
+CG:       #iterations: 59, estimated error: 0.489018
+lx0:3765.41     down3765.41
+alpha=0.0625
+start find minimum of phi(x),iter time:23
+x:187.114
+aj1:2813965
+rhs:1.55552
+CG:       #iterations: 4, estimated error: 0.492078
+lx0:3765.4      down3765.4
+green
+alpha=1
+start find minimum of phi(x),iter time:24
+x:187.115
+aj1:2808185
+rhs:1.07868
+CG:       #iterations: 0, estimated error: 0.483697
+lx0:3765.4      down3765.4
+green
+alpha=1
+start find minimum of phi(x),iter time:25
+x:187.115
+aj1:2805307
+rhs:0.458812
+CG:       #iterations: 166, estimated error: 0.453731
+lx0:3765.4      down3765.4
+alpha=0.125
+start find minimum of phi(x),iter time:26
+x:187.142
+aj1:2806361
+rhs:2.14991
+CG:       #iterations: 2, estimated error: 0.428909
+lx0:3765.39     down3765.39
+green
+alpha=1
+start find minimum of phi(x),iter time:27
+x:187.143
+aj1:2819696
+rhs:0.916546
+CG:       #iterations: 57, estimated error: 0.497705
+lx0:3765.37     down3765.37
+green
+alpha=1
+start find minimum of phi(x),iter time:28
+x:187.227
+aj1:2858191
+rhs:4.59753
+CG:       #iterations: 0, estimated error: 0.440478
+lx0:3765.31     down3765.31
+green
+alpha=1
+start find minimum of phi(x),iter time:29
+x:187.227
+aj1:2810223
+rhs:1.5034
+CG:       #iterations: 2, estimated error: 0.3996
+lx0:3765.31     down3765.31
+alpha=1
+start find minimum of phi(x),iter time:30
+x:187.228
+aj1:2824730
+rhs:3.36459
+CG:       #iterations: 0, estimated error: 0.124086
+lx0:3765.31     down3765.31
+green
+alpha=1
+start find minimum of phi(x),iter time:31
+x:187.228
+aj1:2812944
+rhs:0.446183
+CG:       #iterations: 169, estimated error: 0.439465
+lx0:3765.3      down3765.3
+alpha=1
+start find minimum of phi(x),iter time:32
+x:187.423
+aj1:2983737
+rhs:12.9361
+CG:       #iterations: 1, estimated error: 0.235678
+lx0:3765.25     down3765.25
+green
+alpha=1
+start find minimum of phi(x),iter time:33
+x:187.423
+aj1:2912088
+rhs:4.08991
+CG:       #iterations: 3, estimated error: 0.317173
+lx0:3765.21     down3765.21
+green
+alpha=1
+start find minimum of phi(x),iter time:34
+x:187.423
+aj1:2886934
+rhs:2.19398
+CG:       #iterations: 0, estimated error: 0.48539
+lx0:3765.2      down3765.2
+green
+alpha=1
+start find minimum of phi(x),iter time:35
+x:187.423
+aj1:2813172
+rhs:0.951335
+CG:       #iterations: 68, estimated error: 0.477028
+lx0:3765.2      down3765.2
+alpha=0.5
+start find minimum of phi(x),iter time:36
+x:187.448
+aj1:2842733
+rhs:1.94884
+CG:       #iterations: 10, estimated error: 0.453911
+lx0:3765.19     down3765.19
+green
+alpha=1
+start find minimum of phi(x),iter time:37
+x:187.449
+aj1:2827328
+rhs:1.87219
+CG:       #iterations: 0, estimated error: 0.288597
+lx0:3765.18     down3765.18
+green
+alpha=1
+start find minimum of phi(x),iter time:38
+x:187.449
+aj1:2818277
+rhs:0.516729
+CG:       #iterations: 86, estimated error: 0.475048
+lx0:3765.18     down3765.18
+alpha=1
+start find minimum of phi(x),iter time:39
+x:187.564
+aj1:2887217
+rhs:11.2454
+CG:       #iterations: 0, estimated error: 0.177208
+lx0:3765.16     down3765.16
+green
+alpha=1
+start find minimum of phi(x),iter time:40
+x:187.564
+aj1:2809132
+rhs:1.28346
+CG:       #iterations: 3, estimated error: 0.495103
+lx0:3765.13     down3765.13
+alpha=1
+start find minimum of phi(x),iter time:41
+x:187.564
+aj1:2841804
+rhs:2.12259
+CG:       #iterations: 0, estimated error: 0.207824
+lx0:3765.13     down3765.13
+green
+alpha=1
+start find minimum of phi(x),iter time:42
+x:187.564
+aj1:2823076
+rhs:0.395939
+CG:       #iterations: 132, estimated error: 0.389479
+lx0:3765.13     down3765.13
+alpha=1
+start find minimum of phi(x),iter time:43
+x:187.7
+aj1:2841379
+rhs:7.80435
+CG:       #iterations: 0, estimated error: 0.241106
+lx0:3765.1      down3765.1
+green
+alpha=1
+start find minimum of phi(x),iter time:44
+x:187.7
+aj1:2799456
+rhs:1.8117
+CG:       #iterations: 3, estimated error: 0.483001
+lx0:3765.08     down3765.08
+green
+alpha=1
+start find minimum of phi(x),iter time:45
+x:187.701
+aj1:2829522
+rhs:2.30686
+CG:       #iterations: 0, estimated error: 0.245204
+lx0:3765.08     down3765.08
+green
+alpha=1
+start find minimum of phi(x),iter time:46
+x:187.701
+aj1:2811149
+rhs:0.502374
+CG:       #iterations: 99, estimated error: 0.492752
+lx0:3765.08     down3765.08
+alpha=0.25
+start find minimum of phi(x),iter time:47
+x:187.719
+aj1:2815916
+rhs:3.64515
+CG:       #iterations: 0, estimated error: 0.114476
+lx0:3765.07     down3765.07
+green
+alpha=1
+start find minimum of phi(x),iter time:48
+x:187.719
+aj1:2804030
+rhs:0.428025
+CG:       #iterations: 104, estimated error: 0.424648
+lx0:3765.07     down3765.07
+alpha=0.5
+start find minimum of phi(x),iter time:49
+x:187.764
+aj1:2810100
+rhs:6.98659
+CG:       #iterations: 0, estimated error: 0.0409925
+lx0:3765.06     down3765.06
+green
+alpha=1
+start find minimum of phi(x),iter time:50
+x:187.764
+aj1:2802092
+rhs:0.400702
+CG:       #iterations: 101, estimated error: 0.378266
+lx0:3765.05     down3765.05
+green
+alpha=1
+start find minimum of phi(x),iter time:51
+x:187.855
+aj1:2843298
+rhs:2.34158
+CG:       #iterations: 0, estimated error: 0.203539
+lx0:3765.02     down3765.02
+green
+alpha=1
+start find minimum of phi(x),iter time:52
+x:187.855
+aj1:2803860
+rhs:0.621721
+CG:       #iterations: 2, estimated error: 0.464352
+lx0:3765.02     down3765.02
+green
+alpha=1
+start find minimum of phi(x),iter time:53
+x:187.855
+aj1:2816111
+rhs:0.334679
+CG:       #iterations: 131, estimated error: 0.323353
+lx0:3765.02     down3765.02
+green
+alpha=1
+start find minimum of phi(x),iter time:54
+x:187.951
+aj1:2834913
+rhs:5.83256
+CG:       #iterations: 0, estimated error: 0.121974
+lx0:3765        down3765
+green
+alpha=1
+start find minimum of phi(x),iter time:55
+x:187.951
+aj1:2809461
+rhs:0.653589
+CG:       #iterations: 5, estimated error: 0.494842
+lx0:3764.99     down3764.99
+alpha=1
+start find minimum of phi(x),iter time:56
+x:187.952
+aj1:2823397
+rhs:1.45829
+CG:       #iterations: 0, estimated error: 0.130487
+lx0:3764.99     down3764.99
+green
+alpha=1
+start find minimum of phi(x),iter time:57
+x:187.952
+aj1:2817176
+rhs:0.189251
+CG:       #iterations: 418, estimated error: 0.188512
+lx0:3764.99     down3764.99
+alpha=0.5
+start find minimum of phi(x),iter time:58
+x:188.025
+aj1:2818530
+rhs:7.67555
+CG:       #iterations: 0, estimated error: 0.0920322
+lx0:3764.98     down3764.98
+green
+alpha=1
+start find minimum of phi(x),iter time:59
+x:188.025
+aj1:2811508
+rhs:0.783028
+CG:       #iterations: 12, estimated error: 0.469839
+lx0:3764.97     down3764.97
+green
+alpha=1
+start find minimum of phi(x),iter time:60
+x:188.025
+aj1:2823752
+rhs:0.402615
+CG:       #iterations: 104, estimated error: 0.39503
+lx0:3764.96     down3764.96
+alpha=0.25
+start find minimum of phi(x),iter time:61
+x:188.038
+aj1:2829172
+rhs:0.718611
+CG:       #iterations: 5, estimated error: 0.488665
+lx0:3764.96     down3764.96
+green
+alpha=1
+start find minimum of phi(x),iter time:62
+x:188.038
+aj1:2836734
+rhs:0.338388
+CG:       #iterations: 117, estimated error: 0.322274
+lx0:3764.96     down3764.96
+alpha=0.5
+start find minimum of phi(x),iter time:63
+x:188.069
+aj1:2840530
+rhs:4.20947
+CG:       #iterations: 0, estimated error: 0.380803
+lx0:3764.96     down3764.96
+green
+alpha=1
+start find minimum of phi(x),iter time:64
+x:188.069
+aj1:2831161
+rhs:1.4952
+CG:       #iterations: 1, estimated error: 0.380485
+lx0:3764.96     down3764.96
+green
+alpha=1
+start find minimum of phi(x),iter time:65
+x:188.069
+aj1:2827987
+rhs:0.485391
+CG:       #iterations: 18, estimated error: 0.46987
+lx0:3764.95     down3764.95
+alpha=1
+start find minimum of phi(x),iter time:66
+x:188.07
+aj1:2835310
+rhs:1.74995
+CG:       #iterations: 0, estimated error: 0.28063
+lx0:3764.95     down3764.95
+green
+alpha=1
+start find minimum of phi(x),iter time:67
+x:188.07
+aj1:2828653
+rhs:0.471748
+CG:       #iterations: 2, estimated error: 0.282664
+lx0:3764.95     down3764.95
+green
+alpha=1
+start find minimum of phi(x),iter time:68
+x:188.07
+aj1:2823073
+rhs:0.125163
+CG:       #iterations: 600, estimated error: 0.121589
+lx0:3764.95     down3764.95
+alpha=0.015625
+start find minimum of phi(x),iter time:69
+x:188.072
+aj1:2823190
+rhs:1.01255
+CG:       #iterations: 0, estimated error: 0.279365
+lx0:3764.95     down3764.95
+green
+alpha=1
+start find minimum of phi(x),iter time:70
+x:188.072
+aj1:2801600
+rhs:0.265798
+CG:       #iterations: 132, estimated error: 0.261256
+lx0:3764.95     down3764.95
+alpha=1
+start find minimum of phi(x),iter time:71
+x:188.151
+aj1:2853779
+rhs:5.32941
+CG:       #iterations: 1, estimated error: 0.3138
+lx0:3764.93     down3764.93
+green
+alpha=1
+start find minimum of phi(x),iter time:72
+x:188.151
+aj1:2834652
+rhs:1.45715
+CG:       #iterations: 1, estimated error: 0.459983
+lx0:3764.93     down3764.93
+green
+alpha=1
+start find minimum of phi(x),iter time:73
+x:188.151
+aj1:2823995
+rhs:0.553024
+CG:       #iterations: 2, estimated error: 0.478573
+lx0:3764.93     down3764.93
+alpha=1
+start find minimum of phi(x),iter time:74
+x:188.151
+aj1:2828319
+rhs:2.07054
+CG:       #iterations: 0, estimated error: 0.100121
+lx0:3764.93     down3764.93
+green
+alpha=1
+start find minimum of phi(x),iter time:75
+x:188.151
+aj1:2821990
+rhs:0.209958
+CG:       #iterations: 312, estimated error: 0.205809
+lx0:3764.93     down3764.93
+green
+alpha=1
+start find minimum of phi(x),iter time:76
+x:188.225
+aj1:2854160
+rhs:2.89884
+CG:       #iterations: 0, estimated error: 0.250241
+lx0:3764.91     down3764.91
+green
+alpha=1
+start find minimum of phi(x),iter time:77
+x:188.225
+aj1:2832461
+rhs:0.59694
+CG:       #iterations: 4, estimated error: 0.408521
+lx0:3764.9      down3764.9
+green
+alpha=1
+start find minimum of phi(x),iter time:78
+x:188.225
+aj1:2834479
+rhs:0.216612
+CG:       #iterations: 243, estimated error: 0.214368
+lx0:3764.9      down3764.9
+alpha=0.5
+start find minimum of phi(x),iter time:79
+x:188.254
+aj1:2832932
+rhs:3.43067
+CG:       #iterations: 0, estimated error: 0.130862
+lx0:3764.9      down3764.9
+green
+alpha=1
+start find minimum of phi(x),iter time:80
+x:188.254
+aj1:2826718
+rhs:1.05717
+CG:       #iterations: 1, estimated error: 0.391772
+lx0:3764.9      down3764.9
+green
+alpha=1
+start find minimum of phi(x),iter time:81
+x:188.254
+aj1:2825844
+rhs:0.558
+CG:       #iterations: 9, estimated error: 0.397852
+lx0:3764.9      down3764.9
+alpha=1
+start find minimum of phi(x),iter time:82
+x:188.255
+aj1:2833913
+rhs:0.482086
+CG:       #iterations: 1, estimated error: 0.358164
+lx0:3764.9      down3764.9
+green
+alpha=1
+start find minimum of phi(x),iter time:83
+x:188.255
+aj1:2827189
+rhs:0.142964
+CG:       #iterations: 574, estimated error: 0.142735
+lx0:3764.9      down3764.9
+alpha=0.0078125
+start find minimum of phi(x),iter time:84
+x:188.255
+aj1:2826693
+rhs:0.14
+CG:       #iterations: 563, estimated error: 0.138307
+lx0:3764.89     down3764.89
+alpha=0.0625
+start find minimum of phi(x),iter time:85
+x:188.261
+aj1:2826777
+rhs:0.175305
+CG:       #iterations: 393, estimated error: 0.173497
+lx0:3764.89     down3764.89
+alpha=0.25
+start find minimum of phi(x),iter time:86
+x:188.279
+aj1:2827642
+rhs:1.37083
+CG:       #iterations: 0, estimated error: 0.168953
+lx0:3764.89     down3764.89
+green
+alpha=1
+start find minimum of phi(x),iter time:87
+x:188.279
+aj1:2824378
+rhs:0.350241
+CG:       #iterations: 4, estimated error: 0.34219
+lx0:3764.89     down3764.89
+green
+alpha=1
+start find minimum of phi(x),iter time:88
+x:188.279
+aj1:2827364
+rhs:0.133402
+CG:       #iterations: 496, estimated error: 0.133394
+lx0:3764.89     down3764.89
+alpha=0.125
+start find minimum of phi(x),iter time:89
+x:188.291
+aj1:2829766
+rhs:0.764173
+CG:       #iterations: 1, estimated error: 0.429651
+lx0:3764.89     down3764.89
+green
+alpha=1
+start find minimum of phi(x),iter time:90
+x:188.291
+aj1:2824193
+rhs:0.348052
+CG:       #iterations: 4, estimated error: 0.276393
+lx0:3764.88     down3764.88
+green
+alpha=1
+start find minimum of phi(x),iter time:91
+x:188.291
+aj1:2828008
+rhs:0.10083
+CG:       #iterations: 846, estimated error: 0.100373
+lx0:3764.88     down3764.88
+alpha=0.03125
+start find minimum of phi(x),iter time:92
+x:188.296
+aj1:2828168
+rhs:0.205423
+CG:       #iterations: 221, estimated error: 0.20442
+lx0:3764.88     down3764.88
+green
+alpha=1
+start find minimum of phi(x),iter time:93
+x:188.35
+aj1:2837536
+rhs:2.51653
+CG:       #iterations: 0, estimated error: 0.115601
+lx0:3764.87     down3764.87
+green
+alpha=1
+start find minimum of phi(x),iter time:94
+x:188.35
+aj1:2829136
+rhs:0.292185
+CG:       #iterations: 132, estimated error: 0.281218
+lx0:3764.87     down3764.87
+green
+alpha=1
+start find minimum of phi(x),iter time:95
+x:188.378
+aj1:2843010
+rhs:0.750786
+CG:       #iterations: 0, estimated error: 0.160001
+lx0:3764.86     down3764.86
+green
+alpha=1
+start find minimum of phi(x),iter time:96
+x:188.378
+aj1:2829056
+rhs:0.166703
+CG:       #iterations: 277, estimated error: 0.163304
+lx0:3764.86     down3764.86
+green
+alpha=1
+start find minimum of phi(x),iter time:97
+x:188.437
+aj1:2853293
+rhs:1.12678
+CG:       #iterations: 0, estimated error: 0.271077
+lx0:3764.85     down3764.85
+green
+alpha=1
+start find minimum of phi(x),iter time:98
+x:188.437
+aj1:2830754
+rhs:0.296301
+CG:       #iterations: 138, estimated error: 0.295492
+lx0:3764.85     down3764.85
+green
+alpha=1
+start find minimum of phi(x),iter time:99
+x:188.461
+aj1:2843581
+rhs:0.166787
+CG:       #iterations: 313, estimated error: 0.160934
+lx0:3764.85     down3764.85
+green
+alpha=1
+start find minimum of phi(x),iter time:100
+x:188.515
+aj1:2847638
+rhs:0.559147
+CG:       #iterations: 4, estimated error: 0.463728
+lx0:3764.84     down3764.84
+green
+alpha=1
+start find minimum of phi(x),iter time:101
+x:188.515
+aj1:2838532
+rhs:0.226741
+CG:       #iterations: 207, estimated error: 0.221802
+lx0:3764.84     down3764.84
+alpha=0.0625
+start find minimum of phi(x),iter time:102
+x:188.517
+aj1:2836661
+rhs:0.249462
+CG:       #iterations: 167, estimated error: 0.237816
+lx0:3764.84     down3764.84
+green
+alpha=1
+start find minimum of phi(x),iter time:103
+x:188.544
+aj1:2857238
+rhs:0.168673
+CG:       #iterations: 299, estimated error: 0.167882
+lx0:3764.83     down3764.83
+alpha=0.5
+start find minimum of phi(x),iter time:104
+x:188.567
+aj1:2852206
+rhs:0.282077
+CG:       #iterations: 153, estimated error: 0.279532
+lx0:3764.83     down3764.83
+green
+alpha=1
+start find minimum of phi(x),iter time:105
+x:188.586
+aj1:2853068
+rhs:0.0916731
+CG:       #iterations: 816, estimated error: 0.0909116
+lx0:3764.83     down3764.83
+alpha=0.25
+start find minimum of phi(x),iter time:106
+x:188.61
+aj1:2851470
+rhs:0.204126
+CG:       #iterations: 218, estimated error: 0.201745
+lx0:3764.82     down3764.82
+green
+alpha=1
+start find minimum of phi(x),iter time:107
+x:188.642
+aj1:2844009
+rhs:0.566017
+CG:       #iterations: 0, estimated error: 0.480208
+lx0:3764.82     down3764.82
+green
+alpha=1
+start find minimum of phi(x),iter time:108
+x:188.642
+aj1:2826891
+rhs:0.234265
+CG:       #iterations: 152, estimated error: 0.220093
+lx0:3764.82     down3764.82
+green
+alpha=1
+start find minimum of phi(x),iter time:109
+x:188.666
+aj1:2858203
+rhs:0.0678279
+CG:       #iterations: 1319, estimated error: 0.065906
+lx0:3764.82     down3764.82
+alpha=0.25
+start find minimum of phi(x),iter time:110
+x:188.692
+aj1:2857037
+rhs:0.187897
+CG:       #iterations: 239, estimated error: 0.184539
+lx0:3764.81     down3764.81
+alpha=0.5
+start find minimum of phi(x),iter time:111
+x:188.706
+aj1:2848354
+rhs:0.815952
+CG:       #iterations: 0, estimated error: 0.155697
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:112
+x:188.706
+aj1:2829403
+rhs:0.487302
+CG:       #iterations: 0, estimated error: 0.124125
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:113
+x:188.706
+aj1:2828697
+rhs:0.0604639
+CG:       #iterations: 1229, estimated error: 0.060275
+lx0:3764.81     down3764.81
+alpha=0.125
+start find minimum of phi(x),iter time:114
+x:188.72
+aj1:2829210
+rhs:1.50392
+CG:       #iterations: 0, estimated error: 0.0579085
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:115
+x:188.72
+aj1:2827264
+rhs:0.316746
+CG:       #iterations: 0, estimated error: 0.12888
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:116
+x:188.72
+aj1:2828097
+rhs:0.0420905
+CG:       #iterations: 2090, estimated error: 0.0411584
+lx0:3764.81     down3764.81
+alpha=0.125
+start find minimum of phi(x),iter time:117
+x:188.741
+aj1:2828214
+rhs:0.84524
+CG:       #iterations: 0, estimated error: 0.282058
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:118
+x:188.741
+aj1:2827292
+rhs:0.506646
+CG:       #iterations: 0, estimated error: 0.425892
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:119
+x:188.742
+aj1:2828637
+rhs:0.207374
+CG:       #iterations: 202, estimated error: 0.206431
+lx0:3764.81     down3764.81
+alpha=0.25
+start find minimum of phi(x),iter time:120
+x:188.746
+aj1:2831935
+rhs:0.833886
+CG:       #iterations: 0, estimated error: 0.222297
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:121
+x:188.746
+aj1:2826719
+rhs:0.193317
+CG:       #iterations: 202, estimated error: 0.187618
+lx0:3764.81     down3764.81
+alpha=0.25
+start find minimum of phi(x),iter time:122
+x:188.752
+aj1:2829396
+rhs:0.693051
+CG:       #iterations: 0, estimated error: 0.303424
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:123
+x:188.752
+aj1:2828391
+rhs:0.357031
+CG:       #iterations: 1, estimated error: 0.292783
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:124
+x:188.752
+aj1:2827413
+rhs:0.101676
+CG:       #iterations: 575, estimated error: 0.100529
+lx0:3764.81     down3764.81
+alpha=0.125
+start find minimum of phi(x),iter time:125
+x:188.759
+aj1:2828097
+rhs:0.912969
+CG:       #iterations: 0, estimated error: 0.105925
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:126
+x:188.759
+aj1:2826798
+rhs:0.182195
+CG:       #iterations: 214, estimated error: 0.181856
+lx0:3764.81     down3764.81
+alpha=0.5
+start find minimum of phi(x),iter time:127
+x:188.772
+aj1:2896881
+rhs:0.764782
+CG:       #iterations: 1, estimated error: 0.21247
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:128
+x:188.772
+aj1:2847640
+rhs:0.367368
+CG:       #iterations: 2, estimated error: 0.279994
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:129
+x:188.772
+aj1:2835681
+rhs:0.0855203
+CG:       #iterations: 856, estimated error: 0.0849175
+lx0:3764.81     down3764.81
+alpha=0.125
+start find minimum of phi(x),iter time:130
+x:188.78
+aj1:2836146
+rhs:0.958114
+CG:       #iterations: 0, estimated error: 0.396931
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:131
+x:188.78
+aj1:2828936
+rhs:0.202244
+CG:       #iterations: 11, estimated error: 0.199975
+lx0:3764.81     down3764.81
+alpha=1
+start find minimum of phi(x),iter time:132
+x:188.78
+aj1:2897297
+rhs:0.156763
+CG:       #iterations: 436, estimated error: 0.154974
+lx0:3764.81     down3764.81
+green
+alpha=1
+start find minimum of phi(x),iter time:133
+x:188.81
+aj1:2897782
+rhs:0.802301
+CG:       #iterations: 0, estimated error: 0.140095
+lx0:3764.8      down3764.8
+green
+alpha=1
+start find minimum of phi(x),iter time:134
+x:188.81
+aj1:2851582
+rhs:0.48708
+CG:       #iterations: 0, estimated error: 0.102057
+lx0:3764.8      down3764.8
+green
+alpha=1
+start find minimum of phi(x),iter time:135
+x:188.81
+aj1:2839225
+rhs:0.0494788
+CG:       #iterations: 1535, estimated error: 0.0494713
+lx0:3764.8      down3764.8
+alpha=0.125
+start find minimum of phi(x),iter time:136
+x:188.824
+aj1:2838938
+rhs:1.03978
+CG:       #iterations: 0, estimated error: 0.0640668
+lx0:3764.8      down3764.8
+green
+alpha=1
+start find minimum of phi(x),iter time:137
+x:188.824
+aj1:2836778
+rhs:0.199645
+CG:       #iterations: 0, estimated error: 0.183114
+lx0:3764.8      down3764.8
+green
+alpha=1
+start find minimum of phi(x),iter time:138
+x:188.824
+aj1:2836810
+rhs:0.036523
+CG:       #iterations: 2042, estimated error: 0.0365104
+lx0:3764.8      down3764.8
+alpha=0.0078125
+start find minimum of phi(x),iter time:139
+x:188.825
+aj1:2836906
+rhs:0.278267
+CG:       #iterations: 1, estimated error: 0.191581
+lx0:3764.8      down3764.8
+green
+alpha=1
+start find minimum of phi(x),iter time:140
+x:188.825
+aj1:2834827
+rhs:0.0498709
+CG:       #iterations: 1365, estimated error: 0.0494426
+lx0:3764.8      down3764.8
+alpha=0.5
+start find minimum of phi(x),iter time:141
+x:188.881
+aj1:2837162
+rhs:0.479319
+CG:       #iterations: 0, estimated error: 0.10791
+lx0:3764.8      down3764.8
+green
+alpha=1
+start find minimum of phi(x),iter time:142
+x:188.881
+aj1:2833246
+rhs:0.0700615
+CG:       #iterations: 673, estimated error: 0.0699468
+lx0:3764.8      down3764.8
+green
+alpha=1
+start find minimum of phi(x),iter time:143
+x:188.947
+aj1:2858669
+rhs:0.161204
+CG:       #iterations: 24, estimated error: 0.156319
+lx0:3764.8      down3764.8
+green
+alpha=1
+start find minimum of phi(x),iter time:144
+x:188.947
+aj1:2849123
+rhs:0.0438613
+CG:       #iterations: 1644, estimated error: 0.0437838
+lx0:3764.79     down3764.79
+alpha=0.5
+start find minimum of phi(x),iter time:145
+x:188.99
+aj1:2848672
+rhs:0.256933
+CG:       #iterations: 19, estimated error: 0.24246
+lx0:3764.79     down3764.79
+alpha=1
+start find minimum of phi(x),iter time:146
+x:188.99
+aj1:2846970
+rhs:0.23045
+CG:       #iterations: 4, estimated error: 0.225504
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:147
+x:188.99
+aj1:2840408
+rhs:0.0838786
+CG:       #iterations: 562, estimated error: 0.0830055
+lx0:3764.79     down3764.79
+alpha=1
+start find minimum of phi(x),iter time:148
+x:189.02
+aj1:2834226
+rhs:0.720665
+CG:       #iterations: 0, estimated error: 0.0594329
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:149
+x:189.02
+aj1:2829019
+rhs:0.0587194
+CG:       #iterations: 824, estimated error: 0.0576378
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:150
+x:189.057
+aj1:2833919
+rhs:0.0622819
+CG:       #iterations: 617, estimated error: 0.0612572
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:151
+x:189.083
+aj1:2849667
+rhs:0.0710012
+CG:       #iterations: 407, estimated error: 0.0706888
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:152
+x:189.099
+aj1:2838258
+rhs:0.00731813
+CG:       #iterations: 4457, estimated error: 0.00729382
+lx0:3764.79     down3764.79
+alpha=0.125
+start find minimum of phi(x),iter time:153
+x:189.114
+aj1:2838425
+rhs:0.0619355
+CG:       #iterations: 627, estimated error: 0.0588746
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:154
+x:189.125
+aj1:2840003
+rhs:0.0200918
+CG:       #iterations: 2203, estimated error: 0.019919
+lx0:3764.79     down3764.79
+alpha=0.25
+start find minimum of phi(x),iter time:155
+x:189.131
+aj1:2840074
+rhs:0.127298
+CG:       #iterations: 8, estimated error: 0.122754
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:156
+x:189.131
+aj1:2839943
+rhs:0.0137216
+CG:       #iterations: 3137, estimated error: 0.0135334
+lx0:3764.79     down3764.79
+alpha=1
+start find minimum of phi(x),iter time:157
+x:189.153
+aj1:2831743
+rhs:0.0263275
+CG:       #iterations: 866, estimated error: 0.0259381
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:158
+x:189.157
+aj1:2844199
+rhs:0.00482052
+CG:       #iterations: 3734, estimated error: 0.00479947
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:159
+x:189.162
+aj1:2840077
+rhs:0.00130243
+CG:       #iterations: 4331, estimated error: 0.00130104
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:160
+x:189.162
+aj1:2843673
+rhs:0.00040003
+CG:       #iterations: 3882, estimated error: 0.000391669
+lx0:3764.79     down3764.79
+alpha=1
+start find minimum of phi(x),iter time:161
+x:189.163
+aj1:2843680
+rhs:7.21325e-06
+CG:       #iterations: 7188, estimated error: 7.19708e-06
+lx0:3764.79     down3764.79
+green
+alpha=1
+start find minimum of phi(x),iter time:162
+x:189.163
+aj1:2849060
+u:2827320
+kkt_u:7.35376e-07       kkt_y:2.56762e-06
+kkt_x:4.59215e-12       kkt_z:7.0726e-17        kkt_v:0.00075783
+kkt:0.00075783
+start main loop,sigma=16
+start find minimum of phi(x),iter time:0
+x:189.163
+aj1:2771201
+rhs:2.613
+CG:       #iterations: 31, estimated error: 0.483827
+lx0:3702.57     down3702.57
+alpha=1
+start find minimum of phi(x),iter time:1
+x:189.168
+aj1:3164180
+rhs:5.37299
+CG:       #iterations: 1, estimated error: 0.313768
+lx0:3702.54     down3702.54
+green
+alpha=1
+start find minimum of phi(x),iter time:2
+x:189.168
+aj1:2964466
+rhs:1.51154
+CG:       #iterations: 26, estimated error: 0.465835
+lx0:3702.54     down3702.54
+alpha=1
+start find minimum of phi(x),iter time:3
+x:189.171
+aj1:3125728
+rhs:5.89325
+CG:       #iterations: 0, estimated error: 0.205995
+lx0:3702.54     down3702.54
+green
+alpha=1
+start find minimum of phi(x),iter time:4
+x:189.171
+aj1:2993693
+rhs:1.15046
+CG:       #iterations: 2, estimated error: 0.464782
+lx0:3702.53     down3702.53
+alpha=0.5
+start find minimum of phi(x),iter time:5
+x:189.171
+aj1:2978757
+rhs:1.49865
+CG:       #iterations: 0, estimated error: 0.282157
+lx0:3702.53     down3702.53
+green
+alpha=1
+start find minimum of phi(x),iter time:6
+x:189.171
+aj1:2933595
+rhs:0.418757
+CG:       #iterations: 267, estimated error: 0.411307
+lx0:3702.53     down3702.53
+alpha=0.0625
+start find minimum of phi(x),iter time:7
+x:189.176
+aj1:2930993
+rhs:1.22482
+CG:       #iterations: 0, estimated error: 0.258439
+lx0:3702.53     down3702.53
+green
+alpha=1
+start find minimum of phi(x),iter time:8
+x:189.176
+aj1:2900090
+rhs:0.324052
+CG:       #iterations: 364, estimated error: 0.322756
+lx0:3702.53     down3702.53
+alpha=0.125
+start find minimum of phi(x),iter time:9
+x:189.188
+aj1:2898095
+rhs:0.464579
+CG:       #iterations: 180, estimated error: 0.4412
+lx0:3702.53     down3702.53
+alpha=1
+start find minimum of phi(x),iter time:10
+x:189.248
+aj1:3032724
+rhs:8.04778
+CG:       #iterations: 0, estimated error: 0.243533
+lx0:3702.52     down3702.52
+green
+alpha=1
+start find minimum of phi(x),iter time:11
+x:189.248
+aj1:2878096
+rhs:1.72353
+CG:       #iterations: 4, estimated error: 0.418791
+lx0:3702.51     down3702.51
+green
+alpha=1
+start find minimum of phi(x),iter time:12
+x:189.249
+aj1:3001135
+rhs:1.49801
+CG:       #iterations: 0, estimated error: 0.31602
+lx0:3702.51     down3702.51
+green
+alpha=1
+start find minimum of phi(x),iter time:13
+x:189.249
+aj1:2934888
+rhs:0.440485
+CG:       #iterations: 152, estimated error: 0.428445
+lx0:3702.51     down3702.51
+alpha=0.25
+start find minimum of phi(x),iter time:14
+x:189.259
+aj1:2935140
+rhs:1.24198
+CG:       #iterations: 0, estimated error: 0.4233
+lx0:3702.5      down3702.5
+green
+alpha=1
+start find minimum of phi(x),iter time:15
+x:189.259
+aj1:2899337
+rhs:0.472597
+CG:       #iterations: 127, estimated error: 0.468317
+lx0:3702.5      down3702.5
+alpha=1
+start find minimum of phi(x),iter time:16
+x:189.293
+aj1:2978805
+rhs:3.25314
+CG:       #iterations: 1, estimated error: 0.433468
+lx0:3702.5      down3702.5
+green
+alpha=1
+start find minimum of phi(x),iter time:17
+x:189.293
+aj1:2872658
+rhs:1.22176
+CG:       #iterations: 2, estimated error: 0.478036
+lx0:3702.5      down3702.5
+green
+alpha=1
+start find minimum of phi(x),iter time:18
+x:189.293
+aj1:2896984
+rhs:0.700265
+CG:       #iterations: 1, estimated error: 0.340978
+lx0:3702.5      down3702.5
+green
+alpha=1
+start find minimum of phi(x),iter time:19
+x:189.293
+aj1:2881426
+rhs:0.224143
+CG:       #iterations: 412, estimated error: 0.220003
+lx0:3702.5      down3702.5
+alpha=0.25
+start find minimum of phi(x),iter time:20
+x:189.309
+aj1:2889259
+rhs:3.34537
+CG:       #iterations: 0, estimated error: 0.0960775
+lx0:3702.5      down3702.5
+green
+alpha=1
+start find minimum of phi(x),iter time:21
+x:189.309
+aj1:2875626
+rhs:0.309299
+CG:       #iterations: 201, estimated error: 0.300508
+lx0:3702.49     down3702.49
+alpha=1
+start find minimum of phi(x),iter time:22
+x:189.352
+aj1:2960192
+rhs:3.09274
+CG:       #iterations: 0, estimated error: 0.221579
+lx0:3702.49     down3702.49
+green
+alpha=1
+start find minimum of phi(x),iter time:23
+x:189.352
+aj1:2907816
+rhs:0.561352
+CG:       #iterations: 4, estimated error: 0.47131
+lx0:3702.49     down3702.49
+alpha=0.25
+start find minimum of phi(x),iter time:24
+x:189.352
+aj1:2910100
+rhs:0.879372
+CG:       #iterations: 0, estimated error: 0.294917
+lx0:3702.49     down3702.49
+green
+alpha=1
+start find minimum of phi(x),iter time:25
+x:189.352
+aj1:2902298
+rhs:0.257273
+CG:       #iterations: 248, estimated error: 0.249902
+lx0:3702.49     down3702.49
+alpha=0.03125
+start find minimum of phi(x),iter time:26
+x:189.353
+aj1:2902140
+rhs:0.267335
+CG:       #iterations: 236, estimated error: 0.263161
+lx0:3702.49     down3702.49
+alpha=1
+start find minimum of phi(x),iter time:27
+x:189.39
+aj1:2989521
+rhs:2.02034
+CG:       #iterations: 0, estimated error: 0.404761
+lx0:3702.48     down3702.48
+green
+alpha=1
+start find minimum of phi(x),iter time:28
+x:189.39
+aj1:2899046
+rhs:0.686205
+CG:       #iterations: 0, estimated error: 0.493784
+lx0:3702.48     down3702.48
+green
+alpha=1
+start find minimum of phi(x),iter time:29
+x:189.39
+aj1:2934503
+rhs:0.340504
+CG:       #iterations: 174, estimated error: 0.337048
+lx0:3702.48     down3702.48
+alpha=0.0625
+start find minimum of phi(x),iter time:30
+x:189.391
+aj1:2932599
+rhs:0.351193
+CG:       #iterations: 138, estimated error: 0.349574
+lx0:3702.48     down3702.48
+alpha=0.5
+start find minimum of phi(x),iter time:31
+x:189.4
+aj1:2942375
+rhs:3.08886
+CG:       #iterations: 0, estimated error: 0.272336
+lx0:3702.48     down3702.48
+green
+alpha=1
+start find minimum of phi(x),iter time:32
+x:189.4
+aj1:2909706
+rhs:0.80126
+CG:       #iterations: 0, estimated error: 0.49518
+lx0:3702.48     down3702.48
+alpha=1
+start find minimum of phi(x),iter time:33
+x:189.4
+aj1:2890667
+rhs:0.415838
+CG:       #iterations: 0, estimated error: 0.34683
+lx0:3702.48     down3702.48
+green
+alpha=1
+start find minimum of phi(x),iter time:34
+x:189.4
+aj1:2891007
+rhs:0.144047
+CG:       #iterations: 682, estimated error: 0.142905
+lx0:3702.48     down3702.48
+alpha=0.25
+start find minimum of phi(x),iter time:35
+x:189.417
+aj1:2896712
+rhs:0.433093
+CG:       #iterations: 1, estimated error: 0.309315
+lx0:3702.48     down3702.48
+green
+alpha=1
+start find minimum of phi(x),iter time:36
+x:189.417
+aj1:2896061
+rhs:0.135021
+CG:       #iterations: 645, estimated error: 0.132848
+lx0:3702.48     down3702.48
+alpha=0.25
+start find minimum of phi(x),iter time:37
+x:189.435
+aj1:2902131
+rhs:4.07118
+CG:       #iterations: 0, estimated error: 0.064904
+lx0:3702.48     down3702.48
+green
+alpha=1
+start find minimum of phi(x),iter time:38
+x:189.435
+aj1:2890808
+rhs:0.354967
+CG:       #iterations: 1, estimated error: 0.306752
+lx0:3702.47     down3702.47
+green
+alpha=1
+start find minimum of phi(x),iter time:39
+x:189.435
+aj1:2894467
+rhs:0.103943
+CG:       #iterations: 941, estimated error: 0.102997
+lx0:3702.47     down3702.47
+alpha=1
+start find minimum of phi(x),iter time:40
+x:189.543
+aj1:2960456
+rhs:7.57535
+CG:       #iterations: 0, estimated error: 0.14215
+lx0:3702.47     down3702.47
+green
+alpha=1
+start find minimum of phi(x),iter time:41
+x:189.543
+aj1:2894232
+rhs:0.903523
+CG:       #iterations: 4, estimated error: 0.390781
+lx0:3702.46     down3702.46
+alpha=1
+start find minimum of phi(x),iter time:42
+x:189.543
+aj1:3013154
+rhs:0.690889
+CG:       #iterations: 0, estimated error: 0.379256
+lx0:3702.46     down3702.46
+green
+alpha=1
+start find minimum of phi(x),iter time:43
+x:189.543
+aj1:2928055
+rhs:0.247223
+CG:       #iterations: 305, estimated error: 0.243594
+lx0:3702.46     down3702.46
+alpha=0.5
+start find minimum of phi(x),iter time:44
+x:189.557
+aj1:2951602
+rhs:1.74036
+CG:       #iterations: 0, estimated error: 0.147187
+lx0:3702.46     down3702.46
+green
+alpha=1
+start find minimum of phi(x),iter time:45
+x:189.557
+aj1:2933498
+rhs:0.650541
+CG:       #iterations: 0, estimated error: 0.467905
+lx0:3702.46     down3702.46
+green
+alpha=1
+start find minimum of phi(x),iter time:46
+x:189.557
+aj1:2923694
+rhs:0.224067
+CG:       #iterations: 268, estimated error: 0.22016
+lx0:3702.46     down3702.46
+alpha=0.25
+start find minimum of phi(x),iter time:47
+x:189.564
+aj1:2928403
+rhs:1.56438
+CG:       #iterations: 0, estimated error: 0.092088
+lx0:3702.46     down3702.46
+green
+alpha=1
+start find minimum of phi(x),iter time:48
+x:189.564
+aj1:2916677
+rhs:0.155661
+CG:       #iterations: 381, estimated error: 0.153634
+lx0:3702.46     down3702.46
+alpha=1
+start find minimum of phi(x),iter time:49
+x:189.614
+aj1:2958339
+rhs:5.06563
+CG:       #iterations: 0, estimated error: 0.0527471
+lx0:3702.46     down3702.46
+green
+alpha=1
+start find minimum of phi(x),iter time:50
+x:189.614
+aj1:2934832
+rhs:1.00118
+CG:       #iterations: 0, estimated error: 0.12205
+lx0:3702.45     down3702.45
+green
+alpha=1
+start find minimum of phi(x),iter time:51
+x:189.614
+aj1:2929921
+rhs:0.12433
+CG:       #iterations: 679, estimated error: 0.124166
+lx0:3702.45     down3702.45
+alpha=0.25
+start find minimum of phi(x),iter time:52
+x:189.628
+aj1:2930836
+rhs:1.09924
+CG:       #iterations: 0, estimated error: 0.173143
+lx0:3702.45     down3702.45
+green
+alpha=1
+start find minimum of phi(x),iter time:53
+x:189.628
+aj1:2924858
+rhs:0.679852
+CG:       #iterations: 0, estimated error: 0.14805
+lx0:3702.45     down3702.45
+green
+alpha=1
+start find minimum of phi(x),iter time:54
+x:189.628
+aj1:2922011
+rhs:0.100979
+CG:       #iterations: 823, estimated error: 0.100489
+lx0:3702.45     down3702.45
+green
+alpha=1
+start find minimum of phi(x),iter time:55
+x:189.708
+aj1:2967544
+rhs:2.09264
+CG:       #iterations: 0, estimated error: 0.290532
+lx0:3702.45     down3702.45
+green
+alpha=1
+start find minimum of phi(x),iter time:56
+x:189.708
+aj1:2935482
+rhs:0.574445
+CG:       #iterations: 1, estimated error: 0.334655
+lx0:3702.45     down3702.45
+green
+alpha=1
+start find minimum of phi(x),iter time:57
+x:189.708
+aj1:2929203
+rhs:0.235652
+CG:       #iterations: 263, estimated error: 0.235406
+lx0:3702.45     down3702.45
+alpha=1
+start find minimum of phi(x),iter time:58
+x:189.728
+aj1:3037130
+rhs:0.673063
+CG:       #iterations: 4, estimated error: 0.321859
+lx0:3702.45     down3702.45
+green
+alpha=1
+start find minimum of phi(x),iter time:59
+x:189.728
+aj1:2975868
+rhs:0.217314
+CG:       #iterations: 331, estimated error: 0.204076
+lx0:3702.44     down3702.44
+alpha=0.25
+start find minimum of phi(x),iter time:60
+x:189.732
+aj1:2972693
+rhs:0.407321
+CG:       #iterations: 2, estimated error: 0.404198
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:61
+x:189.732
+aj1:2919348
+rhs:0.156424
+CG:       #iterations: 352, estimated error: 0.15453
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:62
+x:189.765
+aj1:2974065
+rhs:1.58054
+CG:       #iterations: 0, estimated error: 0.267099
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:63
+x:189.765
+aj1:2934976
+rhs:0.404279
+CG:       #iterations: 10, estimated error: 0.330845
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:64
+x:189.765
+aj1:2969896
+rhs:0.175323
+CG:       #iterations: 278, estimated error: 0.171938
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:65
+x:189.792
+aj1:2997837
+rhs:0.421145
+CG:       #iterations: 30, estimated error: 0.369178
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:66
+x:189.792
+aj1:3031447
+rhs:0.915701
+CG:       #iterations: 3, estimated error: 0.373016
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:67
+x:189.792
+aj1:3096728
+rhs:0.346415
+CG:       #iterations: 8, estimated error: 0.334421
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:68
+x:189.792
+aj1:2998139
+rhs:0.252438
+CG:       #iterations: 48, estimated error: 0.251085
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:69
+x:189.793
+aj1:2994724
+rhs:0.246417
+CG:       #iterations: 3, estimated error: 0.159154
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:70
+x:189.793
+aj1:2961582
+rhs:0.0424353
+CG:       #iterations: 2707, estimated error: 0.0420329
+lx0:3702.44     down3702.44
+alpha=0.0625
+start find minimum of phi(x),iter time:71
+x:189.801
+aj1:2961235
+rhs:0.178297
+CG:       #iterations: 330, estimated error: 0.174783
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:72
+x:189.823
+aj1:2981834
+rhs:0.0729447
+CG:       #iterations: 1096, estimated error: 0.0721353
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:73
+x:189.892
+aj1:2979289
+rhs:1.71096
+CG:       #iterations: 1, estimated error: 0.143695
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:74
+x:189.892
+aj1:2974958
+rhs:0.571574
+CG:       #iterations: 2, estimated error: 0.174554
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:75
+x:189.892
+aj1:2948802
+rhs:0.0957646
+CG:       #iterations: 922, estimated error: 0.0948125
+lx0:3702.44     down3702.44
+alpha=0.0625
+start find minimum of phi(x),iter time:76
+x:189.894
+aj1:2950762
+rhs:0.0894038
+CG:       #iterations: 752, estimated error: 0.0891889
+lx0:3702.44     down3702.44
+alpha=0.25
+start find minimum of phi(x),iter time:77
+x:189.903
+aj1:2962612
+rhs:1.33891
+CG:       #iterations: 0, estimated error: 0.0701198
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:78
+x:189.903
+aj1:2951498
+rhs:0.283256
+CG:       #iterations: 0, estimated error: 0.212198
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:79
+x:189.903
+aj1:2949729
+rhs:0.0588002
+CG:       #iterations: 1222, estimated error: 0.0576669
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:80
+x:189.959
+aj1:2979046
+rhs:1.19077
+CG:       #iterations: 0, estimated error: 0.173563
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:81
+x:189.959
+aj1:2959930
+rhs:0.765323
+CG:       #iterations: 0, estimated error: 0.114373
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:82
+x:189.959
+aj1:2955438
+rhs:0.0801471
+CG:       #iterations: 780, estimated error: 0.0800541
+lx0:3702.44     down3702.44
+alpha=0.5
+start find minimum of phi(x),iter time:83
+x:189.973
+aj1:2981046
+rhs:0.46199
+CG:       #iterations: 0, estimated error: 0.41701
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:84
+x:189.973
+aj1:2953665
+rhs:0.155328
+CG:       #iterations: 124, estimated error: 0.139675
+lx0:3702.44     down3702.44
+alpha=0.125
+start find minimum of phi(x),iter time:85
+x:189.973
+aj1:2956666
+rhs:0.347435
+CG:       #iterations: 0, estimated error: 0.302118
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:86
+x:189.973
+aj1:2957739
+rhs:0.0975241
+CG:       #iterations: 443, estimated error: 0.0958534
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:87
+x:189.99
+aj1:3141898
+rhs:0.142651
+CG:       #iterations: 3, estimated error: 0.13922
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:88
+x:189.99
+aj1:3068650
+rhs:0.0212637
+CG:       #iterations: 5665, estimated error: 0.0206733
+lx0:3702.44     down3702.44
+alpha=0.5
+start find minimum of phi(x),iter time:89
+x:190.012
+aj1:3067423
+rhs:0.593538
+CG:       #iterations: 0, estimated error: 0.0827592
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:90
+x:190.012
+aj1:2975261
+rhs:0.0384048
+CG:       #iterations: 1641, estimated error: 0.0380065
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:91
+x:190.03
+aj1:3011534
+rhs:0.0472111
+CG:       #iterations: 784, estimated error: 0.0464702
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:92
+x:190.037
+aj1:3001962
+rhs:0.0822473
+CG:       #iterations: 68, estimated error: 0.0818558
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:93
+x:190.037
+aj1:2996757
+rhs:0.0517808
+CG:       #iterations: 1061, estimated error: 0.051202
+lx0:3702.44     down3702.44
+alpha=0.5
+start find minimum of phi(x),iter time:94
+x:190.039
+aj1:2986839
+rhs:0.0349874
+CG:       #iterations: 924, estimated error: 0.0344239
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:95
+x:190.041
+aj1:2992128
+rhs:0.0954383
+CG:       #iterations: 0, estimated error: 0.0928598
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:96
+x:190.041
+aj1:2970460
+rhs:0.0102022
+CG:       #iterations: 1438, estimated error: 0.0100197
+lx0:3702.44     down3702.44
+alpha=1
+start find minimum of phi(x),iter time:97
+x:190.042
+aj1:2992280
+rhs:0.00691118
+CG:       #iterations: 1351, estimated error: 0.00687806
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:98
+x:190.043
+aj1:2988183
+rhs:0.000625376
+CG:       #iterations: 3263, estimated error: 0.000615747
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:99
+x:190.043
+aj1:2985268
+rhs:0.000228253
+CG:       #iterations: 3954, estimated error: 0.000226587
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:100
+x:190.043
+aj1:2982003
+rhs:2.48644e-05
+CG:       #iterations: 3943, estimated error: 2.47647e-05
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:101
+x:190.043
+aj1:2991132
+rhs:8.1107e-06
+CG:       #iterations: 5614, estimated error: 7.94508e-06
+lx0:3702.44     down3702.44
+green
+alpha=1
+start find minimum of phi(x),iter time:102
+x:190.043
+aj1:2990942
+u:2955748
+kkt_u:8.04401e-08       kkt_y:2.19141e-07
+kkt_x:2.72804e-09       kkt_z:7.57764e-17       kkt_v:3.10867e-05
+kkt:3.10867e-05
+start main loop,sigma=32
+start find minimum of phi(x),iter time:0
+x:190.043
+aj1:2968167
+rhs:0.209664
+CG:       #iterations: 713, estimated error: 0.206574
+lx0:3670.57     down3670.57
+alpha=0.000976563
+start find minimum of phi(x),iter time:1
+x:190.043
+aj1:2963631
+rhs:0.209954
+CG:       #iterations: 533, estimated error: 0.207597
+lx0:3670.57     down3670.57
+alpha=0.125
+start find minimum of phi(x),iter time:2
+x:190.044
+aj1:2968639
+rhs:0.225663
+CG:       #iterations: 271, estimated error: 0.225411
+lx0:3670.57     down3670.57
+alpha=0.5
+start find minimum of phi(x),iter time:3
+x:190.045
+aj1:3071148
+rhs:0.516517
+CG:       #iterations: 0, estimated error: 0.307269
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:4
+x:190.045
+aj1:2986513
+rhs:0.148786
+CG:       #iterations: 511, estimated error: 0.14737
+lx0:3670.57     down3670.57
+alpha=0.5
+start find minimum of phi(x),iter time:5
+x:190.05
+aj1:3044564
+rhs:0.144994
+CG:       #iterations: 504, estimated error: 0.142636
+lx0:3670.57     down3670.57
+alpha=1
+start find minimum of phi(x),iter time:6
+x:190.058
+aj1:3288861
+rhs:1.12544
+CG:       #iterations: 1, estimated error: 0.0835757
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:7
+x:190.058
+aj1:3124755
+rhs:0.0940455
+CG:       #iterations: 784, estimated error: 0.0928005
+lx0:3670.57     down3670.57
+alpha=1
+start find minimum of phi(x),iter time:8
+x:190.069
+aj1:3400166
+rhs:0.74126
+CG:       #iterations: 0, estimated error: 0.171663
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:9
+x:190.069
+aj1:3177329
+rhs:0.110794
+CG:       #iterations: 473, estimated error: 0.110594
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:10
+x:190.074
+aj1:3581841
+rhs:0.107271
+CG:       #iterations: 28, estimated error: 0.106158
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:11
+x:190.074
+aj1:3382218
+rhs:0.0183071
+CG:       #iterations: 5124, estimated error: 0.0173551
+lx0:3670.57     down3670.57
+alpha=0.5
+start find minimum of phi(x),iter time:12
+x:190.08
+aj1:3425960
+rhs:0.28125
+CG:       #iterations: 4, estimated error: 0.207864
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:13
+x:190.08
+aj1:3216732
+rhs:0.0627833
+CG:       #iterations: 805, estimated error: 0.0614155
+lx0:3670.57     down3670.57
+alpha=1
+start find minimum of phi(x),iter time:14
+x:190.084
+aj1:4326895
+rhs:0.91421
+CG:       #iterations: 0, estimated error: 0.227909
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:15
+x:190.084
+aj1:4058358
+rhs:0.201696
+CG:       #iterations: 4, estimated error: 0.164899
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:16
+x:190.084
+aj1:3686389
+rhs:0.0282458
+CG:       #iterations: 2869, estimated error: 0.0278729
+lx0:3670.57     down3670.57
+alpha=1
+start find minimum of phi(x),iter time:17
+x:190.086
+aj1:7531670
+rhs:0.106853
+CG:       #iterations: 31, estimated error: 0.101577
+lx0:3670.57     down3670.57
+alpha=1
+start find minimum of phi(x),iter time:18
+x:190.086
+aj1:10234626
+rhs:0.025373
+CG:       #iterations: 4065, estimated error: 0.0251044
+lx0:3670.57     down3670.57
+alpha=0.5
+start find minimum of phi(x),iter time:19
+x:190.087
+aj1:10199725
+rhs:0.0176621
+CG:       #iterations: 4535, estimated error: 0.0175932
+lx0:3670.57     down3670.57
+alpha=0.5
+start find minimum of phi(x),iter time:20
+x:190.087
+aj1:9973757
+rhs:0.00981946
+CG:       #iterations: 5279, estimated error: 0.00964543
+lx0:3670.57     down3670.57
+alpha=0.03125
+start find minimum of phi(x),iter time:21
+x:190.087
+aj1:9949070
+rhs:0.00957447
+CG:       #iterations: 2746, estimated error: 0.0095362
+lx0:3670.57     down3670.57
+alpha=1
+start find minimum of phi(x),iter time:22
+x:190.088
+aj1:12527083
+rhs:0.00634011
+CG:       #iterations: 1627, estimated error: 0.00630494
+lx0:3670.57     down3670.57
+alpha=0.5
+start find minimum of phi(x),iter time:23
+x:190.088
+aj1:12899701
+rhs:0.00318351
+CG:       #iterations: 2472, estimated error: 0.00317344
+lx0:3670.57     down3670.57
+alpha=0.5
+start find minimum of phi(x),iter time:24
+x:190.088
+aj1:12981517
+rhs:0.00159187
+CG:       #iterations: 3009, estimated error: 0.00157153
+lx0:3670.57     down3670.57
+alpha=1
+start find minimum of phi(x),iter time:25
+x:190.088
+aj1:37146991
+rhs:0.00338824
+CG:       #iterations: 42, estimated error: 0.00331491
+lx0:3670.57     down3670.57
+green
+alpha=1
+start find minimum of phi(x),iter time:26
+x:190.088
+aj1:32705880
+rhs:3.05492e-05
+CG:       #iterations: 4432, estimated error: 3.04469e-05
+lx0:3670.57     down3670.57
+alpha=1
+start find minimum of phi(x),iter time:27
+x:190.088
+aj1:33834878
+u:13710402
+kkt_u:0 kkt_y:1.701e-14
+kkt_x:2.67727e-09       kkt_z:6.19735e-17       kkt_v:1.20211e-13
+kkt:2.67727e-09
+func_value:3638.661
+time is:21307.633
+
+D:\code\prox\eigen_aug\x64\Release\eigen_aug.exe (进程 13224)已退出，代码为 0。
+要在调试停止时自动关闭控制台，请启用“工具”->“选项”->“调试”->“调试停止时自动关闭控制台”。
+按任意键关闭此窗口. . .

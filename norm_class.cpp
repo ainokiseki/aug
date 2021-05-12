@@ -290,10 +290,14 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 
 	cout << "lx0:" << lx0 << "\tdown" << down << endl;
 	prt_res << lx0 << "  ";
+
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
-	axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
-	(*axbu)();
-	//m_calc_rhs(4, &nrhs, n, *axbu);
+
+	//axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
+	//(*axbu)();
+	x += direction;
+	m_calc_rhs(4, &nrhs, n, *axbu);
+	x -= direction;
 	nrhs = sigma * nrhs;
 	nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, sigma);
 	nrhs += cst * (x + alpha * direction - x0);
@@ -333,7 +337,8 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 	//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
 	Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
-	cg.setTolerance(1e-10);
+	double ita = std::fmin(0.5, rhs.norm());
+	cg.setTolerance(ita);
 	cg.compute(A);
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
@@ -349,12 +354,13 @@ void norm_ori::run() {
 	auto i_start = std::chrono::high_resolution_clock::now();
 
 
-
-	prt_res = ofstream("123.txt");
+	prt_res = ofstream("123.log");
 	prt_res.setf(std::ios::scientific);
 	double sigma = 1;
+
+
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
-		cst = 1 / sigma;
+		cst =0;
 		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
 		x0 = x;

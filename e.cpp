@@ -23,20 +23,20 @@ int main() {
 	//	}
 	//}
 
-	/*
+	
 	auto i_start = std::chrono::high_resolution_clock::now();
-	dk nm("graph200.txt");
-	nm.run();
+	dk nm("graph1.txt");
+	nm.run_test(1e-5);
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
 	cout << "time is:" << tm << endl;
-	*/
+	cin >> tm;
 	//dk s("graph500.txt",5);
 	//s.run_test(1e-2);
 	// 
-	norm_ori s2("graph100.txt");
-	s2.run();
+	//norm_ori s2("graph1.txt");
+	//s2.run();
 	// 
 	// 
 	//string dataname;
