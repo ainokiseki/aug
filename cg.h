@@ -37,15 +37,15 @@ public:
     }
 
     // Custom API:
-    MatrixReplacement(std::vector<tri*>* aj1, int var_num, double a, Eigen::VectorXd* aj2, double sigma) :aj1(aj1), var_num(var_num), a(a), sigma(sigma), aj2(aj2) {
-
+    MatrixReplacement(std::vector<int64_t>* aj1, int n, double a, Eigen::VectorXd* aj2, double sigma) :aj1(aj1), n(n), a(a), sigma(sigma), aj2(aj2) {
+        var_num = n * (n - 1) / 2;
 
     }
 
-    std::vector<tri*>* aj1;
+    std::vector<int64_t>* aj1;
     int var_num;
     double a;
-
+    int n;
     double sigma;
     Eigen::VectorXd* aj2;
 };
@@ -74,7 +74,7 @@ namespace Eigen {
                 Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
                 if (lhs.aj1->size() > 120000) {
 
-                    //int thnum = 8;
+                    //int thnum = 4;
                     int thnum = std::fmin(lhs.aj1->size()/120000+1,4);
                     Eigen::VectorXd* apres = new Eigen::VectorXd[thnum];
                     for (int i = 0; i < thnum; i++)
@@ -84,7 +84,7 @@ namespace Eigen {
                         rhscopy[i] = rhs[i];
                     std::vector<std::thread>tv;
                     for (int i = 0; i < thnum; i++)
-                        tv.push_back(std::thread(cacap, apres + i, i * lhs.aj1->size() / thnum, (i + 1) * lhs.aj1->size() / thnum, lhs.aj1, &rhscopy));
+                        tv.push_back(std::thread(cacap, apres + i, i * lhs.aj1->size() / thnum, (i + 1) * lhs.aj1->size() / thnum, lhs.aj1, &rhscopy,lhs.n));
 
                     for (int i = 0; i < thnum; i++)
                         tv[i].join();
@@ -95,20 +95,29 @@ namespace Eigen {
                 }
                 else {
 
-
+                    int n = lhs.n;
                     //Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
-
+                    //ij,ik,jk
                     for (int i = 0; i < lhs.aj1->size(); i++) {
-                        tri* tem = (*(lhs.aj1))[i];
-                        double num = -(rhs[tem->idx[0]] + rhs[tem->idx[1]] + rhs[tem->idx[2]]) + 2 * rhs[tem->idx[tem->symbol]];
+                        int64_t tem = (*(lhs.aj1))[i];
+                        int ci, cj, ck;
+                        ck = tem % n;
+                        cj = tem / n;
+                        ci = cj / n;
+                        cj = cj % n;
+                        int idx[3];
+                        idx[0] = ij(ci, cj, n);
+                        idx[1] = ij(ci, ck, n);
+                        idx[2] = ij(cj, ck, n);
 
-                        ap[tem->idx[0]] -= num;
 
-                        ap[tem->idx[1]] -= num;
+                        double num =rhs[idx[0]] - rhs[idx[1]]- rhs[idx[2]];
 
-                        ap[tem->idx[2]] -= num;
+                        ap[idx[0]] += num;
 
-                        ap[tem->idx[tem->symbol]] += 2 * num;
+                        ap[idx[1]] -= num;
+
+                        ap[idx[2]] -= num;
 
                     }
                 }

@@ -2,6 +2,7 @@
 #include "metric.h"
 #include<thread>
 #include<mutex>
+#include"tri.h"
 class dk : public metric
 {
 public:

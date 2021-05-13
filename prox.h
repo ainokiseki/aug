@@ -11,23 +11,23 @@ inline double sign(double x) {
 }
 
 
-inline long long ij(long long x, long long y, long long n) {
-    long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
+inline int64_t ij(int64_t x, int64_t y, int64_t n) {
+    int64_t res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
     if (res < 0)
         cout << "break\n";
     return res;
 }
-inline long long ij2(long long x, long long y, long long n) {
+inline int64_t ij2(int64_t x, int64_t y, int64_t n) {
     return n * (n - 1) / 2 - n - (n - x) * (n - 1 - x) / 2 + y - 1;
 }
 
 class tri
 {
 public:
-    long long index;
+    int64_t index;
     int symbol;
-    long long idx[3];
-    tri(long long x, long long y, long long z, long long w, int t) {
+    int64_t idx[3];
+    tri(int64_t x, int64_t y, int64_t z, int64_t w, int t) {
         index = x;
         idx[0] = y;
         idx[1] = z;
@@ -40,8 +40,8 @@ public:
 
 
 template <typename T, typename A1, typename A2>
-void tri_loop(int n, double* x, bool* b, map<long long, double>& u, double sigma, T func, A1& arg1 = NULL, A2& arg2 = NULL) {
-    long long index = 0;
+void tri_loop(int n, double* x, bool* b, map<int64_t, double>& u, double sigma, T func, A1& arg1 = NULL, A2& arg2 = NULL) {
+    int64_t index = 0;
     for (int i = 0; i < n; i++) {
         for (int j = i + 1; j < n; ++j)
         {
@@ -80,15 +80,15 @@ void tri_loop(int n, double* x, bool* b, map<long long, double>& u, double sigma
 
 }
 
-void simul_loop(int init,int end,int n, double* x, bool* b, map<long long, double>& u, double sigma , double* rhs ,vector<tri*>&aj1 ) {
-    long long index = n*(n-1)*(n-2)/2-(n-init)*(n-init-1)*(n-init-2)/2;
+void simul_loop(int init,int end,int n, double* x, bool* b, map<int64_t, double>& u, double sigma , double* rhs ,vector<int64_t>&aj1 ) {
+    int64_t index = n*(n-1)*(n-2)/2-(n-init)*(n-init-1)*(n-init-2)/2;
     cout <<init<<"\t" <<clock() << endl;
     for (int i = init; i < end; i++) {
         for (int j = i + 1; j < n; ++j)
         {
             for (int k = j + 1; k < n; k++) {
 
-                long long idx[3];
+                int64_t idx[3];
 
                 idx[0] = ij(i, j, n);
                 idx[1] = ij(i, k, n);
@@ -126,7 +126,7 @@ void simul_loop(int init,int end,int n, double* x, bool* b, map<long long, doubl
     cout <<init<< "\tfinished"<<clock()<<"\n";
 
 }
-void loop_update_lx(int* idx, int three, long long index, const double& axbu, const double& sigma, double& norm,int& aj1) {
+void loop_update_lx(int* idx, int three, int64_t index, const double& axbu, const double& sigma, double& norm,int& aj1) {
     if (axbu > 0) {
         norm += axbu * axbu;
     }
@@ -136,9 +136,9 @@ void loop_update_lx(int* idx, int three, long long index, const double& axbu, co
 }
 
 
-void calc_ap(double* ap, vector<tri*>& aj1, double* p) {
+void calc_ap(double* ap, vector<int64_t>& aj1, double* p) {
     for (int i = 0; i < aj1.size(); i++) {
-        tri* tem = aj1[i];
+        int64_t tem = aj1[i];
         double num = -(p[tem->idx[0]] + p[tem->idx[1]] + p[tem->idx[2]]) + 2 * p[tem->idx[tem->symbol]];
         ap[tem->idx[0]] -= num;
         ap[tem->idx[1]] -= num;
@@ -148,9 +148,9 @@ void calc_ap(double* ap, vector<tri*>& aj1, double* p) {
     return;
 }
 
-void calc_ap(Eigen::VectorXd& ap, vector<tri*>& aj1, Eigen::VectorXd& p) {
+void calc_ap(Eigen::VectorXd& ap, vector<int64_t>& aj1, Eigen::VectorXd& p) {
     for (int i = 0; i < aj1.size(); i++) {
-        tri* tem = aj1[i];
+        int64_t tem = aj1[i];
         double num = -(p[tem->idx[0]] + p[tem->idx[1]] + p[tem->idx[2]]) + 2 * p[tem->idx[tem->symbol]];
         ap[tem->idx[0]] -= num;
         ap[tem->idx[1]] -= num;
@@ -160,16 +160,16 @@ void calc_ap(Eigen::VectorXd& ap, vector<tri*>& aj1, Eigen::VectorXd& p) {
     return;
 }
 
-double calc_phi(double* x, bool* b, double* w, double alpha, double* direction, map<long long, double>& u, double* v, int n, double sigma) {
+double calc_phi(double* x, bool* b, double* w, double alpha, double* direction, map<int64_t, double>& u, double* v, int n, double sigma) {
     double norm = 0;
     int var_num = n * (n - 1) / 2;
-    long long index = 0;
+    int64_t index = 0;
     for (int i = 0; i < n; i++) {
         for (int j = i + 1; j < n; ++j)
         {
             for (int k = j + 1; k < n; k++) {
 
-                long long idx[3];
+                int64_t idx[3];
 
                 idx[0] = ij(i, j, n);
                 idx[1] = ij(i, k, n);
@@ -234,10 +234,10 @@ double calc_phi(double* x, bool* b, double* w, double alpha, double* direction, 
 }
 
 
-double calc_phi(double* x, bool* b, double* w, map<long long, double>& u, double* v, int n, double sigma) {
+double calc_phi(double* x, bool* b, double* w, map<int64_t, double>& u, double* v, int n, double sigma) {
     double norm = 0;
     int var_num = n * (n - 1) / 2;
-    long long index = 0;
+    int64_t index = 0;
 
     tri_loop(n, x, b, u, sigma, loop_update_lx, norm, n);
     //norm(x+v/sig-z)

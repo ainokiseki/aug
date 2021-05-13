@@ -9,7 +9,7 @@
 class multi
 {
 public:
-	multi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma, double* rhs, vector<tri*>* aj1);
+	multi(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma, double* rhs, vector<int64_t>* aj1);
 	~multi();
 	multi_rhs* main_tri;
 
@@ -36,7 +36,7 @@ private:
 
 };
 
-multi::multi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma, double* rhs, vector<tri*>* aj1)
+multi::multi(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma, double* rhs, vector<int64_t>* aj1)
 {
 	mr = new mutex;
 	ma = new mutex;
@@ -53,7 +53,7 @@ multi::~multi()
 class multi_calc_phi
 {
 public:
-	multi_calc_phi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma, double* v, double alpha=0, double* direction=NULL) :
+	multi_calc_phi(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma, double* v, double alpha=0, double* direction=NULL) :
 		sigma(sigma), v(v), n(n), x(x), b(b), w(w), u(u), alpha(alpha), direction(direction)
 	{
 	}
@@ -65,7 +65,7 @@ public:
 	double* w;
 	bool* b;
 	double sigma;
-	map<long long, double>* u;
+	map<int64_t, double>* u;
 	double* v;
 	double alpha;
 	double* direction;
@@ -129,7 +129,7 @@ public:
 class multi_once
 {
 public:
-	multi_once(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma, double* rhs, vector<tri*>* aj1);
+	multi_once(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma, double* rhs, vector<int64_t>* aj1);
 	~multi_once();
 	multi_rhs* main_tri;
 
@@ -156,7 +156,7 @@ private:
 
 };
 
-multi_once::multi_once(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma, double* rhs, vector<tri*>* aj1)
+multi_once::multi_once(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma, double* rhs, vector<int64_t>* aj1)
 {
 	mr = new mutex;
 	ma = new mutex;

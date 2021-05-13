@@ -28,10 +28,10 @@ void prt(double* x, int var_num) {
         cout << x[i] << "\t" << x[i + var_num] << endl;
 }
 
-inline long long ij(long long x, long long y, long long n) {
+inline int64_t ij(int64_t x, int64_t y, int64_t n) {
     return n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 }
-inline long long ij2(long long x, long long y, long long n) {
+inline int64_t ij2(int64_t x, int64_t y, int64_t n) {
     return n * (n - 1) / 2 - n - (n - x) * (n - 1 - x) / 2 + y - 1;
 }
 int main()
@@ -61,7 +61,7 @@ int main()
     int n = target.size();
     cout << "n:" << n << endl;
     int var_num = n * (n - 1) / 2;
-    long long cons_num = n * (n - 1) * (n - 2) / 6;
+    int64_t cons_num = n * (n - 1) * (n - 2) / 6;
     double* w = new double[var_num];
     std::fill(w, w + var_num, 0);
 
@@ -108,7 +108,7 @@ int main()
     cout << "w:" << accumulate(w, w + var_num, 0.0) << endl;
     cout << "b:" << accumulate(b, b + var_num, 0.0) << endl;
     //map for y
-    map<long long, double>y;
+    map<int64_t, double>y;
     //default x
     double* x = new double[2*var_num];
     fill(x, x + var_num, 0.0);
@@ -116,13 +116,13 @@ int main()
 
 
     for (int main_i = 0; main_i < 6000; main_i++) {
-        long long ct = 0;
+        int64_t ct = 0;
 
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
                 for (int k = j + 1; k < n; k++) {
 
-                    long long idx[3];
+                    int64_t idx[3];
                     idx[0] = ij(i, j, n);
                     idx[1] = ij(i, k, n);
                     idx[2] = ij(j, k, n);
@@ -210,7 +210,7 @@ int main()
                 for (int j = i + 1; j < n && flag; j++) {
                     for (int k = j + 1; k < n && flag; k++) {
 
-                        long long idx[3];
+                        int64_t idx[3];
                         idx[0] = ij(i, j, n);
                         idx[1] = ij(i, k, n);
                         idx[2] = ij(j, k, n);

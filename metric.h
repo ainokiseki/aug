@@ -19,7 +19,7 @@ public:
 
 	string graph_name;
 	int n, var_num;
-	long long cons_num;
+	int64_t cons_num;
 	Eigen::VectorXd w;
 	Eigen::VectorXd b;
 	Eigen::VectorXd v;

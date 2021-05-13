@@ -32,15 +32,15 @@ double epsi = 0.01;
 //}
 //
 //
-//inline long long ij(long long x, long long y, long long n) {
+//inline int64_t ij(int64_t x, int64_t y, int64_t n) {
 //    return n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 //}
-//inline long long ij2(long long x, long long y, long long n) {
+//inline int64_t ij2(int64_t x, int64_t y, int64_t n) {
 //    return n * (n - 1) / 2 - n - (n - x) * (n - 1 - x) / 2 + y - 1;
 //}
 
 
-void loop_update_u(int*idx,int three,long long index,const double &axbu,const double &sigma, map<long long, double>&u,double&y_norm) {
+void loop_update_u(int*idx,int three,int64_t index,const double &axbu,const double &sigma, map<int64_t, double>&u,double&y_norm) {
     if (axbu > 1e-8) {
         u[index] = sigma * axbu;
     }
@@ -53,7 +53,7 @@ void loop_update_u(int*idx,int three,long long index,const double &axbu,const do
 
 }
 
-void loop_update_kkt(int*idx,int three, long long index, const double& axbu, const double& sigma, map<long long, double>& u, double**& kkt) {
+void loop_update_kkt(int*idx,int three, int64_t index, const double& axbu, const double& sigma, map<int64_t, double>& u, double**& kkt) {
     int ia[3];
     ia[0] = ia[1] = ia[2] = -1;
     ia[three] = 1;
@@ -84,7 +84,7 @@ void loop_update_kkt(int*idx,int three, long long index, const double& axbu, con
 
 }
 
-void loop_update_rhs(int* idx, int three, long long index, double axbu, double sigma, double* rhs, vector<tri*> aj1) {
+void loop_update_rhs(int* idx, int three, int64_t index, double axbu, double sigma, double* rhs, vector<int64_t> aj1) {
     int ia[3];
     ia[0] = ia[1] = ia[2] = -1;
     ia[three] = 1;
@@ -97,7 +97,7 @@ void loop_update_rhs(int* idx, int three, long long index, double axbu, double s
     return;
 
 }
-void loop_update_aj(int* idx, int three, long long index, const double& axbu, const double& sigma, double*& rhs, vector<tri*>& aj1) {
+void loop_update_aj(int* idx, int three, int64_t index, const double& axbu, const double& sigma, double*& rhs, vector<int64_t>& aj1) {
 
     if (axbu > 0) {
 
@@ -177,7 +177,7 @@ int main()
     int n = target.size();
     cout << "n:" << n << endl;
     int var_num = n * (n - 1) / 2;
-    long long cons_num = n * (n - 1) * (n - 2) / 6;
+    int64_t cons_num = n * (n - 1) * (n - 2) / 6;
     double* w = new double[var_num];
     std::fill(w, w + var_num, 0);
 
@@ -225,7 +225,7 @@ int main()
 
     //map for y
     //u
-    map<long long, double>u;
+    map<int64_t, double>u;
     //v
     double* v = new double[var_num];
     std::fill(v, v + var_num, 0);
@@ -243,10 +243,10 @@ int main()
             //calculate grad,hessie
             cout << "start find minimum of phi(x)," ;
             cout << "iter time:" << iter_1 << endl;
-            long long index = 0;
+            int64_t index = 0;
             prt_res << iter_1<<"\t";
             std::fill(rhs, rhs + var_num, 0);
-            vector<tri*>aj1;
+            vector<int64_t>aj1;
             double* aj2 = new double[var_num];
             double* rhs_t[4];
             //for (auto& i : rhs_t) {
@@ -416,7 +416,7 @@ int main()
 
         }
         //update y,z
-        long long index=0;
+        int64_t index=0;
         calc_z(x, z, w, v, sigma, n);
         double y_norm, z_norm;
         y_norm = z_norm = 0;

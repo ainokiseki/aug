@@ -37,15 +37,15 @@ public:
 	}
 
 	// Custom API:
-	MatrixReplacement3(std::vector<tri*>* aj1, int var_num, double a, Eigen::VectorXd* x, Eigen::VectorXd* w, double sigma) :aj1(aj1), var_num(var_num), a(a), sigma(sigma), x(x), w(w) {
-
+	MatrixReplacement3(std::vector<int64_t>* aj1, int n, double a, Eigen::VectorXd* x, Eigen::VectorXd* w, double sigma) :aj1(aj1), n(n), a(a), sigma(sigma), x(x), w(w) {
+		var_num = n * (n - 1) / 2;
 
 	}
 
-	std::vector<tri*>* aj1;
+	std::vector<int64_t>* aj1;
 	int var_num;
 	double a;
-
+	int n;
 	double sigma;
 	Eigen::VectorXd* x;
 	Eigen::VectorXd* w;
@@ -73,18 +73,28 @@ namespace Eigen {
 				// but let's do something fancier (and less efficient):
 
 				Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
-
+				int n = lhs.n;
 				for (int i = 0; i < lhs.aj1->size(); i++) {
-					tri* tem = (*(lhs.aj1))[i];
-					double num = -(rhs[tem->idx[0]] + rhs[tem->idx[1]] + rhs[tem->idx[2]]) + 2 * rhs[tem->idx[tem->symbol]];
+					int64_t tem = (*(lhs.aj1))[i];
+					int ci, cj, ck;
+					ck = tem % n;
+					cj = tem / n;
+					ci = cj / n;
+					cj = cj % n;
+					int idx[3];
+					idx[0] = ij(ci, cj, n);
+					idx[1] = ij(ci, ck, n);
+					idx[2] = ij(cj, ck, n);
 
-					ap[tem->idx[0]] -= num;
 
-					ap[tem->idx[1]] -= num;
+					double num = rhs[idx[0]] - rhs[idx[1]] - rhs[idx[2]];
 
-					ap[tem->idx[2]] -= num;
+					ap[idx[0]] += num;
 
-					ap[tem->idx[tem->symbol]] += 2 * num;
+					ap[idx[1]] -= num;
+
+					ap[idx[2]] -= num;
+
 
 				}
 				Eigen::VectorXd ix = lhs.w->cwiseProduct(*(lhs.w)).cwiseProduct(rhs);

@@ -11,19 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tri_class.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="multi.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="multi_tri.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="cg.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="prox.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="tri.h">
@@ -58,16 +46,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ConsoleApplication1.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="prox.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="e.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="eigen_prox.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="func_eigen.cpp">

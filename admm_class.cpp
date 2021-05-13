@@ -14,7 +14,7 @@ double admm_basic::get_kkt(double sigma) {
 	double y_norm = 0;
 	double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
 	kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
-	axbu->set_function(new func_eigen_u(&u, sigma, &y_norm, &kkt_y, &kkt_u));
+	axbu->set_function(new func_eigen_y(&u, sigma, &y_norm, &kkt_y, &kkt_u));
 	(*axbu)();
 	cout << "u:" << u.size() << endl;
 	Eigen::VectorXd z = w.cwiseProduct(x) + v / sigma - pi_c(w.cwiseProduct(x) + v / sigma, sigma);

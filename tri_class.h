@@ -6,26 +6,26 @@ using namespace std;
 class triple_loop
 {
 public:
-	triple_loop(int,double*,bool*,double*, map<long long, double>* , double);
+	triple_loop(int,double*,bool*,double*, map<int64_t, double>* , double);
 	~triple_loop();
     int n;
     double* x;
     double* w;
     bool* b;
     double sigma;
-    map<long long, double>* u;
-    virtual void func(long long*,int,long long,double);
+    map<int64_t, double>* u;
+    virtual void func(int64_t*,int,int64_t,double);
 	void operator()(int init=0,int end=-1) {
         if (end == -1)end = n;
        
-            long long index = n * (n - 1) * (n - 2) / 2 - (n - init) * (n - init - 1) * (n - init - 2) / 2;
+            int64_t index = n * (n - 1) * (n - 2) / 2 - (n - init) * (n - init - 1) * (n - init - 2) / 2;
             //cout << init << "\t" << end << "\tstart\n";
             for (int i = init; i < end; i++) {
                 for (int j = i + 1; j < n; ++j)
                 {
                     for (int k = j + 1; k < n; k++) {
 
-                        long long idx[3];
+                        int64_t idx[3];
 
                         idx[0] = ij(i, j, n);
                         idx[1] = ij(i, k, n);
@@ -66,7 +66,7 @@ public:
 
 };
 
-triple_loop::triple_loop(int n,double*x,bool*b,double*w,map<long long,double>*u,double sigma):n(n),x(x),b(b),w(w),u(u),sigma(sigma)
+triple_loop::triple_loop(int n,double*x,bool*b,double*w,map<int64_t,double>*u,double sigma):n(n),x(x),b(b),w(w),u(u),sigma(sigma)
 {
 }
 
@@ -74,19 +74,19 @@ triple_loop::~triple_loop()
 {
 }
 
-void triple_loop::func(long long*idx, int three, long long index, double axbu)
+void triple_loop::func(int64_t*idx, int three, int64_t index, double axbu)
 {
 
 }
 class tri_rhs:public triple_loop
 {
 public:
-    tri_rhs(int , double*, bool* , double* , map<long long, double>* , double, double*, vector<tri*>* );
+    tri_rhs(int , double*, bool* , double* , map<int64_t, double>* , double, double*, vector<int64_t>* );
     ~tri_rhs();
     double* rhs;
-    vector<tri*>* aj1;
+    vector<int64_t>* aj1;
 
-    virtual void func(long long* idx, int three, long long index, double axbu) {
+    virtual void func(int64_t* idx, int three, int64_t index, double axbu) {
 
         if (axbu > 0) {
             rhs[idx[0]] += (three==0?1:-1)* axbu * sigma;
@@ -99,7 +99,7 @@ private:
 
 };
 
-tri_rhs::tri_rhs(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma,double*rhs,vector<tri*>*aj1):
+tri_rhs::tri_rhs(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma,double*rhs,vector<int64_t>*aj1):
     triple_loop(n,x,b,w,u,sigma),rhs(rhs),aj1(aj1)
 {
 
@@ -112,12 +112,12 @@ tri_rhs::~tri_rhs()
 class tri_kkt:public triple_loop
 {
 public:
-    tri_kkt(int , double* , bool*, double*, map<long long, double>* , double,double&,double&,double&);
+    tri_kkt(int , double* , bool*, double*, map<int64_t, double>* , double,double&,double&,double&);
     ~tri_kkt();
     double& kkt_y;
     double& kkt_u;
     double& y_norm;
-    virtual void func(long long* idx, int three, long long index, double axbu) {
+    virtual void func(int64_t* idx, int three, int64_t index, double axbu) {
 
         //kkt 0:kkt_y, 1:y_norm 2:kkt_u
         if (axbu < 0) {
@@ -141,7 +141,7 @@ public:
     }
 };
 
-tri_kkt::tri_kkt(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma,double&kkt_y,double&kkt_u,double&y_norm) :
+tri_kkt::tri_kkt(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma,double&kkt_y,double&kkt_u,double&y_norm) :
     triple_loop(n, x, b, w, u, sigma), kkt_y(kkt_y),kkt_u(kkt_u),y_norm(y_norm)
 {
 
@@ -155,9 +155,9 @@ tri_kkt::~tri_kkt()
 class tri_update_u:public triple_loop
 {
 public:
-    tri_update_u(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma);
+    tri_update_u(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma);
     ~tri_update_u();
-    virtual void func(long long* idx, int three, long long index, double axbu) {
+    virtual void func(int64_t* idx, int three, int64_t index, double axbu) {
 
         if (axbu > 0) {
             (*u)[index] = sigma * axbu;
@@ -174,7 +174,7 @@ private:
 
 };
 
-tri_update_u::tri_update_u(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma) :
+tri_update_u::tri_update_u(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma) :
     triple_loop(n, x, b, w, u, sigma)
 {
 
@@ -187,9 +187,9 @@ tri_update_u::~tri_update_u()
 class tri_calc_phi:public triple_loop
 {
 public:
-    tri_calc_phi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma,double*v,double*norm,double alpha,double*direction);
+    tri_calc_phi(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma,double*v,double*norm,double alpha,double*direction);
     ~tri_calc_phi();
-    virtual void func(long long* idx, int three, long long index, double axbu) {
+    virtual void func(int64_t* idx, int three, int64_t index, double axbu) {
         if(alpha>0&&direction!=NULL){
             axbu-=alpha * direction[idx[0]];
             axbu-=alpha * direction[idx[1]];
@@ -209,7 +209,7 @@ private:
 
 };
 
-tri_calc_phi::tri_calc_phi(int n, double* x, bool* b, double* w, map<long long, double>* u, double sigma,double*v,double*norm,double alpha=0,double*direction=NULL) :
+tri_calc_phi::tri_calc_phi(int n, double* x, bool* b, double* w, map<int64_t, double>* u, double sigma,double*v,double*norm,double alpha=0,double*direction=NULL) :
     triple_loop(n, x, b, w, u, sigma),v(v),alpha(alpha),direction(direction),norm(norm)
 {
 

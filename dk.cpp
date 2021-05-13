@@ -11,11 +11,7 @@ dk::dk(string graph_name,double g) : metric(graph_name)
 dk::~dk()
 {
 }
-inline long long ij(long long x, long long y, long long n) {
-	long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 
-	return res;
-}
 void dk::triloop(std::map<int64_t,double>*correction, std::map<int64_t, double>* next_correction)
 {
 
@@ -225,7 +221,7 @@ int dk::run_test(double threshod=1e-5)
 	c2 = &next_correction;
 	kkt_1 = kkt_2 = 0.0;
 	int k;
-	for (k = 0; k < 1000; k++) {
+	for (k = 0; k < 10000; k++) {
 		kkt_2 = kkt_1 = 0.0;
 		//triloop(c1,c2);
 		multi_triloop(c1, c2);
@@ -240,7 +236,7 @@ int dk::run_test(double threshod=1e-5)
 
 		kkt_1 = kkt_2 = 0.0;
 		double kkt_3 = 0;
-		if (k % 20 == 0) {
+		if (k % 50 == 0) {
 			double kkt_1 = 0;
 			double kkt_2 = 0;
 			vector<thread>v;

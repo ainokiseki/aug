@@ -17,7 +17,7 @@ public:
 protected:
 
 
-	map<long long, double>u;
+	map<int64_t, double>u;
 	axbu_eigen* axbu;
 };
 

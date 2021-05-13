@@ -70,8 +70,8 @@ namespace Eigen {
 				// but let's do something fancier (and less efficient):
 
 				Eigen::VectorXd ap = Eigen::VectorXd::Zero(rhs.rows());
-				auto ij = [](long long x, long long y, long long n) {
-					long long res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
+				auto ij = [](int64_t x, int64_t y, int64_t n) {
+					int64_t res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 					return res;
 				};
 				for (int i = 0; i <lhs.n; i++) {
