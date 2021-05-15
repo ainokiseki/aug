@@ -357,7 +357,7 @@ void norm_ori::run() {
 	prt_res = ofstream("123.log");
 	prt_res.setf(std::ios::scientific);
 	double sigma = 1;
-
+	double rlim = 1e-6;
 
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
 
@@ -381,7 +381,7 @@ void norm_ori::run() {
 			rhs = sigma * rhs + sigma * prox_p_star(x+v/sigma,sigma);
 
 			prt_res << iter_1<<"  "<<rhs.norm() << "  ";
-			if (rhs.norm() < 1e-6) {
+			if (rhs.norm() < rlim) {
 				break;
 			}
 			cout << "rhs:" << rhs.norm() << endl;
@@ -402,7 +402,7 @@ void norm_ori::run() {
 		prt_res << "==================\n";
 		if (k < 1e-5)
 			break;
-
+		//rlim = k * 1e-4;
 
 
 		delete axbu;

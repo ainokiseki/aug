@@ -35,9 +35,11 @@ int main() {
 	//dk s("graph500.txt",5);
 	//s.run_test(1e-2);
 	// 
-	norm_ori s2("graph8k.txt");
+	string s;
+	cin >> s;
+	norm_ori s2(s);
 	s2.run();
-	
+	cin >> s;
 	// 
 	// 
 	//string dataname;
