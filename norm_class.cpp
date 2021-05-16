@@ -368,7 +368,14 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 void norm_ori::run() {
 	init();
 	auto i_start = std::chrono::high_resolution_clock::now();
-
+	bool matflag = true;
+	MATFile* pmatFile = NULL;
+	mxArray* tpMxArray = NULL;
+	
+	if (matflag) {
+		pmatFile = matOpen("c.mat", "w");
+	}
+	mxArray* pMxArray = NULL;
 
 	prt_res = ofstream("123.log");
 	prt_res.setf(std::ios::scientific);
@@ -380,7 +387,7 @@ void norm_ori::run() {
 		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
 
-		for (int iter_1 = 0; iter_1 < 1500; iter_1++) {
+		for (int iter_1 = 0; iter_1 < 10; iter_1++) {
 
 
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
@@ -402,6 +409,20 @@ void norm_ori::run() {
 			rhs = sigma * rhs + sigma * prox_p_star(x+v/sigma,sigma);
 
 			prt_res << iter_1<<"  "<<rhs.norm() << "  ";
+
+			if (matflag) {
+
+
+				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+				mxSetData(pMxArray, x.data());
+
+				matPutVariable(pmatFile, (string("x") + to_string(iter_1)).c_str(), pMxArray);
+				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
+				mxSetData(pMxArray, rhs.data());
+
+				matPutVariable(pmatFile, (string("r") + to_string(iter_1)).c_str(), pMxArray);
+			}
+
 			if (rhs.norm() < rlim) {
 				break;
 			}
@@ -419,6 +440,7 @@ void norm_ori::run() {
 			prt_res << alpha << std::endl;
 
 		}
+		break;
 		double k = get_kkt(sigma);
 		prt_res << "==================\n";
 		if (k < 1e-5)

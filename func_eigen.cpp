@@ -22,7 +22,7 @@ func_eigen_rhs_aj1::~func_eigen_rhs_aj1()
 
 void func_eigen_rhs_aj1::operator()(double axbu, int* idx, int time, int64_t index)
 {
-	if (axbu >= 0) {
+	if (axbu > 0) {
 		
 			for (int i = 0; i < 3; i++) {
 				
