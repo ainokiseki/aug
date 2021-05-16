@@ -25,10 +25,10 @@ void func_eigen_rhs_aj1::operator()(double axbu, int* idx, int time, int64_t ind
 	if (axbu > 0) {
 		
 			for (int i = 0; i < 3; i++) {
-				
+				if (i == time)continue;
 				(*rhs)(idx[i]) -= axbu;
 			}
-			(*rhs)(idx[time]) += 2*axbu;
+			(*rhs)(idx[time]) += axbu;
 		
 		if(aj1!=NULL)
 		aj1->push_back(index);
