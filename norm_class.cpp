@@ -272,9 +272,15 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	double alpha = 1;
 	const double c1 = 1e-4;
 	double lx0 = 0;
-	//axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
-	//(*axbu)();
-	m_calc_phi(4, lx0, n, *axbu, 0, &direction);
+	if (mthread == 0) {
+		axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
+		(*axbu)();
+	}
+	else {
+		m_calc_phi(4, lx0, n, *axbu, 0, &direction);
+	}
+
+
 	auto square = [](double x) {return x * x; };
 
 
@@ -291,12 +297,17 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	prt_res << lx0 << "  ";
 
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
+	if (mthread == 0) {
+		axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
+		(*axbu)();
+	}
+	else {
+		x += direction;
+		m_calc_rhs(4, &nrhs, n, *axbu);
+		x -= direction;
+	}
 
-	//axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
-	//(*axbu)();
-	x += direction;
-	m_calc_rhs(4, &nrhs, n, *axbu);
-	x -= direction;
+
 	nrhs = sigma * nrhs;
 	nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, sigma);
 
@@ -309,9 +320,14 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	for (int i = 0; i < 20; i++) {
 		//cout << "start find step,alpha=" << alpha << endl;
 		double lx = 0;
-		//axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
-		//(*axbu)();
-		m_calc_phi(4, lx, n, *axbu, alpha, &direction);
+		if (mthread==0) {
+			axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
+			(*axbu)();
+		}
+		else {
+			m_calc_phi(4, lx, n, *axbu, alpha, &direction);
+		}
+
 		lx = sigma / 2 * lx;
 		lx += sigma / 2 * square(prox_p_star(x+alpha*direction + v / sigma, sigma).norm());
 		lx += func_p(prox_p(x + alpha*direction +v / sigma, sigma));
@@ -368,12 +384,17 @@ void norm_ori::run() {
 
 
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
-			//cout << "x:" << x.norm() << endl;
+			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<int64_t>aj1;
-			//axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-			//(*axbu)();
-			m_calc_rhs_and_aj1(4,&rhs,&aj1,n,*axbu);
+			if (mthread==0) {
+				axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+				(*axbu)();
+			}
+			else {
+				m_calc_rhs_and_aj1(4, &rhs, &aj1, n, *axbu);
+			}
+
 			cout << "aj1:" << aj1.size() << endl;
 			prt_res << aj1.size() << "   ";
 			//cout << "r1:" << rhs.norm() << endl;

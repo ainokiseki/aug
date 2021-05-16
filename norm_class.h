@@ -55,7 +55,7 @@ public:
 
 	double cst = 0;
 
-
+	int mthread = 0;
 	ofstream prt_res;
 	Eigen::VectorXd rhs,x0;
 	map<int64_t, double>u;
