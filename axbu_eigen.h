@@ -12,7 +12,7 @@ public:
 	void set_function(func_eigen* );
 
 
-private:
+
 	int n;
 	Eigen::VectorXd* x;
 	Eigen::VectorXd* b;

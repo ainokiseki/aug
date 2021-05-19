@@ -4,16 +4,6 @@
 
 metric::metric(std::string graph_name) :graph_name(graph_name)
 {
-
-}
-
-metric::~metric()
-{
-}
-
-void metric::init()
-{
-
 	ifstream graph(graph_name, ios::in);
 	map<int, set<int> > g;
 	int tmp_a, tmp_b;
@@ -77,5 +67,15 @@ void metric::init()
 	v = Eigen::VectorXd::Zero(var_num);
 	x = Eigen::VectorXd::Zero(var_num);
 	cout << "x,v" << x[0] << "\t" << v[0] << endl;
+}
+
+metric::~metric()
+{
+}
+
+void metric::init()
+{
+
+
 	return;
 }

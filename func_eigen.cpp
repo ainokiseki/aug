@@ -22,7 +22,7 @@ func_eigen_rhs_aj1::~func_eigen_rhs_aj1()
 
 void func_eigen_rhs_aj1::operator()(double axbu, int* idx, int time, int64_t index)
 {
-	if (axbu > 0) {
+	if (axbu >= 0) {
 		
 			for (int i = 0; i < 3; i++) {
 				if (i == time)continue;
@@ -141,8 +141,32 @@ void func_eigen_u::operator()(double axbu, int* idx, int time, int64_t index)
 	else if (u->find(index)!=u->end()){
 		u->erase(index);
 	}
+}
+
+func_eigen_superphi::func_eigen_superphi(double* alpha, Eigen::VectorXd* direction, double* norm, int length) :alpha(alpha), direction(direction), norm(norm), length(length)
+{
+
+}
+
+func_eigen_superphi::~func_eigen_superphi()
+{
+}
 
 
-	
+void func_eigen_superphi::operator()(double axbu, int* idx, int time, int64_t index)
+{
+	for (int i = 0; i < length; i++) {
+		double naxbu = axbu;
+		naxbu -= alpha[i] * (*direction)[idx[0]];
+		naxbu -= alpha[i] * (*direction)[idx[1]];
+		naxbu -= alpha[i] * (*direction)[idx[2]];
+		naxbu += 2 * alpha[i] * (*direction)[idx[time]];
+		if (naxbu > 0) {
+			norm[i] += naxbu * naxbu;
+		}
+	}
 
+	//std::ofstream prt_axbu("axbu"+std::to_string(debug)+".txt", std::ios::out|std::ios::app);
+	//if(alpha==0)
+	//prt_axbu << index<<"\t"<<axbu << "\n";
 }

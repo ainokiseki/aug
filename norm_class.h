@@ -43,19 +43,23 @@ class norm_ori :public metric
 {
 public:
 	norm_ori(string graph_name);
+	norm_ori(string graph_name, string data);
 	~norm_ori();
 
 	inline Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma) ;
 	inline Eigen::VectorXd prox_p_star (Eigen::VectorXd x, double sigma);
 	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1);
+
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);
 	double get_step_length(Eigen::VectorXd& direction, double sigma);
+	double get_step_length(Eigen::VectorXd& direction, double sigma, int numer);
 	void run();
-
+	double time_record = 0;
 	double cst = 0;
-
-	int mthread = 0;
+	int iter_all = 0;
+	double sigma = 1;
+	int mthread = 10;
 	ofstream prt_res;
 	Eigen::VectorXd rhs,x0;
 	map<int64_t, double>u;

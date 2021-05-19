@@ -1,6 +1,31 @@
 
 #include"norm_class.h"
 #include<iomanip>
+
+void m_calc_superphi(int pnum, axbu_eigen axbu, double* alpha, Eigen::VectorXd* direction,double*lxnorm) {
+	int n = axbu.n;
+	double* mphi = new double[pnum*20];
+	for (int i = 0; i < pnum*20; i++)
+		mphi[i] = 0;
+	vector<thread>tv;
+	for (int i = 0; i < pnum; i++) {
+		axbu.set_function(new func_eigen_superphi(alpha, direction, mphi+20*i,20));
+		int a, b;
+		a = n - (int)(cbrt((i + 1) * 1.0 / pnum) * n);
+		b = n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n);
+		tv.push_back(thread(axbu, a, b));
+
+	}
+	for (int i = 0; i < pnum; i++)
+		tv[i].join();
+	for (int i = 0; i < pnum; i++) {
+		for (int j = 0; j < 20; j++) {
+			lxnorm[j] += mphi[j + i * 20];
+		}
+	}
+
+	delete[]mphi;
+}
 void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, int n, axbu_eigen axbu) {
 	int var_num = n * (n - 1) / 2;
 	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
@@ -206,8 +231,36 @@ void norm_basic::run() {
 
 norm_ori::norm_ori(string graph_name) :metric(graph_name)
 {
+	iter_all = 0;
 }
-
+norm_ori::norm_ori(string graph_name,string data) : metric(graph_name)
+{
+	ifstream f(data,std::ios::in|std::ios::binary);
+	string s;
+	f >> s;
+	f >> iter_all;
+	f >> n >> var_num >> sigma;
+	double tm;
+	f >> tm;
+	cout << "last time:"<<tm << endl;
+	time_record = tm;
+	for (int i = 0; i < var_num; i++) {
+		f >> tm;
+		x[i] = tm;
+	}
+	for (int i = 0; i < var_num; i++) {
+		f >> tm;
+		v[i] = tm;
+	}
+	int unum;
+	f >> unum;
+	int64_t tm2;
+	for (int i = 0; i < unum; i++) {
+		f >> tm2 >> tm;
+		u.insert(pair<int64_t, double>(tm2, tm));
+	}
+	cout << "reload succeed\n" << "u:" << u.size() << endl;
+}
 norm_ori::~norm_ori()
 {
 }
@@ -272,12 +325,18 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	double alpha = 1;
 	const double c1 = 1e-4;
 	double lx0 = 0;
+	double galp = 0;
+	double g0 = direction.dot(rhs);
+	if (g0 >= 0) {
+		std::cout << "Need a descent direction\n";
+		exit(-1);
+	}
 	if (mthread == 0) {
 		axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
 		(*axbu)();
 	}
 	else {
-		m_calc_phi(4, lx0, n, *axbu, 0, &direction);
+		m_calc_phi(mthread, lx0, n, *axbu, 0, &direction);
 	}
 
 
@@ -303,7 +362,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	}
 	else {
 		x += direction;
-		m_calc_rhs(4, &nrhs, n, *axbu);
+		m_calc_rhs(mthread, &nrhs, n, *axbu);
 		x -= direction;
 	}
 
@@ -316,8 +375,12 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 		return 1.0;
 	}
 
-
+	double lb, ub;
+	lb = 0; ub = 1;
+	double glb = -1; double gub = 1;
 	for (int i = 0; i < 20; i++) {
+		nrhs = Eigen::VectorXd::Zero(var_num);
+
 		//cout << "start find step,alpha=" << alpha << endl;
 		double lx = 0;
 		if (mthread==0) {
@@ -325,7 +388,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 			(*axbu)();
 		}
 		else {
-			m_calc_phi(4, lx, n, *axbu, alpha, &direction);
+			m_calc_phi(mthread, lx, n, *axbu, alpha, &direction);
 		}
 
 		lx = sigma / 2 * lx;
@@ -335,9 +398,122 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 		if (lx <= down) {
 			break;
 		}
-		alpha *= 0.5;
+
+		//if (mthread == 0) {
+		//	axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
+		//	(*axbu)();
+		//}
+		//else {
+		//	x += alpha*direction;
+		//	m_calc_rhs(mthread, &nrhs, n, *axbu);
+		//	x -= alpha*direction;
+		//}
+		//nrhs *= sigma;
+		//nrhs += sigma * prox_p_star(x + alpha * direction + v / sigma, sigma);
+		//
+		//galp = nrhs.dot(direction);
+		//if (galp*gub < 0) {
+		//	lb = alpha; glb = galp;
+		//}
+		//else {
+		//	ub = alpha; gub = galp;
+		//}
+		ub = alpha;
+		alpha = 0.5 * (lb + ub);
 	}
 	return alpha;
+
+
+}
+double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,int numer) {
+
+	//cg end,result saved at direction
+	//find step length
+
+	const double c1 = 1e-4;
+	double lx0 = 0;
+	double galp = 0;
+	double g0 = direction.dot(rhs);
+	if (g0 >= 0) {
+		std::cout << "Need a descent direction\n";
+		exit(-1);
+	}
+	//if (mthread == 0) {
+	//	axbu->set_function(new func_eigen_phi(0, &direction, &lx0));
+	//	(*axbu)();
+	//}
+	//else {
+	//	m_calc_phi(mthread, lx0, n, *axbu, 0, &direction);
+	//}
+
+
+	auto square = [](double x) {return x * x; };
+
+
+
+	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
+	if (mthread == 0) {
+		axbu->set_function(new func_eigen_rhs(1.0, &direction, &nrhs));
+		(*axbu)();
+	}
+	else {
+		x += direction;
+		m_calc_rhs(mthread, &nrhs, n, *axbu);
+		x -= direction;
+	}
+
+
+	nrhs = sigma * nrhs;
+	nrhs += sigma * prox_p_star(x + direction + v / sigma, sigma);
+
+	if (nrhs.dot(direction) < 0) {
+		cout << "green\n";
+		return 1.0;
+	}
+
+
+	double alpha[20] = { 0.0 };
+	alpha[0] = 0; alpha[1] = 1;
+	for (int i = 2; i < 20; i++) {
+		alpha[i] = alpha[i - 1] / 2;
+	}
+	double lxnorm[20];
+	for (int i = 0; i < 20; i++)
+		lxnorm[i] = 0.0;
+	m_calc_superphi(8, *axbu, alpha, &direction, lxnorm);
+	lx0 = lxnorm[0];
+	lx0 = sigma / 2 * lx0 + sigma / 2 * square(prox_p_star(x + v / sigma, sigma).norm());
+
+	lx0 += func_p(prox_p(x + v / sigma, sigma));
+
+
+
+	double down = lx0 + c1 * rhs.dot(direction);
+	//cout << "down:" << down << "\tlx0:" << lx0 << endl;
+
+	cout << "lx0:" << lx0 << "\tdown" << down << endl;
+	prt_res << lx0 << "  ";
+
+
+	//axbu->set_function(new func_eigen_superphi(alpha, &direction, lxnorm, 20));
+	//(*axbu)();
+
+
+	for (int i = 1; i < 20; i++) {
+		double alp = alpha[i];
+
+		double lx = lxnorm[i];
+
+		lx = sigma / 2 * lx;
+		lx += sigma / 2 * square(prox_p_star(x + alp * direction + v / sigma, sigma).norm());
+		lx += func_p(prox_p(x + alp * direction + v / sigma, sigma));
+
+		if (lx <= down) {
+			return alp;
+		}
+
+	}
+	return alpha[19];
 
 
 }
@@ -365,29 +541,47 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 	return direction;
 }
 
+
 void norm_ori::run() {
-	init();
+	string pwd;
+	cout << "plz input pwd:";
+	cin >> pwd;
 	auto i_start = std::chrono::high_resolution_clock::now();
-	bool matflag = true;
-	MATFile* pmatFile = NULL;
-	mxArray* tpMxArray = NULL;
-	
-	if (matflag) {
-		pmatFile = matOpen("c.mat", "w");
-	}
-	mxArray* pMxArray = NULL;
 
 	prt_res = ofstream("123.log");
 	prt_res.setf(std::ios::scientific);
-	double sigma = 1;
+	//double sigma = 1;
 	double rlim = 1e-6;
 
-	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
+	for (; iter_all < 100; iter_all++, sigma *= 2) {
+
+
+		if (iter_all > 0) {
+			ofstream model(string("model_save/") +pwd+string("_")+graph_name+string("_")+to_string(iter_all)+string(".dat"),std::ios::out|std::ios::binary);
+			auto i_end = std::chrono::high_resolution_clock::now();
+			auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
+			double tm = double(eld.count()) * 1.0 * 1e-9;
+			model << setprecision(20);
+			model << graph_name << endl;
+			model << iter_all << endl;
+			model << n << "\t" << var_num <<"\t"<<sigma<<"\t"<<tm+time_record<<endl;
+
+
+
+			for (int i = 0; i < var_num; i++)
+				model << x[i] << endl;
+			for (int i = 0; i < var_num; i++)
+				model << v[i] << endl;
+			model << u.size() << endl;
+			for (auto i = u.begin(); i != u.end();i++) {
+				model << i->first << " " << i->second << endl;
+			}
+		}
 
 		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
-
-		for (int iter_1 = 0; iter_1 < 10; iter_1++) {
+		bool flaga = false;
+		for (int iter_1 = 0; iter_1 < 1000; iter_1++) {
 
 
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
@@ -399,48 +593,39 @@ void norm_ori::run() {
 				(*axbu)();
 			}
 			else {
-				m_calc_rhs_and_aj1(4, &rhs, &aj1, n, *axbu);
+				m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
 			}
 
 			cout << "aj1:" << aj1.size() << endl;
 			prt_res << aj1.size() << "   ";
 			//cout << "r1:" << rhs.norm() << endl;
-			
+
 			rhs = sigma * rhs + sigma * prox_p_star(x+v/sigma,sigma);
 
 			prt_res << iter_1<<"  "<<rhs.norm() << "  ";
 
-			if (matflag) {
-
-
-				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
-				mxSetData(pMxArray, x.data());
-
-				matPutVariable(pmatFile, (string("x") + to_string(iter_1)).c_str(), pMxArray);
-				pMxArray = mxCreateDoubleMatrix(var_num, 1, mxREAL);
-				mxSetData(pMxArray, rhs.data());
-
-				matPutVariable(pmatFile, (string("r") + to_string(iter_1)).c_str(), pMxArray);
-			}
 
 			if (rhs.norm() < rlim) {
 				break;
 			}
 			cout << "rhs:" << rhs.norm() << endl;
 			Eigen::VectorXd direction = get_direction(sigma, rhs, &aj1);
+			//Eigen::VectorXd direction = get_direction(rhs);
 			//cout << "di:" << direction.norm() << endl;
 
 			//for (int i = 0; i < var_num; i++)
 			//	direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
 
 			
-			double alpha = get_step_length(direction, sigma);
+			double alpha = get_step_length(direction, sigma,404);
 			cout << "alpha=" << alpha << endl;
+
+				//flaga = true;
 			x = x + alpha * direction;
 			prt_res << alpha << std::endl;
 
 		}
-		break;
+
 		double k = get_kkt(sigma);
 		prt_res << "==================\n";
 		if (k < 1e-5)

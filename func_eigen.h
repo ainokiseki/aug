@@ -73,3 +73,16 @@ private:
 	std::map<int64_t, double>* u;
 	double sigma;
 };
+
+class func_eigen_superphi :public func_eigen
+{
+public:
+	func_eigen_superphi(double*, Eigen::VectorXd*, double*, int );
+	~func_eigen_superphi();
+	void operator()(double axbu, int* idx, int time, int64_t index);
+private:
+	double* alpha;
+	Eigen::VectorXd* direction;
+	double* norm;
+	int length;
+};
