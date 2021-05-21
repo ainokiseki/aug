@@ -35,26 +35,26 @@ int main() {
 	//dk s("graph500.txt",5);
 	//s.run_test(1e-2);
 	// 
-	//string s;
+	string s;
+	cin >> s;
+	if (s.substr(s.length() - 3, s.length()) == "dat") {
+		string ssubs = s.substr(s.find('/') + 1);
+		string subs=ssubs.substr(ssubs.find('_') + 1);
+		subs = subs.substr(0,subs.find('_'));
+
+		cout << ssubs << "\t" << subs << "\t" << endl;
+		norm_ori s2(subs, s);
+		s2.run();
+	}
+	else {
+		norm_ori s2(s);
+		s2.run();
+	}
+
+
 	//cin >> s;
-	//if (s.substr(s.length() - 3, s.length()) == "dat") {
-	//	string ssubs = s.substr(s.find('/') + 1);
-	//	string subs=ssubs.substr(ssubs.find('_') + 1);
-	//	subs = subs.substr(0,subs.find('_'));
-
-	//	cout << ssubs << "\t" << subs << "\t" << endl;
-	//	norm_ori s2(subs, s);
-	//	s2.run();
-	//}
-	//else {
-	//	norm_ori s2(s);
-	//	s2.run();
-	//}
-
-
-	//cin >> s;
-	dk s2("graph1k.txt");
-	s2.run_test(1e-5);
+	//dk s2("graph1k.txt");
+	//s2.run_test(1e-5);
 	// 
 	// 
 	//string dataname;

@@ -606,7 +606,29 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 	//cout << "di:" << direction.norm() << endl;
 	return direction;
 }
+Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag) {
+	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
+	double a = min(pow(rhs.norm(), 1.5) * 0.5, 20.0);
+	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+	for (int i = 0; i < var_num; i++)
+		ata->coeffRef(i, i) += (*diag)[i] + sigma * aj2[i] + a;
 
+	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+
+	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double>> cg;
+	double ita = std::fmin(0.5, rhs.norm());
+	cg.setTolerance(ita);
+	cg.compute(*ata);
+
+	Eigen::VectorXd direction = cg.solve(rhs);
+
+	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	prt_res << cg.iterations() << "\t";
+	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
+	//cout << "CG:" << cg.iterations() << std::endl;
+	//cout << "di:" << direction.norm() << endl;
+	return direction;
+}
 
 void norm_ori::run() {
 	string pwd;
@@ -655,6 +677,7 @@ void norm_ori::run() {
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<int64_t>aj1;
+			
 			Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
 			if (!flaga) {
 				if (mthread == 0) {
@@ -678,6 +701,24 @@ void norm_ori::run() {
 					m_calc_rhs_and_aj1_diag(mthread, &rhs, &aj1, &diag, n, *axbu);
 				}
 			}
+
+			Eigen::SparseMatrix<double>ata(var_num, var_num);
+			for (auto i : aj1) {
+				int ci, cj, ck;
+				ck = i % n;
+				cj = i / n;
+				ci = cj / n;
+				cj = cj % n;
+				ata.coeffRef(ci, cj) -= sigma;
+				ata.coeffRef( cj,ci) -= sigma;
+				ata.coeffRef(ci, ck) -= sigma;
+				ata.coeffRef(ck,ci) -= sigma;
+				ata.coeffRef(cj,ck) += sigma;
+				ata.coeffRef(ck, cj) += sigma;
+
+			}
+
+
 			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
 			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
 			cout << "aj1:" << aj1.size() << endl;

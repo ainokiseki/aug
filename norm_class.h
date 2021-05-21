@@ -53,6 +53,8 @@ public:
 
 	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1, Eigen::VectorXd*diag);
 
+	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag);
+
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);
 	double get_step_length(Eigen::VectorXd& direction, double sigma);
