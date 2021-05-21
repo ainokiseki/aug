@@ -102,7 +102,7 @@ void dk::biloop()
 	}
 }
 void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction) {
-	int threadnum = 12;
+	int threadnum = 24;
 	int block = 10;
 	int blocknum = (n-1) / block+1;
 	dk_triloop dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);

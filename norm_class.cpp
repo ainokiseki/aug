@@ -26,6 +26,42 @@ void m_calc_superphi(int pnum, axbu_eigen axbu, double* alpha, Eigen::VectorXd* 
 
 	delete[]mphi;
 }
+void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1,Eigen::VectorXd*diag, int n, axbu_eigen axbu) {
+	int var_num = n * (n - 1) / 2;
+	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
+	Eigen::VectorXd* mdiag = new Eigen::VectorXd[pnum];
+	vector< vector<int64_t>*>maj1(pnum);
+	for (int i = 0; i < pnum; i++) {
+		maj1[i] = new vector<int64_t>;
+	}
+	//vector<int64_t>* maj1 = new vector<int64_t>[pnum];
+	for (int i = 0; i < pnum; i++) {
+		mdiag[i] = Eigen::VectorXd::Zero(var_num);
+
+		mrhs[i] = Eigen::VectorXd::Zero(var_num);
+	}
+
+	vector<thread>tv;
+	for (int i = 0; i < pnum; i++) {
+		axbu.set_function(new func_eigen_rhs_aj1_diag(mrhs + i, maj1[i],mdiag+i));
+		tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
+	}
+	for (int i = 0; i < pnum; i++)
+		tv[i].join();
+	for (int i = 0; i < pnum; i++) {
+		*rhs += mrhs[i];
+		*diag += mdiag[i];
+	}
+
+	for (int i = 0; i < pnum; i++) {
+		aj1->insert(aj1->end(), maj1[i]->begin(), maj1[i]->end());
+		delete maj1[i];
+	}
+
+	delete[]mrhs;
+
+	delete[]mdiag;
+}
 void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, int n, axbu_eigen axbu) {
 	int var_num = n * (n - 1) / 2;
 	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
@@ -43,6 +79,7 @@ void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, in
 		*rhs += mrhs[i];
 	for (int i = 0; i < pnum; i++) {
 		aj1->insert(aj1->end(), maj1[i].begin(), maj1[i].end());
+		maj1[i].~vector();
 	}
 
 	delete[]mrhs;
@@ -468,6 +505,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,int nu
 
 	if (nrhs.dot(direction) < 0) {
 		cout << "green\n";
+		prt_res << "empty   ";
 		return 1.0;
 	}
 
@@ -480,7 +518,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,int nu
 	double lxnorm[20];
 	for (int i = 0; i < 20; i++)
 		lxnorm[i] = 0.0;
-	m_calc_superphi(8, *axbu, alpha, &direction, lxnorm);
+	m_calc_superphi(mthread, *axbu, alpha, &direction, lxnorm);
 	lx0 = lxnorm[0];
 	lx0 = sigma / 2 * lx0 + sigma / 2 * square(prox_p_star(x + v / sigma, sigma).norm());
 
@@ -535,6 +573,34 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 	Eigen::VectorXd direction = cg.solve(-rhs);
 
 	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	prt_res << cg.iterations() << "\t";
+	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
+	//cout << "CG:" << cg.iterations() << std::endl;
+	//cout << "di:" << direction.norm() << endl;
+	return direction;
+}
+Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1,Eigen::VectorXd*diag ) {
+	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
+
+	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+
+	double a = min(pow(rhs.norm(), 1.5) * 0.5, 20.0);
+	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+	*diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient((*diag + sigma*aj2 + a * Eigen::VectorXd::Ones(var_num)).cwiseSqrt());
+	//*diag = Eigen::VectorXd::Ones(var_num);
+	MatrixReplacementd A(aj1, n, a, &aj2, sigma,diag);
+	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+
+	//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
+	Eigen::ConjugateGradient<MatrixReplacementd, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
+	double ita = std::fmin(0.5, rhs.norm());
+	cg.setTolerance(ita);
+	cg.compute(A);
+	
+	Eigen::VectorXd direction = cg.solve(-diag->cwiseProduct(rhs));
+	direction = diag->cwiseProduct(direction);
+	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	prt_res << cg.iterations() << "\t";
 	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
 	//cout << "CG:" << cg.iterations() << std::endl;
 	//cout << "di:" << direction.norm() << endl;
@@ -556,7 +622,7 @@ void norm_ori::run() {
 	for (; iter_all < 100; iter_all++, sigma *= 2) {
 
 
-		if (iter_all > 0) {
+		if (pwd!="skip"&&iter_all > 0) {
 			ofstream model(string("model_save/") +pwd+string("_")+graph_name+string("_")+to_string(iter_all)+string(".dat"),std::ios::out|std::ios::binary);
 			auto i_end = std::chrono::high_resolution_clock::now();
 			auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
@@ -580,7 +646,8 @@ void norm_ori::run() {
 
 		cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
-		bool flaga = false;
+		bool flaga = true;
+
 		for (int iter_1 = 0; iter_1 < 1000; iter_1++) {
 
 
@@ -588,14 +655,31 @@ void norm_ori::run() {
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<int64_t>aj1;
-			if (mthread==0) {
-				axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-				(*axbu)();
+			Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
+			if (!flaga) {
+				if (mthread == 0) {
+					axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+					(*axbu)();
+				}
+				else {
+					//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+					m_calc_rhs_and_aj1(mthread, &rhs, &aj1,n, *axbu);
+				}
 			}
 			else {
-				m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
-			}
 
+
+				if (mthread == 0) {
+					axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+					(*axbu)();
+				}
+				else {
+					//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+					m_calc_rhs_and_aj1_diag(mthread, &rhs, &aj1, &diag, n, *axbu);
+				}
+			}
+			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
+			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
 			cout << "aj1:" << aj1.size() << endl;
 			prt_res << aj1.size() << "   ";
 			//cout << "r1:" << rhs.norm() << endl;
@@ -609,7 +693,14 @@ void norm_ori::run() {
 				break;
 			}
 			cout << "rhs:" << rhs.norm() << endl;
-			Eigen::VectorXd direction = get_direction(sigma, rhs, &aj1);
+			Eigen::VectorXd direction;
+			if (flaga) {
+				direction = get_direction(sigma, rhs, &aj1, &diag);
+			}
+			else {
+				direction= get_direction(sigma, rhs, &aj1);
+			}
+
 			//Eigen::VectorXd direction = get_direction(rhs);
 			//cout << "di:" << direction.norm() << endl;
 
@@ -619,7 +710,8 @@ void norm_ori::run() {
 			
 			double alpha = get_step_length(direction, sigma,404);
 			cout << "alpha=" << alpha << endl;
-
+			if (rhs.norm() < 1e-5 && alpha < 1e-4)
+				break;
 				//flaga = true;
 			x = x + alpha * direction;
 			prt_res << alpha << std::endl;

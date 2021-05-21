@@ -147,7 +147,7 @@
       <ConformanceMode>false</ConformanceMode>
       <Optimization>MaxSpeed</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>D:\eigen;D:\tools\MATLAB\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\code\eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Strict</FloatingPointModel>
     </ClCompile>
@@ -157,7 +157,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Profile>true</Profile>
-      <AdditionalDependencies>libmat.lib;libmx.lib;libmex.lib;libeng.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\tools\MATLAB\extern\lib\win64\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -166,6 +166,7 @@
     <ClInclude Include="cg.h" />
     <ClInclude Include="cg2.h" />
     <ClInclude Include="cg3.h" />
+    <ClInclude Include="cgdiag.h" />
     <ClInclude Include="cg_admm.h" />
     <ClInclude Include="cg_inf.h" />
     <ClInclude Include="dk.h" />

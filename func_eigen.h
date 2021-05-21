@@ -23,6 +23,17 @@ private:
 	Eigen::VectorXd* rhs;
 	std::vector<int64_t>* aj1;
 };
+class func_eigen_rhs_aj1_diag :public func_eigen
+{
+public:
+	func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1,Eigen::VectorXd*diag);
+	~func_eigen_rhs_aj1_diag();
+	void operator()(double axbu, int* idx, int time, int64_t index);
+
+	Eigen::VectorXd* rhs;
+	std::vector<int64_t>* aj1;
+	Eigen::VectorXd* diag;
+};
 class func_eigen_phi:public func_eigen
 {
 public:

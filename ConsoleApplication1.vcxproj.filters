@@ -44,6 +44,9 @@
     <ClInclude Include="dk.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="cgdiag.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="e.cpp">

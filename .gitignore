@@ -14,6 +14,7 @@
 *.userprefs
 *.gitignore
 model_save/
+.sln
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
