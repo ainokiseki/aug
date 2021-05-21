@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include<Eigen/Dense>
+#include<Eigen/Sparse>
 #include<map>
 #include"tri.h"
 class func_eigen
@@ -26,13 +27,14 @@ private:
 class func_eigen_rhs_aj1_diag :public func_eigen
 {
 public:
-	func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1,Eigen::VectorXd*diag);
+	func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1,Eigen::VectorXd*diag, std::vector<Eigen::Triplet<double> >* triv);
 	~func_eigen_rhs_aj1_diag();
 	void operator()(double axbu, int* idx, int time, int64_t index);
 
 	Eigen::VectorXd* rhs;
 	std::vector<int64_t>* aj1;
 	Eigen::VectorXd* diag;
+	std::vector<Eigen::Triplet<double> >* triv;
 };
 class func_eigen_phi:public func_eigen
 {

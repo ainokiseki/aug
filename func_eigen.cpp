@@ -36,7 +36,7 @@ void func_eigen_rhs_aj1::operator()(double axbu, int* idx, int time, int64_t ind
 	}
 }
 
-func_eigen_rhs_aj1_diag::func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1,Eigen::VectorXd*diag) :rhs(rhs), aj1(aj1),diag(diag)
+func_eigen_rhs_aj1_diag::func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1,Eigen::VectorXd*diag, std::vector<Eigen::Triplet<double> >* triv) :rhs(rhs), aj1(aj1),diag(diag),triv(triv)
 {
 }
 
@@ -56,8 +56,33 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 		(*diag)[idx[0]] += 1;
 		(*diag)[idx[1]] += 1;
 		(*diag)[idx[2]] += 1;
-		aj1->push_back(index);
 
+		if (time == 0) {
+
+
+			triv->push_back(Eigen::Triplet<double>(idx[0], idx[1], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[0], idx[2], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[1], idx[2], 1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], 1.0));
+		}
+		else if (time == 1) {
+			triv->push_back(Eigen::Triplet<double>(idx[0], idx[1], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[0], idx[2], 1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], 1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
+		}
+		else {
+			triv->push_back(Eigen::Triplet<double>(idx[0], idx[1], 1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], 1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[0], idx[2], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
+			triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
+		}
 	}
 }
 func_eigen_phi::func_eigen_phi(double alpha, Eigen::VectorXd* direction, double* norm,int debug) :alpha(alpha), direction(direction), norm(norm),debug(debug)
