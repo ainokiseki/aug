@@ -26,6 +26,44 @@ void m_calc_superphi(int pnum, axbu_eigen axbu, double* alpha, Eigen::VectorXd* 
 
 	delete[]mphi;
 }
+void m_calc_rhs_mat(int pnum, Eigen::VectorXd* rhs,int n, axbu_aj1 axbu, Eigen::SparseMatrix<double>*mat) {
+	int var_num = n * (n - 1) / 2;
+	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
+
+	vector<Eigen::SparseMatrix<double>* >mmat(pnum);
+	for (int i = 0; i < pnum; i++) {
+
+		mmat[i] = new Eigen::SparseMatrix<double>(var_num, var_num);
+	}
+	//vector<int64_t>* maj1 = new vector<int64_t>[pnum];
+	for (int i = 0; i < pnum; i++) {
+		mrhs[i] = Eigen::VectorXd::Zero(var_num);
+	}
+
+	vector<thread>tv;
+	for (int i = 0; i < pnum; i++) {
+		axbu.mat = mmat[i];
+		axbu.rhs = mrhs+i;
+		tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
+	}
+	for (int i = 0; i < pnum; i++)
+		tv[i].join();
+	for (int i = 0; i < pnum; i++) {
+		*rhs += mrhs[i];
+	}
+
+
+	delete[]mrhs;
+	for (int i = 0; i < pnum; i++) {
+		(*mat) += (*mmat[i]);
+		delete mmat[i];
+	}
+
+
+}
+
+
+
 void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1,Eigen::VectorXd*diag, int n, axbu_eigen axbu, vector<Eigen::Triplet<double> >*trip) {
 	int var_num = n * (n - 1) / 2;
 	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
@@ -683,6 +721,10 @@ void norm_ori::run() {
 			
 			Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
 			std::vector<Eigen::Triplet<double> >test_v;
+			axbu_aj1 axbumat(n,&x,&b,&u,sigma,NULL,NULL);
+			Eigen::SparseMatrix<double>ata(var_num, var_num);
+			m_calc_rhs_mat(mthread, &rhs, n, axbumat, &ata);
+			/*
 			if (!flaga) {
 				if (mthread == 0) {
 					axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
@@ -706,7 +748,7 @@ void norm_ori::run() {
 				}
 			}
 
-			
+			*/
 			std::vector<Eigen::Triplet<double> >test_vb;
 			//for (auto i : aj1) {
 			//	int ci, cj, ck;
@@ -734,10 +776,10 @@ void norm_ori::run() {
 			//}
 			//return;
 
-			Eigen::SparseMatrix<double>ata(var_num, var_num);
-			ata.setFromTriplets(test_v.begin(), test_v.end());
 
-			ata += diag.asDiagonal();
+			//ata.setFromTriplets(test_v.begin(), test_v.end());
+
+			//ata += diag.asDiagonal();
 			ata *= sigma;
 			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
 			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);

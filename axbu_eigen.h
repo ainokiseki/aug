@@ -49,3 +49,20 @@ private:
 	double sigma;
 	Eigen::VectorXd res;
 };
+class axbu_aj1
+{
+public:
+	axbu_aj1(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma,Eigen::SparseMatrix<double>*mat,Eigen::VectorXd*rhs);
+	~axbu_aj1();
+	void operator()(int init = 0, int end = -1);
+
+
+
+	int n;
+	Eigen::VectorXd* x;
+	Eigen::VectorXd* b;
+	std::map<int64_t, double>* u;
+	double sigma;
+	Eigen::SparseMatrix<double>* mat;
+	Eigen::VectorXd* rhs;
+};

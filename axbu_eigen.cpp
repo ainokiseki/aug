@@ -161,3 +161,107 @@ Eigen::VectorXd axbu_pro::operator()(int init, int end)
 	}
 	return res;
 }
+
+axbu_aj1::axbu_aj1(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma, Eigen::SparseMatrix<double>* mat,Eigen::VectorXd*rhs):
+	n(n), x(x), b(b), u(u), sigma(sigma), mat(mat),rhs(rhs)
+{
+}
+
+axbu_aj1::~axbu_aj1()
+{
+}
+
+void axbu_aj1::operator()(int init, int end)
+{
+	if (end < 0)end = n;
+	int var_num = n * (n - 1) / 2;
+	Eigen::VectorXd diag=Eigen::VectorXd::Zero(var_num);
+	std::vector<Eigen::Triplet<double> >triv;
+	//std::cout << init << "\t" << end << "\t" << index << std::endl;
+	for (int i = init; i < end; i++) {
+		for (int j = i + 1; j < n; j++) {
+			for (int k = j + 1; k < n; k++) {
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
+				int64_t longindex[3];
+				longindex[0] = static_cast<int64_t>(i) * n * n + static_cast<int64_t>(j) * n + k;
+				longindex[1] = static_cast<int64_t>(i) * n * n + static_cast<int64_t>(k) * n + j;
+				longindex[2] = static_cast<int64_t>(j) * n * n + static_cast<int64_t>(k) * n + i;
+				double axbu = 0;
+
+				axbu = (*x)[idx[0]] + (*b)[idx[0]] - (*x)[idx[1]] - (*b)[idx[1]] - (*x)[idx[2]] - (*b)[idx[2]];
+
+				if (u->find(longindex[0]) != u->end()) {
+					axbu += (*u)[longindex[0]] / sigma;
+				}
+				if (axbu > 0) {
+					(*rhs)(idx[0]) += axbu;
+					(*rhs)(idx[1]) -= axbu;
+					(*rhs)(idx[2]) -= axbu;
+
+					diag[idx[0]] += 1;
+					diag[idx[1]] += 1;
+					diag[idx[2]] += 1;
+
+					triv.push_back(Eigen::Triplet<double>(idx[0], idx[1], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[0], idx[2], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[1], idx[2], 1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[2], idx[1], 1.0));
+				}
+
+				axbu = (*x)[idx[1]] + (*b)[idx[1]] - (*x)[idx[0]] - (*b)[idx[0]] - (*x)[idx[2]] - (*b)[idx[2]];
+
+				if (u->find(longindex[1]) != u->end()) {
+					axbu += (*u)[longindex[1]] / sigma;
+				}
+				if (axbu > 0) {
+					(*rhs)(idx[1]) += axbu;
+					(*rhs)(idx[0]) -= axbu;
+					(*rhs)(idx[2]) -= axbu;
+
+					diag[idx[0]] += 1;
+					diag[idx[1]] += 1;
+					diag[idx[2]] += 1;
+
+					triv.push_back(Eigen::Triplet<double>(idx[0], idx[1], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[0], idx[2], 1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[2], idx[0], 1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
+				}
+				axbu = (*x)[idx[2]] + (*b)[idx[2]] - (*x)[idx[1]] - (*b)[idx[1]] - (*x)[idx[0]] - (*b)[idx[0]];
+
+				if (u->find(longindex[2]) != u->end()) {
+					axbu += (*u)[longindex[2]] / sigma;
+				}
+				if (axbu > 0) {
+					(*rhs)(idx[2]) += axbu;
+					(*rhs)(idx[1]) -= axbu;
+					(*rhs)(idx[0]) -= axbu;
+
+					diag[idx[0]] += 1;
+					diag[idx[1]] += 1;
+					diag[idx[2]] += 1;
+
+					triv.push_back(Eigen::Triplet<double>(idx[0], idx[1], 1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[1], idx[0], 1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[0], idx[2], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
+					triv.push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
+				}
+			}
+		}
+
+	}
+	mat->setFromTriplets(triv.begin(), triv.end());
+	(*mat) += diag.asDiagonal();
+
+
+	return;
+}
