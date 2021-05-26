@@ -620,7 +620,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 
 	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 	double ita = std::fmin(0.5, rhs.norm());
-	//cg.setTolerance(ita);
+	cg.setTolerance(ita);
 	cg.compute(*ata);
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
