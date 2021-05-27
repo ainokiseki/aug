@@ -656,7 +656,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 	(*ata) += a * Eigen::VectorXd::Ones(var_num).asDiagonal();
 	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 
-	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
+	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 	double ita = std::fmin(0.5, rhs.norm());
 	cg.setTolerance(ita);
 	cg.compute(*ata);

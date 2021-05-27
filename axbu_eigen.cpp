@@ -206,11 +206,11 @@ void axbu_aj1::operator()(int init, int end)
 					diag[idx[2]] += 1;
 
 					triv.push_back(Eigen::Triplet<double>(idx[0], idx[1], -1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
+
 					triv.push_back(Eigen::Triplet<double>(idx[0], idx[2], -1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
+
 					triv.push_back(Eigen::Triplet<double>(idx[1], idx[2], 1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[2], idx[1], 1.0));
+
 				}
 
 				axbu = (*x)[idx[1]] + (*b)[idx[1]] - (*x)[idx[0]] - (*b)[idx[0]] - (*x)[idx[2]] - (*b)[idx[2]];
@@ -228,11 +228,11 @@ void axbu_aj1::operator()(int init, int end)
 					diag[idx[2]] += 1;
 
 					triv.push_back(Eigen::Triplet<double>(idx[0], idx[1], -1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
+
 					triv.push_back(Eigen::Triplet<double>(idx[0], idx[2], 1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[2], idx[0], 1.0));
+
 					triv.push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
+
 				}
 				axbu = (*x)[idx[2]] + (*b)[idx[2]] - (*x)[idx[1]] - (*b)[idx[1]] - (*x)[idx[0]] - (*b)[idx[0]];
 
@@ -249,11 +249,11 @@ void axbu_aj1::operator()(int init, int end)
 					diag[idx[2]] += 1;
 
 					triv.push_back(Eigen::Triplet<double>(idx[0], idx[1], 1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[1], idx[0], 1.0));
+
 					triv.push_back(Eigen::Triplet<double>(idx[0], idx[2], -1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
+
 					triv.push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
-					triv.push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
+
 				}
 			}
 		}
