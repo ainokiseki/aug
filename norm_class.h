@@ -40,15 +40,18 @@ public:
 	map<int64_t, double>u;
 	axbu_eigen* axbu;
 };
-class norm_ori :public metric
+class norm_ori
 {
 public:
 	norm_ori(string graph_name);
 	norm_ori(string graph_name, string data);
 	~norm_ori();
 
-	inline Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma) ;
-	inline Eigen::VectorXd prox_p_star (Eigen::VectorXd x, double sigma);
+	Eigen::SparseVector<double> prox_p_star(Eigen::SparseVector<double> x, double sigma);
+
+	Eigen::SparseVector<double> prox_p(Eigen::SparseVector<double> x, double sigma);
+
+
 	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1);
 
 	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1, Eigen::VectorXd*diag);
@@ -62,14 +65,17 @@ public:
 	Eigen::VectorXd get_direction_hand(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1, Eigen::VectorXd* diag);
 	void run();
 	double time_record = 0;
-	double cst = 0;
 	int iter_all = 0;
 	double sigma = 1;
 	int mthread = 8;
 	ofstream prt_res;
-	Eigen::VectorXd rhs,x0;
-	map<int64_t, double>u;
+	Eigen::SparseVector<double>rhs, x, v,w,b;
+	std::vector<Eigen::SparseVector<double> > u;
+	Eigen::SparseMatrix<double>A;
 	axbu_eigen* axbu;
+	string graph_name;
+	int n, var_num;
+	int64_t cons_num;
 };
 
 class norm_1:public norm_basic
