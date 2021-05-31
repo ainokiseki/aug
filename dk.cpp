@@ -126,9 +126,29 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 			if (iend <= istart)continue;
 			v.push_back(std::thread(std::ref(dkloop), istart, iend, kstart, block));
 		}
+		if (t > blocknum / 2) {
+			for (int th = 0; th < tnum; th++) {
+				int istart, iend, kstart;
+				iend = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - 1 - th) / tnum) * ((blocknum - t + 1) / 2));
+				istart = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - th) / tnum) * ((blocknum - t + 1) / 2));
+				kstart = std::min(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
+				if (th == tnum - 1) {
+					iend = (blocknum + 1 - t) / 2;
+					kstart = (blocknum - t) / 2;
+				}
+
+				if (iend <= istart)continue;
+				v.push_back(std::thread(std::ref(dkloop), istart + t, iend + t, kstart + t, block));
+			}
+			for (int i = 0; i < v.size(); i++) {
+				v[i].join();
+			}
+			continue;
+		}
 		for (int i = 0; i <v.size(); i++) {
 			v[i].join();
 		}
+
 		if (t > 0) {
 
 
@@ -207,7 +227,7 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 }
 
 
-int dk::run_test(double threshod=1e-5)
+std::pair<int, double> dk::run_test(double threshod=1e-5)
 {
 	init();
 	auto i_start = std::chrono::high_resolution_clock::now();
@@ -236,11 +256,12 @@ int dk::run_test(double threshod=1e-5)
 
 		kkt_1 = kkt_2 = 0.0;
 		double kkt_3 = 0;
+		//if (k == 10)break;
 		if (k % 50 == 0) {
 			double kkt_1 = 0;
 			double kkt_2 = 0;
 			vector<thread>v;
-			int pnum = 8;
+			int pnum = 24;
 
 
 			double* mphi = new double[pnum];
@@ -381,7 +402,7 @@ int dk::run_test(double threshod=1e-5)
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
 	cout << "time is:" << tm << endl;
-	return k;
+	return std::pair<int,double>(k,tm);
 }
 void dk::run()
 {

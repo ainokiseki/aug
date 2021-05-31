@@ -1,0 +1,8 @@
+1krandom100.txt:3.29227
+1krandom150.txt:5.18734
+1krandom200.txt:15.0199
+1krandom250.txt:102.763
+1krandom300.txt:160.982
+1krandom350.txt:536.521
+1krandom400.txt:404.808
+1krandom450.txt:866.382

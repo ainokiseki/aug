@@ -633,17 +633,17 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 	return direction;
 }
 
-void norm_ori::run() {
-	string pwd;
+std::pair<double,std::pair<int,int> > norm_ori::run() {
+	string pwd="skip";
 	cout << "plz input pwd:";
-	cin >> pwd;
+
 	auto i_start = std::chrono::high_resolution_clock::now();
 
-	prt_res = ofstream("123.log");
+	prt_res = ofstream("456.log");
 	prt_res.setf(std::ios::scientific);
 	//double sigma = 1;
 	double rlim = 1e-6;
-
+	int looptime = 0;
 	for (; iter_all < 100; iter_all++, sigma *= 2) {
 
 
@@ -673,9 +673,9 @@ void norm_ori::run() {
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
 		bool flaga = true;
 
-		for (int iter_1 = 0; iter_1 < 1000; iter_1++) {
+		for (int iter_1 = 0; iter_1 < 1000; iter_1++,looptime++) {
 
-
+			cout << "min:"<<(x + b).minCoeff() << endl;
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
@@ -794,6 +794,7 @@ void norm_ori::run() {
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
 	cout << "time is:" << tm << endl;
+	return std::pair<double,std::pair<int,int> >(tm, std::pair<int, int>(iter_all, looptime));
 }
 norm_1::norm_1(string graph_name) :norm_basic(graph_name)
 {

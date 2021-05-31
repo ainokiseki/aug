@@ -60,7 +60,7 @@ public:
 	double get_step_length(Eigen::VectorXd& direction, double sigma);
 	double get_step_length(Eigen::VectorXd& direction, double sigma, int numer);
 	Eigen::VectorXd get_direction_hand(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1, Eigen::VectorXd* diag);
-	void run();
+	std::pair<double, std::pair<int, int> > run();
 	double time_record = 0;
 	double cst = 0;
 	int iter_all = 0;

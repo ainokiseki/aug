@@ -18,7 +18,7 @@ public:
 
 
 
-	int run_test(double threshod);
+	std::pair<int, double> run_test(double threshod);
 
 
 
