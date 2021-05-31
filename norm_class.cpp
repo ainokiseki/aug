@@ -680,7 +680,9 @@ std::pair<double,std::pair<int,int> > norm_ori::run() {
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<int64_t>aj1;
-			
+			axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+			(*axbu)();
+			exit(-1);
 			Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
 			std::vector<Eigen::Triplet<double> >test_v;
 			if (!flaga) {

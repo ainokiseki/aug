@@ -1,6 +1,6 @@
 
 
-
+#define EIGEN_USE_BLAS
 #include"metric.h"
 
 #include<thread>
