@@ -703,7 +703,9 @@ void norm_ori::run() {
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			cout << "x:" << x.norm() << endl;
 			rhs= Eigen::SparseVector<double>(n * (n - 1));
+			//Eigen::VectorXd rhs = Eigen::VectorXd::Zero(n * (n - 1));
 			for (int i = 2; i < n; i++) {
+
 				Eigen::SparseVector<double> t = A.topRightCorner(i * (i - 1) / 2 * 3, n * i - (n - 1 - i)).transpose() * (A.topRightCorner(i * (i - 1) / 2 * 3, n * i - (n - 1 - i)) * x.head(n * i - (n - 1 - i)));
 				t.conservativeResize(n * (n - 1));
 				rhs += t;
