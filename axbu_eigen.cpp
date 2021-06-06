@@ -33,10 +33,12 @@ void axbu_eigen::operator() (int init,int end){
 				for (int time = 0; time < 3; time++) {
 					int64_t index = longindex[time];
 					double axbu2 = axbu;
+					axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
+					axbu2 /= 3;
 					if (u->find(index) != u->end()) {
 						axbu2 += (*u)[index] / sigma;
 					}
-					axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
+
 					(*f)(axbu2, idx, time, index);
 				}
 
@@ -87,7 +89,9 @@ double au_eigen::operator()(int init, int end)
 					int64_t index = longindex[time];
 					if (u->find(index) == u->end())
 						continue;
-					double tem = (*u)[index];
+					double tem = (*u)[index]/3;
+					
+
 					(au)[idx[0]] -= tem;
 					(au)[idx[1]] -= tem;
 					(au)[idx[2]] -= tem;
@@ -144,7 +148,9 @@ Eigen::VectorXd axbu_pro::operator()(int init, int end)
 						axbu2 += (*u)[index] / sigma;
 					}
 					axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
+					
 					axbu2 = (axbu2 <= 0) ? axbu2 : 0.0;
+					
 					if (u->find(index) != u->end()) {
 						axbu2 -= (*u)[index] / sigma;
 					}

@@ -70,6 +70,7 @@ public:
 	Eigen::VectorXd rhs,x0;
 	map<int64_t, double>u;
 	axbu_eigen* axbu;
+	double beta;
 };
 
 class norm_1:public norm_basic

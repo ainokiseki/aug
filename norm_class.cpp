@@ -634,6 +634,8 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 }
 
 void norm_ori::run() {
+	beta = b.norm();
+	b = b / beta;
 	string pwd;
 	cout << "plz input pwd:";
 	cin >> pwd;
@@ -643,7 +645,8 @@ void norm_ori::run() {
 	prt_res.setf(std::ios::scientific);
 	//double sigma = 1;
 	double rlim = 1e-6;
-
+	double s_a = 3;
+	sigma = 1 / (s_a * s_a);
 	for (; iter_all < 100; iter_all++, sigma *= 2) {
 
 
@@ -738,6 +741,7 @@ void norm_ori::run() {
 			ata.setFromTriplets(test_v.begin(), test_v.end());
 
 			ata += diag.asDiagonal();
+			ata /= 9.0;
 			ata *= sigma;
 			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
 			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
@@ -789,7 +793,7 @@ void norm_ori::run() {
 		delete axbu;
 
 	}
-	cout << "func_value:" << std::setprecision(8)<< func_p(x) << endl;
+	cout << "func_value:" << std::setprecision(8)<< func_p(x)*beta/3 << endl;
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
