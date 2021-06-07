@@ -103,13 +103,13 @@ void dk::biloop()
 }
 void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction) {
 	int threadnum = 24;
-	int block = 10;
+	int block = 5;
 	int blocknum = (n-1) / block+1;
 	dk_triloop dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
 	vector<thread>v;
 	for (int t = 0; t < blocknum; t++) {
 		//Æ½¾ù·ÖÅäblock
-		int tnum = std::min(threadnum, (blocknum - t + 1) / 2);
+		int tnum = std::fmin(threadnum, (blocknum - t + 1) / 2);
 		//cout << "tnum:" << tnum << endl;
 
 		v.clear();
@@ -117,7 +117,7 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 			int istart, iend, kstart;
 			iend = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - 1 - th) / tnum) * ((blocknum - t + 1) / 2));
 			istart = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - th) / tnum) * ((blocknum - t + 1) / 2));
-			kstart = std::min(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
+			kstart = std::fmin(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
 			if (th == tnum-1) {
 				iend = (blocknum + 1 - t) / 2;
 				kstart = (blocknum - t) / 2;
@@ -131,7 +131,7 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 				int istart, iend, kstart;
 				iend = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - 1 - th) / tnum) * ((blocknum - t + 1) / 2));
 				istart = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - th) / tnum) * ((blocknum - t + 1) / 2));
-				kstart = std::min(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
+				kstart = std::fmin(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
 				if (th == tnum - 1) {
 					iend = (blocknum + 1 - t) / 2;
 					kstart = (blocknum - t) / 2;
@@ -157,7 +157,7 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 				int istart, iend, kstart;
 				iend = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - 1 - th) / tnum) * ((blocknum - t + 1) / 2));
 				istart = (blocknum + 1 - t) / 2 - int(cbrt(double(tnum - th) / tnum) * ((blocknum - t + 1) / 2));
-				kstart = std::min(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
+				kstart = std::fmin(blocknum - t - 1 - (istart), blocknum - t - 1 - (iend - 1));
 				if (th == tnum-1) {
 					iend = (blocknum + 1 - t) / 2;
 					kstart = (blocknum - t) / 2;
@@ -241,7 +241,7 @@ std::pair<int, double> dk::run_test(double threshod=1e-5)
 	c2 = &next_correction;
 	kkt_1 = kkt_2 = 0.0;
 	int k;
-	for (k = 0; k < 10000; k++) {
+	for (k = 0; k < 200000; k++) {
 		kkt_2 = kkt_1 = 0.0;
 		//triloop(c1,c2);
 		multi_triloop(c1, c2);
@@ -402,8 +402,10 @@ std::pair<int, double> dk::run_test(double threshod=1e-5)
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
 	cout << "time is:" << tm << endl;
+	store_result(c1);
 	return std::pair<int,double>(k,tm);
 }
+
 void dk::run()
 {
 	init();
@@ -573,6 +575,35 @@ void dk::init()
 
 }
 
+void dk::store_result(std::map<int64_t, double>* c1) {
+
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+
+
+
+	ofstream model(string("model_save/proj_") + to_string(sys.wYear) + to_string(sys.wMonth) + to_string(sys.wDay)+to_string(sys.wHour) + string("_")+to_string(int(gam))+string("_") + graph_name + string("_.dat"), std::ios::out | std::ios::binary);
+
+	model << setprecision(20);
+	model << graph_name << endl;
+	model << n << "\t" << var_num << "\t" << gam << "\t" << endl;
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++)
+			model << y(i, j)<<endl;
+	}
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++)
+			model << m(i, j) << endl;
+	}
+
+	model << c1->size() << endl;
+	for (auto i = c1->begin(); i != c1->end(); i++) {
+		model << i->first << " " << i->second << endl;
+	}
+
+
+	return;
+}
 
 dk_triloop::dk_triloop(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::map<int64_t, double>* c1, std::map<int64_t, double>* c2) :
 	n(n), y(y), m(m), inv_w(inv_w), mat_b(mat_b), correction(c1), next_correction(c2)
@@ -596,7 +627,7 @@ void dk_triloop::operator()(int istart, int iend, int kstart, int blocksize)
 			int kblock = kend - 1 - (iblock - istart);
 
 
-			for (int k = std::max(kblock * blocksize, i + 2); k < n && k < (kblock + 1) * blocksize; k++) {
+			for (int k = std::fmax(kblock * blocksize, i + 2); k < n && k < (kblock + 1) * blocksize; k++) {
 				std::vector<std::pair<int64_t, double>>tv;
 				for (int j = i + 1; j < k; j++) {
 					double fm = (*inv_w)(i, j) + (*inv_w)(i, k) + (*inv_w)(j, k);

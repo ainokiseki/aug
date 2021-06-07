@@ -2,6 +2,7 @@
 #include "metric.h"
 #include<thread>
 #include<mutex>
+#include<windows.h>
 #include"tri.h"
 class dk : public metric
 {
@@ -26,6 +27,8 @@ public:
 
 	void run();
 	void init();
+	void store_result(std::map<int64_t, double>* c1);
+
 	double gam;
 	double kkt_2;
 	double kkt_1;

@@ -36,21 +36,22 @@ int main() {
 	//s.run_test(1e-2);
 	// 
 	// 
-	string s;
-	cin >> s;
-	if (s.substr(s.length() - 3, s.length()) == "dat") {
-		string ssubs = s.substr(s.find('/') + 1);
-		string subs=ssubs.substr(ssubs.find('_') + 1);
-		subs = subs.substr(0,subs.find('_'));
+	//string s;
+	//cin >> s;
+	//if (s.substr(s.length() - 3, s.length()) == "dat") {
+	//	string ssubs = s.substr(s.find('/') + 1);
+	//	string subs=ssubs.substr(ssubs.find('_') + 1);
+	//	subs = subs.substr(0,subs.find('_'));
 
-		cout << ssubs << "\t" << subs << "\t" << endl;
-		norm_ori s2(subs, s);
-		s2.run();
-	}
-	else {
-		norm_ori s2(s);
-		s2.run();
-	}
+	//	cout << ssubs << "\t" << subs << "\t" << endl;
+	//	norm_ori s2(subs, s);
+	//	s2.run();
+	//}
+	//else {
+	//	norm_ori s2(s);
+	//	s2.run();
+	//}
+
 	//string s;
 	//ofstream series("series.txt", std::ios::out);
 	//for (int i = 100; i <= 1000; i += 50) {
@@ -66,6 +67,25 @@ int main() {
 	//		series << s << ":" << k.first << "\t" << k.second << endl;
 	//	}
 	//}
+
+
+	string s;
+	ofstream series("series.txt", std::ios::app);
+	for (int i = 100; i <= 1000; i += 50) {
+		s = string("dfsample") + to_string(i) + string(".txt");
+		{
+			double gama[3] = { 1,5,10 };
+			for (int j = 0; j < 3; j++) {
+
+
+				dk s3(s,gama[j]);
+
+				auto k = s3.run_test(1e-6);
+				series << s << ":" <<gama[j]<<"\t"<< k.first << "\t" << k.second << endl;
+			}
+		}
+	}
+
 
 
 	//dk s2("dfsample100.txt");

@@ -614,11 +614,12 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 20.0);
-	(*ata) += sigma*aj2.asDiagonal();
+	(*ata) += aj2.asDiagonal();
+	(*ata) *= sigma;
 	(*ata) += a * Eigen::VectorXd::Ones(var_num).asDiagonal();
 	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 
-	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
+	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 	double ita = std::fmin(0.5, rhs.norm());
 	cg.setTolerance(ita);
 	cg.compute(*ata);
@@ -632,6 +633,33 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 	//cout << "di:" << direction.norm() << endl;
 	return direction;
 }
+
+void norm_ori::store_result() {
+
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+
+
+
+	ofstream model(string("model_save/proj_")+ to_string(sys.wYear)+ to_string(sys.wMonth) + to_string(sys.wDay)+string("_")+ graph_name + string("_.dat") , std::ios::out | std::ios::binary);
+
+	model << setprecision(20);
+	model << graph_name << endl;
+	model << iter_all << endl;
+	model << n << "\t" << var_num << "\t" << sigma << "\t" << endl;
+	for (int i = 0; i < var_num; i++)
+		model << x[i] << endl;
+	for (int i = 0; i < var_num; i++)
+		model << v[i] << endl;
+	model << u.size() << endl;
+	for (auto i = u.begin(); i != u.end(); i++) {
+		model << i->first << " " << i->second << endl;
+	}
+
+
+	return;
+}
+
 
 std::pair<double,std::pair<int,int> > norm_ori::run() {
 	string pwd="skip";
@@ -680,9 +708,7 @@ std::pair<double,std::pair<int,int> > norm_ori::run() {
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<int64_t>aj1;
-			axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-			(*axbu)();
-			exit(-1);
+
 			Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
 			std::vector<Eigen::Triplet<double> >test_v;
 			if (!flaga) {
@@ -736,11 +762,7 @@ std::pair<double,std::pair<int,int> > norm_ori::run() {
 			//}
 			//return;
 
-			Eigen::SparseMatrix<double>ata(var_num, var_num);
-			ata.setFromTriplets(test_v.begin(), test_v.end());
 
-			ata += diag.asDiagonal();
-			ata *= sigma;
 			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
 			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
 
@@ -756,6 +778,13 @@ std::pair<double,std::pair<int,int> > norm_ori::run() {
 				break;
 			}
 			cout << "rhs:" << rhs.norm() << endl;
+
+			Eigen::SparseMatrix<double>ata(var_num, var_num);
+			ata.setFromTriplets(test_v.begin(), test_v.end());
+
+			ata += diag.asDiagonal();
+			//ata *= sigma;
+
 			Eigen::VectorXd direction;
 			//if (flaga) {
 			//	direction = get_direction(sigma, rhs, &aj1, &diag);
@@ -783,9 +812,9 @@ std::pair<double,std::pair<int,int> > norm_ori::run() {
 
 		double k = get_kkt(sigma);
 		prt_res << "==================\n";
-		if (k < 1e-5)
+		if (k < 1e-6)
 			break;
-		//rlim = k * 1e-4;
+		rlim = k * 1e-2;
 
 
 		delete axbu;
@@ -796,6 +825,10 @@ std::pair<double,std::pair<int,int> > norm_ori::run() {
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
 	cout << "time is:" << tm << endl;
+
+
+
+
 	return std::pair<double,std::pair<int,int> >(tm, std::pair<int, int>(iter_all, looptime));
 }
 norm_1::norm_1(string graph_name) :norm_basic(graph_name)

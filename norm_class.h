@@ -2,7 +2,7 @@
 
 #define EIGEN_USE_BLAS
 #include"metric.h"
-
+#include<windows.h>
 #include<thread>
 #include<math.h>
 #include<numeric>
@@ -54,6 +54,8 @@ public:
 	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1, Eigen::VectorXd*diag);
 
 	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag);
+
+	void store_result();
 
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);
