@@ -32,9 +32,6 @@
     <ClInclude Include="cg3.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="admm_class.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="metric.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -65,9 +62,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="metric.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="admm_class.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="tri.cpp">

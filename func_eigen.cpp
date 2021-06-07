@@ -53,6 +53,7 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 			(*rhs)(idx[i]) -= axbu/3;
 		}
 		(*rhs)(idx[time]) += axbu/3;
+
 		(*diag)[idx[0]] += 1;
 		(*diag)[idx[1]] += 1;
 		(*diag)[idx[2]] += 1;
@@ -219,4 +220,108 @@ void func_eigen_superphi::operator()(double axbu, int* idx, int time, int64_t in
 	//std::ofstream prt_axbu("axbu"+std::to_string(debug)+".txt", std::ios::out|std::ios::app);
 	//if(alpha==0)
 	//prt_axbu << index<<"\t"<<axbu << "\n";
+}
+
+func_eigen_uy::func_eigen_uy(std::map<int64_t, double>* u, double sigma, double*y_norm, double*kkt_y, double*kkt_u):
+u(u), sigma(sigma), y_norm(y_norm), kkt_y(kkt_y), kkt_u(kkt_u)
+{
+}
+
+func_eigen_uy::~func_eigen_uy()
+{
+}
+
+void func_eigen_uy::operator()(double axbu, int* idx, int time, int64_t index)
+{
+
+	double axb = axbu;
+	if (u->find(index) != u->end())
+		axb -= (*u)[index] / sigma;
+
+	double y = (axb < 0 ? axb : 0.0);
+	*y_norm += y * y;
+	*kkt_y += (axb - y) * (axb - y);
+	double y_plus_u;
+	if (u->find(index) == u->end())
+	{
+		y_plus_u = (y > 0 ? y : 0);
+	}
+	else {
+		y_plus_u = (y + (*u)[index] > 0 ? y : -(*u)[index]);
+	}
+
+	*kkt_u += y_plus_u * y_plus_u;
+
+
+
+
+
+	double yy = (axbu < 0 ? axbu : 0.0);
+
+
+
+	double nu = sigma * (axbu - yy);
+
+	if (nu != 0)
+		(*u)[index] = nu;
+	else if (u->find(index) != u->end()) {
+		u->erase(index);
+	}
+
+
+}
+
+func_eigen_uy_mul::func_eigen_uy_mul(std::map<int64_t, double>* u, double sigma, double* y_norm, double* kkt_y, double* kkt_u,std::mutex* mu) :
+	u(u), sigma(sigma), y_norm(y_norm), kkt_y(kkt_y), kkt_u(kkt_u),mu(mu)
+{
+}
+
+func_eigen_uy_mul::~func_eigen_uy_mul()
+{
+}
+
+void func_eigen_uy_mul::operator()(double axbu, int* idx, int time, int64_t index)
+{
+
+	double axb = axbu;
+	if (u->find(index) != u->end())
+		axb -= (*u)[index] / sigma;
+
+	double y = (axb < 0 ? axb : 0.0);
+	*y_norm += y * y;
+	*kkt_y += (axb - y) * (axb - y);
+	double y_plus_u;
+	if (u->find(index) == u->end())
+	{
+		y_plus_u = (y > 0 ? y : 0);
+	}
+	else {
+		y_plus_u = (y + (*u)[index] > 0 ? y : -(*u)[index]);
+	}
+
+	*kkt_u += y_plus_u * y_plus_u;
+
+
+
+
+
+	double yy = (axbu < 0 ? axbu : 0.0);
+
+
+
+	double nu = sigma * (axbu - yy);
+
+	if (nu != 0) {
+		mu->lock();
+		(*u)[index] = nu;
+		mu->unlock();
+	}
+	else if (u->find(index) != u->end()) {
+		mu->lock();
+		u->erase(index);
+		mu->unlock();
+
+	}
+
+
 }

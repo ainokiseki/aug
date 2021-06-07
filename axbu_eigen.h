@@ -35,17 +35,3 @@ private:
 };
 
 
-class axbu_pro
-{
-public:
-	axbu_pro(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma);
-	~axbu_pro();
-	Eigen::VectorXd operator()(int init = 0, int end = -1);
-private:
-	int n;
-	Eigen::VectorXd* x;
-	Eigen::VectorXd* b;
-	std::map<int64_t, double>* u;
-	double sigma;
-	Eigen::VectorXd res;
-};

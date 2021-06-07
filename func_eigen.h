@@ -4,6 +4,7 @@
 #include<Eigen/Sparse>
 #include<map>
 #include"tri.h"
+#include<mutex>
 class func_eigen
 {
 public:
@@ -87,6 +88,38 @@ private:
 	double sigma;
 };
 
+class func_eigen_uy :public func_eigen
+{
+public:
+
+	func_eigen_uy(std::map<int64_t, double>* u, double sigma, double*, double*, double*);
+	~func_eigen_uy();
+	void operator()(double axbu, int* idx, int time, int64_t index);
+private:
+	std::map<int64_t, double>* u;
+	double sigma;
+	double* y_norm;
+	double* kkt_y;
+	double* kkt_u;
+
+
+};
+class func_eigen_uy_mul :public func_eigen
+{
+public:
+
+	func_eigen_uy_mul(std::map<int64_t, double>* u, double sigma, double*, double*, double*,std::mutex*);
+	~func_eigen_uy_mul();
+	void operator()(double axbu, int* idx, int time, int64_t index);
+private:
+	std::map<int64_t, double>* u;
+	double sigma;
+	double* y_norm;
+	double* kkt_y;
+	double* kkt_u;
+	std::mutex* mu;
+
+};
 class func_eigen_superphi :public func_eigen
 {
 public:
