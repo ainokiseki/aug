@@ -1,5 +1,6 @@
 #include"norm_class.h"
 #include"dk.h"
+#include"admm_class.h"
 #include<chrono>
 #include<string>
 //#include"admm_class.h"
@@ -34,23 +35,27 @@ int main() {
 	//cin >> tm;
 	//dk s("graph500.txt",5);
 	//s.run_test(1e-2);
-	// 
-	// 
-	string s;
-	cin >> s;
-	if (s.substr(s.length() - 3, s.length()) == "dat") {
-		string ssubs = s.substr(s.find('/') + 1);
-		string subs=ssubs.substr(ssubs.find('_') + 1);
-		subs = subs.substr(0,subs.find('_'));
 
-		cout << ssubs << "\t" << subs << "\t" << endl;
-		norm_ori s2(subs, s);
-		s2.run();
-	}
-	else {
-		norm_ori s2(s);
-		s2.run();
-	}
+
+	//string s;
+	//cin >> s;
+	//if (s.substr(s.length() - 3, s.length()) == "dat") {
+	//	string ssubs = s.substr(s.find('/') + 1);
+	//	string subs=ssubs.substr(ssubs.find('_') + 1);
+	//	subs = subs.substr(0,subs.find('_'));
+
+	//	cout << ssubs << "\t" << subs << "\t" << endl;
+	//	norm_ori s2(subs, s);
+	//	s2.run();
+	//}
+	//else {
+	//	norm_ori s2(s);
+	//	s2.run();
+	//}
+	admm_basic a("graph14.txt");
+	a.run_dense();
+
+
 
 	//string s;
 	//ofstream series("series.txt", std::ios::out);
