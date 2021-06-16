@@ -52,8 +52,8 @@ int main() {
 	//	norm_ori s2(s);
 	//	s2.run();
 	//}
-	admm_basic a("graph14.txt");
-	a.run_dense();
+	admm_basic a("graph500.txt");
+	a.run();
 
 
 

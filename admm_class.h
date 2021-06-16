@@ -2,6 +2,8 @@
 #include "metric.h"
 #include"axbu_eigen.h"
 #include"cg_admm.h"
+#include<thread>
+#include<mutex>
 #include<Eigen/Sparse>
 #include<Eigen/SparseCholesky>
 using namespace std;
