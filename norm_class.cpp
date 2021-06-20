@@ -339,7 +339,7 @@ double norm_ori::get_kkt(double sigma) {
 	kkt_x = kkt_x / (1 + v.norm());
 
 	//cout << "z_norm" << z.norm() << endl;
-	kkt_v = (x - z).norm() / (1 + z.norm());
+	kkt_v = (x - z).norm() / (1 + x.norm());
 	kkt_z = (z - prox_p(z+v,1.0)).norm() / (1 + z.norm());
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);
@@ -632,7 +632,29 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 	//cout << "di:" << direction.norm() << endl;
 	return direction;
 }
+Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag,int ld) {
 
+	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
+	double a = min(pow(rhs.norm(), 1.5) * 0.5, 20.0);
+	(*ata) += sigma * aj2.asDiagonal();
+	(*ata) += a * Eigen::VectorXd::Ones(var_num).asDiagonal();
+	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+
+	Eigen::PardisoLDLT<SparseMatrix<double> > cg;
+	double ita = std::fmin(0.5, rhs.norm());
+	//cg.setTolerance(ita);
+	cg.compute(*ata);
+
+	Eigen::VectorXd direction = -cg.solve(rhs);
+
+	//cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	//prt_res << cg.iterations() << "\t";
+	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
+	//cout << "CG:" << cg.iterations() << std::endl;
+	//cout << "di:" << direction.norm() << endl;
+	return direction;
+}
 void norm_ori::run() {
 	string pwd;
 	cout << "plz input pwd:";
@@ -644,7 +666,7 @@ void norm_ori::run() {
 	//double sigma = 1;
 	double rlim = 1e-6;
 
-	for (; iter_all < 100; iter_all++, sigma *= 2) {
+	for (; iter_all < 100; iter_all++, sigma *= 1.5) {
 
 
 		if (pwd!="skip"&&iter_all > 0) {
@@ -771,8 +793,8 @@ void norm_ori::run() {
 			
 			double alpha = get_step_length(direction, sigma,404);
 			cout << "alpha=" << alpha << endl;
-			if (rhs.norm() < 1e-5 && alpha < 1e-4)
-				break;
+			//if (rhs.norm() < 1e-5 && alpha < 1e-4)
+			//	break;
 				//flaga = true;
 			x = x + alpha * direction;
 			prt_res << alpha << std::endl;
@@ -781,7 +803,7 @@ void norm_ori::run() {
 
 		double k = get_kkt(sigma);
 		prt_res << "==================\n";
-		if (k < 1e-5)
+		if (k < 1e-6)
 			break;
 		//rlim = k * 1e-4;
 

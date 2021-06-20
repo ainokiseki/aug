@@ -32,11 +32,17 @@ void axbu_eigen::operator() (int init,int end){
 				}
 				for (int time = 0; time < 3; time++) {
 					int64_t index = longindex[time];
-					double axbu2 = axbu;
+					double axbu2 =0;
 					if (u->find(index) != u->end()) {
 						axbu2 += (*u)[index] / sigma;
 					}
-					axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
+					for (int tt = 0; tt < 3; tt++) {
+						if(tt==time)
+						axbu2 +=  ((*x)[idx[tt]] + (*b)[idx[tt]]);
+						else
+							axbu2 -=((*x)[idx[tt]] + (*b)[idx[tt]]);
+					}
+					//axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
 					(*f)(axbu2, idx, time, index);
 				}
 
