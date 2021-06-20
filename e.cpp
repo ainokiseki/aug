@@ -52,8 +52,29 @@ int main() {
 	//	norm_ori s2(s);
 	//	s2.run();
 	//}
-	admm_basic a("graph500.txt");
-	a.run();
+
+	string target;
+	cin >> target;
+	std::ofstream pr("result.txt", std::ios::out);
+
+	std::vector<double>taulist = { 1,1.618,1.9 };
+	std::vector<double>sigmalist = { 1,0.01,0.0001 };
+	std::vector<double>scalelist = { 1,100,10000 };
+	std::vector<double>wlist = { 1,9 };
+	for (auto i:taulist) {
+		for (auto k : sigmalist) {
+			for (auto j : scalelist) {
+				for (auto x : wlist) {
+
+					admm_basic a(target);
+					auto res = a.run(i, k, j, x);
+					pr << "tau:" << i << " sigma:" << k << " scale_b:" << j << " scale_c:" << x << " itertime:" << res.first << " memory:" << res.second << endl;
+
+				}
+			}
+		}
+	}
+
 
 
 

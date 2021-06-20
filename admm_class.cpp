@@ -454,23 +454,26 @@ double admm_basic::get_kkt(double sigma) {
 	//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
 }
 
-void admm_basic::run() {
-	double tau = 1;
-	double scale_a, scale_b, scale_c;
+std::pair<int,int> admm_basic::run(double tau,double sigma,double scale_b,double scale_c) {
+
+	double scale_a;
 	//scale_a = 3;
 	//scale_b = b.norm();
 	//b = b / b.norm();
 	//w = w / 9;
 	//scale_b = b.norm();
-	scale_b = 1;
+
+	b = b * 3/scale_b;
+
 	// = b / b.norm();
 	scale_a = 3;
-	w = w / 9;
+
+	w = w / scale_c;
 	Eigen::VectorXd rhs(var_num);
-	double sigma = 1;
+
 	int dual_win(0), prim_win(0);
-	
-	for(int k=0;;k++)
+	int maxsize = 0;
+	for(int k=0;k<3000;k++)
 	{
 		rhs = Eigen::VectorXd::Zero(var_num);
 		//atyu(n, x, b, &u, rhs, sigma,scale_a);
@@ -526,9 +529,10 @@ void admm_basic::run() {
 		Eigen::VectorXd z = prox_p(x + v / sigma, sigma);
 		v += sigma *tau* (x - z);
 
-		double kkt_x = (atu + v).norm()/(1+v.norm());
-		kkt_u = sqrt(kkt_u)/(1+sqrt(y_norm));
-		double kkt_v = (x - z).norm()/(1+z.norm());
+		double kkt_x = (atu + v).norm() / (1 + v.norm());
+		double true_ku = scale_b * sqrt(kkt_u) / (1 + scale_b * sqrt(y_norm));
+		kkt_u = sqrt(kkt_u) / (1 + sqrt(y_norm));
+		double kkt_v = (x - z).norm() / (1 + z.norm());
 
 		//cout << "allinall\n";
 		if (std::fmax(kkt_u, kkt_v) > kkt_x) {
@@ -547,10 +551,16 @@ void admm_basic::run() {
 				sigma *= 3;
 			}
 		}
-		double kkt = std::fmax(kkt_x, std::fmax(kkt_u, kkt_v));
+		kkt_x = scale_a * scale_a * (atu + v).norm() / (1 + scale_a * scale_a * v.norm());
+
+		kkt_v = scale_b / scale_a * (x - z).norm() / (1 + scale_b / scale_a * z.norm());
+
+
+		double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
+		maxsize = fmax(maxsize, u.size());
 		cout << k << "\t" << kkt << "\t"<<func_p(x)*scale_b<<"\t"<< sigma<<"\t"<<u.size()<<endl;
-		if (kkt < 1e-5)
-			break;
+		if (kkt < 1e-3)
+			return std::pair<int,int>(k,maxsize);
 
 
 		//cout << "sig:"<<sigma << endl;
