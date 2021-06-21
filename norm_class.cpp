@@ -301,6 +301,12 @@ norm_ori::norm_ori(string graph_name,string data) : metric(graph_name)
 	}
 	cout << "reload succeed\n" << "u:" << u.size() << endl;
 }
+
+norm_ori::norm_ori(int n, Eigen::VectorXd b, Eigen::VectorXd w) :
+	metric(n,b,w)
+{
+
+}
 norm_ori::~norm_ori()
 {
 }
@@ -621,7 +627,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 
 	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 	double ita = std::fmin(0.5, rhs.norm());
-	cg.setTolerance(ita);
+	//cg.setTolerance(ita);
 	cg.compute(*ata);
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
@@ -661,7 +667,7 @@ void norm_ori::store_result() {
 }
 
 
-std::pair<double,std::pair<int,int> > norm_ori::run() {
+std::pair<double,std::pair<int,int> > norm_ori::run(double kkt_limit) {
 	string pwd="skip";
 	cout << "plz input pwd:";
 
@@ -702,8 +708,6 @@ std::pair<double,std::pair<int,int> > norm_ori::run() {
 		bool flaga = true;
 
 		for (int iter_1 = 0; iter_1 < 1000; iter_1++,looptime++) {
-
-			cout << "min:"<<(x + b).minCoeff() << endl;
 			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
@@ -812,7 +816,7 @@ std::pair<double,std::pair<int,int> > norm_ori::run() {
 
 		double k = get_kkt(sigma);
 		prt_res << "==================\n";
-		if (k < 1e-6)
+		if (k < kkt_limit)
 			break;
 		//rlim = k * 1e-2;
 
