@@ -783,7 +783,7 @@ void norm_ori::run() {
 			//else {
 			//	direction= get_direction(sigma, rhs, &aj1);
 			//}
-			direction = get_direction(&ata, rhs, &diag);
+			direction = get_direction(&ata, rhs, &diag,0);
 			//Eigen::VectorXd direction = get_direction(rhs);
 			//cout << "di:" << direction.norm() << endl;
 
