@@ -16,6 +16,7 @@ class metric
 {
 public:
 	metric(std::string graph_name);
+	metric(int n,Eigen::VectorXd b, Eigen::VectorXd w);
 	~metric();
 	void init();
 

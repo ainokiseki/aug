@@ -301,6 +301,12 @@ norm_ori::norm_ori(string graph_name,string data) : metric(graph_name)
 	}
 	cout << "reload succeed\n" << "u:" << u.size() << endl;
 }
+
+norm_ori::norm_ori(int n, Eigen::VectorXd b, Eigen::VectorXd w) :
+	metric(n,b,w)
+{
+
+}
 norm_ori::~norm_ori()
 {
 }
@@ -620,7 +626,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 
 	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 	double ita = std::fmin(0.5, rhs.norm());
-	cg.setTolerance(ita);
+	//cg.setTolerance(ita);
 	cg.compute(*ata);
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
@@ -702,7 +708,7 @@ void norm_ori::run() {
 			cout << "x:" << x.norm() << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<int64_t>aj1;
-			
+
 			Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
 			std::vector<Eigen::Triplet<double> >test_v;
 			if (!flaga) {
@@ -803,9 +809,9 @@ void norm_ori::run() {
 
 		double k = get_kkt(sigma);
 		prt_res << "==================\n";
-		if (k < 1e-6)
+		if (k < kkt_limit)
 			break;
-		//rlim = k * 1e-4;
+		//rlim = k * 1e-2;
 
 
 		delete axbu;

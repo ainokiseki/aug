@@ -69,6 +69,13 @@ metric::metric(std::string graph_name) :graph_name(graph_name)
 	cout << "x,v" << x[0] << "\t" << v[0] << endl;
 }
 
+metric::metric(int n, Eigen::VectorXd b, Eigen::VectorXd w):n(n),b(b),w(w)
+{
+	var_num = n * (n - 1) / 2;
+	x = Eigen::VectorXd::Zero(var_num);
+	v = Eigen::VectorXd::Zero(var_num);
+}
+
 metric::~metric()
 {
 }

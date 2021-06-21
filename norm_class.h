@@ -46,6 +46,8 @@ class norm_ori :public metric
 public:
 	norm_ori(string graph_name);
 	norm_ori(string graph_name, string data);
+	norm_ori(int n,Eigen::VectorXd b, Eigen::VectorXd w);
+
 	~norm_ori();
 
 	inline Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma) ;

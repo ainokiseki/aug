@@ -61,27 +61,27 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 
 
 			triv->push_back(Eigen::Triplet<double>(idx[0], idx[1], -1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
 			triv->push_back(Eigen::Triplet<double>(idx[0], idx[2], -1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
 			triv->push_back(Eigen::Triplet<double>(idx[1], idx[2], 1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], 1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], 1.0));
 		}
 		else if (time == 1) {
 			triv->push_back(Eigen::Triplet<double>(idx[0], idx[1], -1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], -1.0));
 			triv->push_back(Eigen::Triplet<double>(idx[0], idx[2], 1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], 1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], 1.0));
 			triv->push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
 		}
 		else {
 			triv->push_back(Eigen::Triplet<double>(idx[0], idx[1], 1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], 1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[1], idx[0], 1.0));
 			triv->push_back(Eigen::Triplet<double>(idx[0], idx[2], -1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[2], idx[0], -1.0));
 			triv->push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
-			triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
+			//triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
 		}
 	}
 }
