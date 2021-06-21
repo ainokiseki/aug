@@ -477,7 +477,7 @@ std::pair<int,int> admm_basic::run(double tau,double sigma,double scale_b,double
 	{
 		rhs = Eigen::VectorXd::Zero(var_num);
 		//atyu(n, x, b, &u, rhs, sigma,scale_a);
-		m_atyu(8, n, x, b, &u, rhs, sigma, scale_a);
+		m_atyu(24, n, x, b, &u, rhs, sigma, scale_a);
 		rhs += prox_p(x + v / sigma, sigma) - v / sigma;
 		//cg
 		//cout << "atyu\n";
@@ -502,7 +502,7 @@ std::pair<int,int> admm_basic::run(double tau,double sigma,double scale_b,double
 				}
 
 				Eigen::VectorXd ap = Eigen::VectorXd::Zero(var_num);
-				m_atax(8,n, p, ap);
+				m_atax(24,n, p, ap);
 				ap /= (scale_a * scale_a);
 				ap += p;
 
@@ -525,7 +525,7 @@ std::pair<int,int> admm_basic::run(double tau,double sigma,double scale_b,double
 		double y_norm, kkt_u;
 		y_norm = kkt_u = 0;
 		Eigen::VectorXd atu = Eigen::VectorXd::Zero(var_num);
-		m_all_in_all(8,n, u, x, b, atu, kkt_u, y_norm, sigma, tau, scale_a);
+		m_all_in_all(24,n, u, x, b, atu, kkt_u, y_norm, sigma, tau, scale_a);
 		Eigen::VectorXd z = prox_p(x + v / sigma, sigma);
 		v += sigma *tau* (x - z);
 

@@ -57,10 +57,10 @@ int main() {
 	cin >> target;
 	std::ofstream pr("result.txt", std::ios::out);
 
-	std::vector<double>taulist = { 1,1.618,1.9 };
-	std::vector<double>sigmalist = { 1,0.01,0.0001 };
-	std::vector<double>scalelist = { 1,100,10000 };
-	std::vector<double>wlist = { 1,9 };
+	std::vector<double>taulist = { 1.9 };
+	std::vector<double>sigmalist = {0.001 };
+	std::vector<double>scalelist = { 1};
+	std::vector<double>wlist = { 9 };
 	for (auto i:taulist) {
 		for (auto k : sigmalist) {
 			for (auto j : scalelist) {
