@@ -3,6 +3,7 @@
 #include"admm_class.h"
 #include<chrono>
 #include<string>
+#include<queue>
 //#include"admm_class.h"
 
 
@@ -57,6 +58,10 @@ int main() {
 	int var_num = a.var_num;
 	Eigen::MatrixXd w(n, n),b(n,n);
 
+
+
+
+
 	int ct = 0;
 	for (int i = 0; i < n; i++) {
 		for (int j = i+1; j < n; j++,ct++) {
@@ -64,13 +69,87 @@ int main() {
 			b(i, j) = b(j, i) = a.b[ct];
 		}
 	}
-	std::vector<int>t1, t2;
-	for (int i = 0; i < 250; i++)
-		t1.push_back(i);
-	for (int i = 250; i < n; i++)
-		t2.push_back(i);
-	std::sort(t1.begin(), t1.end());
-	std::sort(t2.begin(), t2.end());
+	std::vector<int>core;
+	std::vector<bool>vis(n);
+	fill(vis.begin(), vis.end(), false);
+	for (int i = 0; i < n; i++) {
+		int ct = 0;
+		for (int j = 0; j < n; j++) {
+			if (j == i)continue;
+			if (b(i, j) < 0.5 && w(i, j) > 0.5) {
+				ct++;
+			}
+		}
+		if (ct > 20) {
+			core.push_back(i);
+		}
+	}
+	random_shuffle(core.begin(), core.end());
+	vector<vector<int> >divide_res;
+
+	for (auto i : core) {
+		if (vis[i]) {
+			continue;
+		}
+		vector<int>res;
+		queue<int> q;
+		q.push(i);
+		vis[i] = true;
+		while (!q.empty()) {
+			int x = q.front();
+			q.pop();
+			res.push_back(x);
+			for (int j = 0; j < n; j++) {
+				if ( vis[j] == false && b(x, j) < 0.5 && w(x, j) > 0.5) {
+					vis[j] = true;
+					q.push(j);
+				}
+			}
+
+		}
+		divide_res.push_back(res);
+	}
+	cout << divide_res.size() << endl;
+
+	for (auto& t1 : divide_res) {
+		std::sort(t1.begin(), t1.end());
+		Eigen::VectorXd w1(t1.size() * (t1.size() - 1) / 2), b1(t1.size() * (t1.size() - 1) / 2);
+		ct = 0;
+		for (int i = 0; i < t1.size(); i++) {
+			for (int j = i + 1; j < t1.size(); j++, ct++) {
+				w1[ct] = w(t1[i], t1[j]);
+				b1[ct] = b(t1[i], t1[j]);
+			}
+		}
+		norm_ori t(t1.size(), b1, w1);
+		t.run();
+		ct = 0;
+		for (int i = 0; i < t1.size(); i++) {
+			for (int j = i + 1; j < t1.size(); j++, ct++) {
+				a.x[ij(t1[i], t1[j], n)] = t.x[ct];
+				a.v[ij(t1[i], t1[j], n)] = t.v[ct];
+			}
+		}
+		int n1 = t1.size();
+		for (auto& i : t.u) {
+			int ui, uj, uk;
+			uk = i.first % n1;
+			uj = i.first / n1;
+			ui = uj / n1;
+			uj = uj % n1;
+			int64_t res = static_cast<int64_t>(ui) * n * n + static_cast<int64_t>(uj) * n + uk;
+			a.u.insert(std::pair<int64_t, double>(res, i.second));
+		}
+	}
+
+
+
+	a.run();
+
+
+
+
+	
 	//{
 	//	Eigen::VectorXd w1(t1.size() * (t1.size() - 1) / 2), b1(t1.size() * (t1.size() - 1) / 2);
 	//	ct = 0;
@@ -129,7 +208,7 @@ int main() {
 	//		a.u.insert(std::pair<int64_t, double>(res, i.second));
 	//	}
 	//}
-	a.run();
+	//a.run();
 	//string s;
 	//ofstream series("series.txt", std::ios::out);
 	//for (int i = 100; i <= 1000; i += 50) {

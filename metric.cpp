@@ -71,6 +71,8 @@ metric::metric(std::string graph_name) :graph_name(graph_name)
 
 metric::metric(int n, Eigen::VectorXd b, Eigen::VectorXd w):n(n),b(b),w(w)
 {
+	cout << "w:" << w.sum() << endl;
+	cout << "b:" << b.sum() << endl;
 	var_num = n * (n - 1) / 2;
 	x = Eigen::VectorXd::Zero(var_num);
 	v = Eigen::VectorXd::Zero(var_num);

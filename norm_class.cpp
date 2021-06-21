@@ -661,10 +661,9 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 	//cout << "di:" << direction.norm() << endl;
 	return direction;
 }
-void norm_ori::run() {
-	string pwd;
-	cout << "plz input pwd:";
-	cin >> pwd;
+void norm_ori::run(double kkt_limit) {
+	string pwd("skip");
+	
 	auto i_start = std::chrono::high_resolution_clock::now();
 
 	prt_res = ofstream("123.log");
