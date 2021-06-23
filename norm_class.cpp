@@ -626,7 +626,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 
 	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 	double ita = std::fmin(0.5, rhs.norm());
-	//cg.setTolerance(ita);
+	cg.setTolerance(ita);
 	cg.compute(*ata);
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
@@ -661,7 +661,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 	//cout << "di:" << direction.norm() << endl;
 	return direction;
 }
-void norm_ori::run(double kkt_limit) {
+void norm_ori::run( int looplim,double sig,double kkt_limit) {
 	string pwd("skip");
 	
 	auto i_start = std::chrono::high_resolution_clock::now();
@@ -670,8 +670,8 @@ void norm_ori::run(double kkt_limit) {
 	prt_res.setf(std::ios::scientific);
 	//double sigma = 1;
 	double rlim = 1e-6;
-
-	for (; iter_all < 100; iter_all++, sigma *= 1.5) {
+	sigma = sig;
+	for (; iter_all < looplim; iter_all++, sigma *= 1.5) {
 
 
 		if (pwd!="skip"&&iter_all > 0) {
@@ -788,7 +788,7 @@ void norm_ori::run(double kkt_limit) {
 			//else {
 			//	direction= get_direction(sigma, rhs, &aj1);
 			//}
-			direction = get_direction(&ata, rhs, &diag,0);
+			direction = get_direction(&ata, rhs, &diag);
 			//Eigen::VectorXd direction = get_direction(rhs);
 			//cout << "di:" << direction.norm() << endl;
 

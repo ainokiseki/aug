@@ -60,7 +60,7 @@ public:
 
 	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag, int ld);
 
-	void run(double kkt_limit=1e-6);
+	void run(int looplim=100,double sig=1,double kkt_limit=1e-6);
 
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);
