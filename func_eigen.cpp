@@ -50,9 +50,9 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 
 		for (int i = 0; i < 3; i++) {
 			if (i == time)continue;
-			(*rhs)(idx[i]) -= axbu;
+			(*rhs)(idx[i]) -= axbu/3;
 		}
-		(*rhs)(idx[time]) += axbu;
+		(*rhs)(idx[time]) += axbu/3;
 		(*diag)[idx[0]] += 1;
 		(*diag)[idx[1]] += 1;
 		(*diag)[idx[2]] += 1;
@@ -207,10 +207,10 @@ void func_eigen_superphi::operator()(double axbu, int* idx, int time, int64_t in
 {
 	for (int i = 0; i < length; i++) {
 		double naxbu = axbu;
-		naxbu -= alpha[i] * (*direction)[idx[0]];
-		naxbu -= alpha[i] * (*direction)[idx[1]];
-		naxbu -= alpha[i] * (*direction)[idx[2]];
-		naxbu += 2 * alpha[i] * (*direction)[idx[time]];
+		naxbu -= alpha[i] * (*direction)[idx[0]]/3;
+		naxbu -= alpha[i] * (*direction)[idx[1]]/3;
+		naxbu -= alpha[i] * (*direction)[idx[2]]/3;
+		naxbu += 2 * alpha[i] * (*direction)[idx[time]]/3;
 		if (naxbu > 0) {
 			norm[i] += naxbu * naxbu;
 		}

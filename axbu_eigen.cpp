@@ -5,11 +5,21 @@ axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<i
 	n(n), x(x), b(b), u(u), sigma(sigma),f(NULL)
 {
 }
+axbu_sub_eigen::axbu_sub_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma,std::vector<int>*obj) :
+	axbu_eigen(n,x,b,u,sigma),obj(obj)
+{
+	f = NULL;
+}
 
 axbu_eigen::~axbu_eigen()
 {
 
 }
+axbu_sub_eigen::~axbu_sub_eigen()
+{
+
+}
+
 void axbu_eigen::operator() (int init,int end){
 	if (end < 0)end = n;
 	int var_num = n * (n - 1) / 2;
@@ -30,6 +40,7 @@ void axbu_eigen::operator() (int init,int end){
 				for (int time = 0; time < 3; time++) {
 					axbu -= (*x)[idx[time]] + (*b)[idx[time]];
 				}
+				axbu /= 3;
 				for (int time = 0; time < 3; time++) {
 					int64_t index = longindex[time];
 					double axbu2 =0;
@@ -38,9 +49,56 @@ void axbu_eigen::operator() (int init,int end){
 					}
 					for (int tt = 0; tt < 3; tt++) {
 						if(tt==time)
-						axbu2 +=  ((*x)[idx[tt]] + (*b)[idx[tt]]);
+						axbu2 += ( ((*x)[idx[tt]] + (*b)[idx[tt]]))/3;
 						else
-							axbu2 -=((*x)[idx[tt]] + (*b)[idx[tt]]);
+							axbu2 -=(((*x)[idx[tt]] + (*b)[idx[tt]]))/3;
+					}
+					//axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
+					(*f)(axbu2, idx, time, index);
+				}
+
+			}
+		}
+
+	}
+
+	delete f;
+
+	return;
+
+}
+void axbu_sub_eigen::operator() (int init, int end) {
+	if (end < 0)end = n;
+	int var_num = n * (n - 1) / 2;
+
+	//std::cout << init << "\t" << end << "\t" << index << std::endl;
+	for (int i = init; i < end; i++) {
+		for (int j = i + 1; j < n; j++) {
+			for (int k = j + 1; k < n; k++) {
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
+				int64_t longindex[3];
+				longindex[0] = static_cast<int64_t>((*obj)[i]) * n * n + static_cast<int64_t>((*obj)[j]) * n + (*obj)[k];
+				longindex[1] = static_cast<int64_t>((*obj)[i]) * n * n + static_cast<int64_t>((*obj)[k]) * n + (*obj)[j];
+				longindex[2] = static_cast<int64_t>((*obj)[j]) * n * n + static_cast<int64_t>((*obj)[k]) * n + (*obj)[i];
+				double axbu = 0;
+				for (int time = 0; time < 3; time++) {
+					axbu -= (*x)[idx[time]] + (*b)[idx[time]];
+				}
+				axbu /= 3;
+				for (int time = 0; time < 3; time++) {
+					int64_t index = longindex[time];
+					double axbu2 = 0;
+					if (u->find(index) != u->end()) {
+						axbu2 += (*u)[index] / sigma;
+					}
+					for (int tt = 0; tt < 3; tt++) {
+						if (tt == time)
+							axbu2 += (((*x)[idx[tt]] + (*b)[idx[tt]])) / 3;
+						else
+							axbu2 -= (((*x)[idx[tt]] + (*b)[idx[tt]])) / 3;
 					}
 					//axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
 					(*f)(axbu2, idx, time, index);
@@ -93,7 +151,7 @@ double au_eigen::operator()(int init, int end)
 					int64_t index = longindex[time];
 					if (u->find(index) == u->end())
 						continue;
-					double tem = (*u)[index];
+					double tem = (*u)[index]/3;
 					(au)[idx[0]] -= tem;
 					(au)[idx[1]] -= tem;
 					(au)[idx[2]] -= tem;

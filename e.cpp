@@ -117,6 +117,7 @@ int main() {
 	//	cout << i.size() << endl;
 	//
 
+
 	//for (auto& t1 : divide_res) {
 	//	std::sort(t1.begin(), t1.end());
 	//	Eigen::VectorXd w1(t1.size() * (t1.size() - 1) / 2), b1(t1.size() * (t1.size() - 1) / 2);

@@ -1,7 +1,7 @@
 
 #include"norm_class.h"
 #include<iomanip>
-
+#include<queue>
 void m_calc_superphi(int pnum, axbu_eigen axbu, double* alpha, Eigen::VectorXd* direction,double*lxnorm) {
 	int n = axbu.n;
 	double* mphi = new double[pnum*20];
@@ -662,6 +662,77 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 	return direction;
 }
 void norm_ori::run( int looplim,double sig,double kkt_limit) {
+
+
+
+	Eigen::MatrixXd tw(n, n), tb(n, n);
+
+
+
+
+
+	int ct = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++, ct++) {
+			tw(i, j) = tw(j, i) = w[ct];
+			tb(i, j) = tb(j, i) = b[ct];
+		}
+	}
+	std::vector<int>core;
+	std::vector<bool>vis(n);
+	fill(vis.begin(), vis.end(), false);
+	for (int i = 0; i < n; i++) {
+		int ct = 0;
+		for (int j = 0; j < n; j++) {
+			if (j == i)continue;
+			if (tb(i, j) < 0.5 && tw(i, j) > 0.2) {
+				ct++;
+			}
+		}
+		if (ct > 20) {
+			core.push_back(i);
+		}
+	}
+	random_shuffle(core.begin(), core.end());
+	vector<vector<int> >divide_res;
+
+	for (auto i : core) {
+		if (vis[i]) {
+			continue;
+		}
+		vector<int>res;
+		queue<int> q;
+		q.push(i);
+		vis[i] = true;
+		while (!q.empty()) {
+			int x = q.front();
+			q.pop();
+			res.push_back(x);
+			for (int j = 0; j < n; j++) {
+				if (vis[j] == false && tb(x, j) < 0.5 && tw(x, j) > 0.2) {
+					vis[j] = true;
+					q.push(j);
+				}
+			}
+
+		}
+		divide_res.push_back(res);
+	}
+	cout << divide_res.size() << endl;
+
+	for (auto i : divide_res)
+		cout << i.size() << endl;
+
+
+
+
+
+
+
+
+
+
+
 	string pwd("skip");
 	
 	auto i_start = std::chrono::high_resolution_clock::now();
@@ -672,7 +743,35 @@ void norm_ori::run( int looplim,double sig,double kkt_limit) {
 	double rlim = 1e-6;
 	sigma = sig;
 	for (; iter_all < looplim; iter_all++, sigma *= 1.5) {
+		for (int i = 0; i < divide_res.size();i++) {
+			std::vector<int>t1 = divide_res[i];
+			std::sort(t1.begin(), t1.end());
+			Eigen::VectorXd w1(t1.size() * (t1.size() - 1) / 2), b1(t1.size() * (t1.size() - 1) / 2);
+			ct = 0;
+			for (int i = 0; i < t1.size(); i++) {
+				for (int j = i + 1; j < t1.size(); j++, ct++) {
+					w1[ct] = tw(t1[i], t1[j]);
+					b1[ct] = tb(t1[i], t1[j]);
 
+				}
+			}
+			norm_ori t(t1.size(), b1, w1);
+			ct = 0;
+			for (int i = 0; i < t1.size(); i++) {
+				for (int j = i + 1; j < t1.size(); j++, ct++) {
+					t.x[ct] = x[ij(t1[i], t1[j], n)];
+					t.v[ct] = v[ij(t1[i], t1[j], n)];
+				}
+			}
+			t.run(&t1,1, sigma);
+			ct = 0;
+			for (int i = 0; i < t1.size(); i++) {
+				for (int j = i + 1; j < t1.size(); j++, ct++) {
+					x[ij(t1[i], t1[j], n)] = t.x[ct];
+					v[ij(t1[i], t1[j], n)] = t.v[ct];
+				}
+			}
+		}
 
 		if (pwd!="skip"&&iter_all > 0) {
 			ofstream model(string("model_save/") +pwd+string("_")+graph_name+string("_")+to_string(iter_all)+string(".dat"),std::ios::out|std::ios::binary);
@@ -765,7 +864,7 @@ void norm_ori::run( int looplim,double sig,double kkt_limit) {
 			ata.setFromTriplets(test_v.begin(), test_v.end());
 
 			ata += diag.asDiagonal();
-			ata *= sigma;
+			ata *= sigma/9;
 			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
 			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
 
@@ -805,7 +904,8 @@ void norm_ori::run( int looplim,double sig,double kkt_limit) {
 			prt_res << alpha << std::endl;
 
 		}
-
+		if (iter_all == looplim - 1)
+			break;
 		double k = get_kkt(sigma);
 		prt_res << "==================\n";
 		if (k < kkt_limit)
@@ -817,6 +917,141 @@ void norm_ori::run( int looplim,double sig,double kkt_limit) {
 
 	}
 	cout << "func_value:" << std::setprecision(8)<< func_p(x) << endl;
+	auto i_end = std::chrono::high_resolution_clock::now();
+	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
+	double tm = double(eld.count()) * 1.0 * 1e-9;
+	cout << "time is:" << tm << endl;
+}
+void norm_ori::run(std::vector<int>*obj,int looplim, double sig, double kkt_limit) {
+
+
+	auto i_start = std::chrono::high_resolution_clock::now();
+	//double sigma = 1;
+	double rlim = 1e-1;
+	sigma = sig;
+	for (; iter_all < looplim; iter_all++, sigma *= 1.5) {
+
+
+		cout << "start main loop,sigma=" << sigma << endl;
+		axbu = new axbu_sub_eigen(n, &x, &b, &u, sigma,obj);
+		bool flaga = true;
+
+		for (int iter_1 = 0; iter_1 < 1000; iter_1++) {
+
+
+			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
+			cout << "x:" << x.norm() << endl;
+			rhs = Eigen::VectorXd::Zero(var_num);
+			vector<int64_t>aj1;
+
+			Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
+			std::vector<Eigen::Triplet<double> >test_v;
+			if (!flaga) {
+				if (mthread == 0) {
+					axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+					(*axbu)();
+				}
+				else {
+					//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+					m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+				}
+			}
+			else {
+
+
+				if (mthread == 0) {
+					axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+					(*axbu)();
+				}
+				else {
+					//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+					m_calc_rhs_and_aj1_diag(mthread, &rhs, &aj1, &diag, n, *axbu, &test_v);
+				}
+			}
+
+
+			std::vector<Eigen::Triplet<double> >test_vb;
+			//for (auto i : aj1) {
+			//	int ci, cj, ck;
+			//	ck = i % n;
+			//	cj = i / n;
+			//	ci = cj / n;
+			//	cj = cj % n;
+
+			//	int idx[3];
+			//	idx[0] = ij(ci, cj, n);
+			//	idx[1] = ij(ci, ck, n);
+			//	idx[2] = ij(cj, ck, n);
+			//	test_vb.push_back(Eigen::Triplet<double>(idx[0], idx[1], -sigma));
+			//	test_vb.push_back(Eigen::Triplet<double>(idx[1], idx[0], -sigma));
+			//	test_vb.push_back(Eigen::Triplet<double>(idx[0], idx[2], -sigma));
+			//	test_vb.push_back(Eigen::Triplet<double>(idx[2], idx[0], -sigma));
+			//	test_vb.push_back(Eigen::Triplet<double>(idx[1], idx[2], sigma));
+			//	test_vb.push_back(Eigen::Triplet<double>(idx[2], idx[1], sigma));
+			//}
+			//for (int i = 0; i < 10; i++) {
+			//	cout << test_v[i].row()<<" "<<test_v[i].col()<<" "<<test_v[i].value() << endl;
+			//}
+			//for (int i = 0; i < 10; i++) {
+			//	cout << test_vb[i].row() << " " << test_vb[i].col() << " " << test_vb[i].value() << endl;
+			//}
+			//return;
+
+			Eigen::SparseMatrix<double>ata(var_num, var_num);
+			ata.setFromTriplets(test_v.begin(), test_v.end());
+
+			ata += diag.asDiagonal();
+			ata *= sigma / 9;
+			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
+			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
+
+
+			//cout << "r1:" << rhs.norm() << endl;
+
+			rhs = sigma * rhs + sigma * prox_p_star(x + v / sigma, sigma);
+
+			prt_res << iter_1 << "  " << rhs.norm() << "  ";
+
+
+			if (rhs.norm() < rlim) {
+				break;
+			}
+			cout << "rhs:" << rhs.norm() << endl;
+			Eigen::VectorXd direction;
+			//if (flaga) {
+			//	direction = get_direction(sigma, rhs, &aj1, &diag);
+			//}
+			//else {
+			//	direction= get_direction(sigma, rhs, &aj1);
+			//}
+			direction = get_direction(&ata, rhs, &diag);
+			//Eigen::VectorXd direction = get_direction(rhs);
+			//cout << "di:" << direction.norm() << endl;
+
+			//for (int i = 0; i < var_num; i++)
+			//	direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
+
+
+			double alpha = get_step_length(direction, sigma, 404);
+			cout << "alpha=" << alpha << endl;
+			//if (rhs.norm() < 1e-5 && alpha < 1e-4)
+			//	break;
+				//flaga = true;
+			x = x + alpha * direction;
+			prt_res << alpha << std::endl;
+
+		}
+
+
+		prt_res << "==================\n";
+		break;
+		//rlim = k * 1e-2;
+
+
+		delete axbu;
+
+	}
+	cout << "func_value:" << std::setprecision(8) << func_p(x) << endl;
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;

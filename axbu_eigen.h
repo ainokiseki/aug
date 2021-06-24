@@ -20,6 +20,17 @@ public:
 	double sigma;
 	func_eigen* f;
 };
+class axbu_sub_eigen:public axbu_eigen
+{
+public:
+	axbu_sub_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma,std::vector<int>*obj);
+	~axbu_sub_eigen();
+	void operator()(int init = 0, int end = -1);
+	
+	std::vector<int>* obj;
+
+};
+
 class au_eigen
 {
 public:
