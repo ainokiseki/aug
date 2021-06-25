@@ -62,7 +62,7 @@ public:
 
 	void run(int looplim=100,double sig=1,double kkt_limit=1e-6);
 
-	void run(std::vector<int>* obj, int looplim = 100, double sig = 1, double kkt_limit = 1e-6);
+	void run(std::vector<int>* obj,std::map<int64_t,double>*pu, int looplim = 100, double sig = 1, double kkt_limit = 1e-6);
 
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);

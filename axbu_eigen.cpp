@@ -40,7 +40,7 @@ void axbu_eigen::operator() (int init,int end){
 				for (int time = 0; time < 3; time++) {
 					axbu -= (*x)[idx[time]] + (*b)[idx[time]];
 				}
-				axbu /= 3;
+				
 				for (int time = 0; time < 3; time++) {
 					int64_t index = longindex[time];
 					double axbu2 =0;
@@ -49,9 +49,9 @@ void axbu_eigen::operator() (int init,int end){
 					}
 					for (int tt = 0; tt < 3; tt++) {
 						if(tt==time)
-						axbu2 += ( ((*x)[idx[tt]] + (*b)[idx[tt]]))/3;
+						axbu2 += ( ((*x)[idx[tt]] + (*b)[idx[tt]]));
 						else
-							axbu2 -=(((*x)[idx[tt]] + (*b)[idx[tt]]))/3;
+							axbu2 -=(((*x)[idx[tt]] + (*b)[idx[tt]]));
 					}
 					//axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
 					(*f)(axbu2, idx, time, index);
@@ -87,7 +87,7 @@ void axbu_sub_eigen::operator() (int init, int end) {
 				for (int time = 0; time < 3; time++) {
 					axbu -= (*x)[idx[time]] + (*b)[idx[time]];
 				}
-				axbu /= 3;
+
 				for (int time = 0; time < 3; time++) {
 					int64_t index = longindex[time];
 					double axbu2 = 0;
@@ -96,9 +96,9 @@ void axbu_sub_eigen::operator() (int init, int end) {
 					}
 					for (int tt = 0; tt < 3; tt++) {
 						if (tt == time)
-							axbu2 += (((*x)[idx[tt]] + (*b)[idx[tt]])) / 3;
+							axbu2 += (((*x)[idx[tt]] + (*b)[idx[tt]]));
 						else
-							axbu2 -= (((*x)[idx[tt]] + (*b)[idx[tt]])) / 3;
+							axbu2 -= (((*x)[idx[tt]] + (*b)[idx[tt]])) ;
 					}
 					//axbu2 += 2 * ((*x)[idx[time]] + (*b)[idx[time]]);
 					(*f)(axbu2, idx, time, index);
@@ -151,7 +151,7 @@ double au_eigen::operator()(int init, int end)
 					int64_t index = longindex[time];
 					if (u->find(index) == u->end())
 						continue;
-					double tem = (*u)[index]/3;
+					double tem = (*u)[index];
 					(au)[idx[0]] -= tem;
 					(au)[idx[1]] -= tem;
 					(au)[idx[2]] -= tem;

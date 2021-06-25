@@ -763,12 +763,12 @@ void norm_ori::run( int looplim,double sig,double kkt_limit) {
 					t.v[ct] = v[ij(t1[i], t1[j], n)];
 				}
 			}
-			t.run(&t1,1, sigma);
+			t.run(&t1,&u,1, sigma);
 			ct = 0;
 			for (int i = 0; i < t1.size(); i++) {
 				for (int j = i + 1; j < t1.size(); j++, ct++) {
 					x[ij(t1[i], t1[j], n)] = t.x[ct];
-					v[ij(t1[i], t1[j], n)] = t.v[ct];
+					//v[ij(t1[i], t1[j], n)] = t.v[ct];
 				}
 			}
 		}
@@ -864,7 +864,7 @@ void norm_ori::run( int looplim,double sig,double kkt_limit) {
 			ata.setFromTriplets(test_v.begin(), test_v.end());
 
 			ata += diag.asDiagonal();
-			ata *= sigma/9;
+			ata *= sigma;
 			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
 			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
 
@@ -922,7 +922,7 @@ void norm_ori::run( int looplim,double sig,double kkt_limit) {
 	double tm = double(eld.count()) * 1.0 * 1e-9;
 	cout << "time is:" << tm << endl;
 }
-void norm_ori::run(std::vector<int>*obj,int looplim, double sig, double kkt_limit) {
+void norm_ori::run(std::vector<int>*obj, std::map<int64_t, double>* pu, int looplim, double sig, double kkt_limit) {
 
 
 	auto i_start = std::chrono::high_resolution_clock::now();
@@ -933,7 +933,7 @@ void norm_ori::run(std::vector<int>*obj,int looplim, double sig, double kkt_limi
 
 
 		cout << "start main loop,sigma=" << sigma << endl;
-		axbu = new axbu_sub_eigen(n, &x, &b, &u, sigma,obj);
+		axbu = new axbu_sub_eigen(n, &x, &b, pu, sigma,obj);
 		bool flaga = true;
 
 		for (int iter_1 = 0; iter_1 < 1000; iter_1++) {
@@ -1001,7 +1001,7 @@ void norm_ori::run(std::vector<int>*obj,int looplim, double sig, double kkt_limi
 			ata.setFromTriplets(test_v.begin(), test_v.end());
 
 			ata += diag.asDiagonal();
-			ata *= sigma / 9;
+			ata *= sigma;
 			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
 			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
 
@@ -1041,7 +1041,7 @@ void norm_ori::run(std::vector<int>*obj,int looplim, double sig, double kkt_limi
 			prt_res << alpha << std::endl;
 
 		}
-
+		//get_kkt(sigma);
 
 		prt_res << "==================\n";
 		break;
