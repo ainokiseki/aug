@@ -6,9 +6,11 @@
 class axbu_eigen
 {
 public:
-	axbu_eigen(int n,Eigen::VectorXd*x, Eigen::VectorXd* b, std::map<int64_t,double>*u ,double sigma);
+	axbu_eigen(int n,Eigen::VectorXd*x, Eigen::VectorXd* b, std::map<int64_t,double>*u ,double sigma, std::vector<int64_t>* cons=NULL);
 	~axbu_eigen();
-	void operator()(int init=0,int end=-1);
+	void operator()(int init=0, int end=-1);
+
+
 	void set_function(func_eigen* );
 
 
@@ -19,6 +21,7 @@ public:
 	std::map<int64_t, double>* u;
 	double sigma;
 	func_eigen* f;
+	std::vector<int64_t>* cons;
 };
 class au_eigen
 {

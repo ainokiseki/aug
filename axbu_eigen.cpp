@@ -1,8 +1,8 @@
 #include "axbu_eigen.h"
 #include<iostream>
 
-axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma) :
-	n(n), x(x), b(b), u(u), sigma(sigma),f(NULL)
+axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma, std::vector<int64_t>* cons) :
+	n(n), x(x), b(b), u(u), sigma(sigma),f(NULL),cons(cons)
 {
 }
 
@@ -11,27 +11,43 @@ axbu_eigen::~axbu_eigen()
 
 }
 void axbu_eigen::operator() (int init,int end){
-	if (end < 0)end = n;
-	int var_num = n * (n - 1) / 2;
-	
+	if (end < 0)end = cons->size();
+
 	//std::cout << init << "\t" << end << "\t" << index << std::endl;
-	for (int i = init; i < end; i++) {
-		for (int j = i+1; j < n; j++) {
-			for (int k = j + 1; k < n; k++) {
+	for (int istart = init; istart < end; istart++) {
+		int64_t longindex = (*cons)[istart];
+		int i, j, k;
+		k = longindex % n;
+		j = longindex / n;
+		i = j / n;
+		j = j % n;
+		//std::cout << i << "\t" << j << "\t" << k <<std::endl;
+
+
 				int idx[3];
 				idx[0] = ij(i, j, n);
 				idx[1] = ij(i, k, n);
 				idx[2] = ij(j, k, n);
-				int64_t longindex[3];
-				longindex[0] = static_cast<int64_t>(i) * n * n + static_cast<int64_t>(j) * n + k;
-				longindex[1] = static_cast<int64_t>(i) * n * n + static_cast<int64_t>(k) * n + j;
-				longindex[2] = static_cast<int64_t>(j) * n * n + static_cast<int64_t>(k) * n + i;
+
+
 				double axbu = 0;
 				for (int time = 0; time < 3; time++) {
 					axbu -= (*x)[idx[time]] + (*b)[idx[time]];
 				}
 				for (int time = 0; time < 3; time++) {
-					int64_t index = longindex[time];
+					int64_t index;
+					switch (time)
+					{
+					case 0:
+						index = longindex;
+						break;
+					case 1:
+						index = static_cast<int64_t>(i) * n * n + j * n + k;
+						break;
+					case 2:
+						index = static_cast<int64_t>(j) * n * n + k * n + i;
+					}
+
 					double axbu2 =0;
 					if (u->find(index) != u->end()) {
 						axbu2 += (*u)[index] / sigma;
@@ -46,8 +62,7 @@ void axbu_eigen::operator() (int init,int end){
 					(*f)(axbu2, idx, time, index);
 				}
 
-			}
-		}
+
 
 	}
 

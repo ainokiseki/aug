@@ -68,7 +68,7 @@ public:
 	double cst = 0;
 	int iter_all = 0;
 	double sigma = 1;
-	int mthread = 8;
+	int mthread = 1;
 	ofstream prt_res;
 	Eigen::VectorXd rhs,x0;
 	map<int64_t, double>u;

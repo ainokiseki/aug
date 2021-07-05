@@ -46,7 +46,7 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 	vector<thread>tv;
 	for (int i = 0; i < pnum; i++) {
 		axbu.set_function(new func_eigen_rhs_aj1_diag(mrhs + i, maj1[i],mdiag+i,mtrip[i]));
-		tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
+		tv.push_back(thread(axbu,axbu.cons->size()/pnum*i, int(std::fmax(axbu.cons->size() / pnum * (i+1),axbu.cons->size()))   ));
 	}
 	for (int i = 0; i < pnum; i++)
 		tv[i].join();
@@ -666,151 +666,211 @@ void norm_ori::run() {
 	//double sigma = 1;
 	double rlim = 1e-6;
 
-	for (; iter_all < 100; iter_all++, sigma *= 1.5) {
+	std::vector<int64_t>cons;
+	std::set<int64_t>viscons;
+	while (true) {
 
 
-		if (pwd!="skip"&&iter_all > 0) {
-			ofstream model(string("model_save/") +pwd+string("_")+graph_name+string("_")+to_string(iter_all)+string(".dat"),std::ios::out|std::ios::binary);
-			auto i_end = std::chrono::high_resolution_clock::now();
-			auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
-			double tm = double(eld.count()) * 1.0 * 1e-9;
-			model << setprecision(20);
-			model << graph_name << endl;
-			model << iter_all << endl;
-			model << n << "\t" << var_num <<"\t"<<sigma<<"\t"<<tm+time_record<<endl;
+		for (int i = 0; i < n; i++) {
+			int64_t index;
+			for (int j = i+1; j < n; j++) {
+				for (int k = j+1; k < n; k++) {
+					int idx[3];
+					idx[0] = ij(i, j, n);
+					idx[1] = ij(i, k, n);
+					idx[2] = ij(j, k, n);
+					index = static_cast<int64_t>(i) * n * n + j * n + k;
 
+					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 0 ||
+						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 0 ||
+						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 0) {
 
-
-			for (int i = 0; i < var_num; i++)
-				model << x[i] << endl;
-			for (int i = 0; i < var_num; i++)
-				model << v[i] << endl;
-			model << u.size() << endl;
-			for (auto i = u.begin(); i != u.end();i++) {
-				model << i->first << " " << i->second << endl;
+						if (viscons.find(index) == viscons.end()) {
+							cons.push_back(index);
+							viscons.insert(index);
+						}
+					}
+				}
 			}
 		}
 
-		cout << "start main loop,sigma=" << sigma << endl;
-		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
-		bool flaga = true;
-
-		for (int iter_1 = 0; iter_1 < 1000; iter_1++) {
+		cout << "cons size:" << cons.size() << endl;
 
 
-			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
-			cout << "x:" << x.norm() << endl;
-			rhs = Eigen::VectorXd::Zero(var_num);
-			vector<int64_t>aj1;
-			
-			Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
-			std::vector<Eigen::Triplet<double> >test_v;
-			if (!flaga) {
-				if (mthread == 0) {
-					axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-					(*axbu)();
+		for (; iter_all < 100; iter_all++, sigma *= 1.5) {
+
+
+			if (pwd != "skip" && iter_all > 0) {
+				ofstream model(string("model_save/") + pwd + string("_") + graph_name + string("_") + to_string(iter_all) + string(".dat"), std::ios::out | std::ios::binary);
+				auto i_end = std::chrono::high_resolution_clock::now();
+				auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
+				double tm = double(eld.count()) * 1.0 * 1e-9;
+				model << setprecision(20);
+				model << graph_name << endl;
+				model << iter_all << endl;
+				model << n << "\t" << var_num << "\t" << sigma << "\t" << tm + time_record << endl;
+
+
+
+				for (int i = 0; i < var_num; i++)
+					model << x[i] << endl;
+				for (int i = 0; i < var_num; i++)
+					model << v[i] << endl;
+				model << u.size() << endl;
+				for (auto i = u.begin(); i != u.end(); i++) {
+					model << i->first << " " << i->second << endl;
+				}
+			}
+
+			cout << "start main loop,sigma=" << sigma << endl;
+			axbu = new axbu_eigen(n, &x, &b, &u, sigma, &cons);
+			bool flaga = true;
+
+			for (int iter_1 = 0; iter_1 < 1000; iter_1++) {
+
+
+				cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
+				cout << "x:" << x.norm() << endl;
+				rhs = Eigen::VectorXd::Zero(var_num);
+				vector<int64_t>aj1;
+
+				Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
+				std::vector<Eigen::Triplet<double> >test_v;
+				if (!flaga) {
+					if (mthread == 0) {
+						axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+						(*axbu)();
+					}
+					else {
+						//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+						m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+					}
 				}
 				else {
-					//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
-					m_calc_rhs_and_aj1(mthread, &rhs, &aj1,n, *axbu);
+
+
+					if (mthread == 0) {
+						axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+						(*axbu)();
+					}
+					else {
+						//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+						m_calc_rhs_and_aj1_diag(mthread, &rhs, &aj1, &diag, n, *axbu, &test_v);
+					}
 				}
-			}
-			else {
 
 
-				if (mthread == 0) {
-					axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-					(*axbu)();
+				std::vector<Eigen::Triplet<double> >test_vb;
+				//for (auto i : aj1) {
+				//	int ci, cj, ck;
+				//	ck = i % n;
+				//	cj = i / n;
+				//	ci = cj / n;
+				//	cj = cj % n;
+
+				//	int idx[3];
+				//	idx[0] = ij(ci, cj, n);
+				//	idx[1] = ij(ci, ck, n);
+				//	idx[2] = ij(cj, ck, n);
+				//	test_vb.push_back(Eigen::Triplet<double>(idx[0], idx[1], -sigma));
+				//	test_vb.push_back(Eigen::Triplet<double>(idx[1], idx[0], -sigma));
+				//	test_vb.push_back(Eigen::Triplet<double>(idx[0], idx[2], -sigma));
+				//	test_vb.push_back(Eigen::Triplet<double>(idx[2], idx[0], -sigma));
+				//	test_vb.push_back(Eigen::Triplet<double>(idx[1], idx[2], sigma));
+				//	test_vb.push_back(Eigen::Triplet<double>(idx[2], idx[1], sigma));
+				//}
+				//for (int i = 0; i < 10; i++) {
+				//	cout << test_v[i].row()<<" "<<test_v[i].col()<<" "<<test_v[i].value() << endl;
+				//}
+				//for (int i = 0; i < 10; i++) {
+				//	cout << test_vb[i].row() << " " << test_vb[i].col() << " " << test_vb[i].value() << endl;
+				//}
+				//return;
+
+				Eigen::SparseMatrix<double>ata(var_num, var_num);
+				ata.setFromTriplets(test_v.begin(), test_v.end());
+
+				ata += diag.asDiagonal();
+				ata *= sigma;
+				//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
+				//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
+
+
+				//cout << "r1:" << rhs.norm() << endl;
+
+				rhs = sigma * rhs + sigma * prox_p_star(x + v / sigma, sigma);
+
+				prt_res << iter_1 << "  " << rhs.norm() << "  ";
+
+
+				if (rhs.norm() < rlim) {
+					break;
 				}
-				else {
-					//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
-					m_calc_rhs_and_aj1_diag(mthread, &rhs, &aj1, &diag, n, *axbu,&test_v);
-				}
-			}
+				cout << "rhs:" << rhs.norm() << endl;
+				Eigen::VectorXd direction;
+				//if (flaga) {
+				//	direction = get_direction(sigma, rhs, &aj1, &diag);
+				//}
+				//else {
+				//	direction= get_direction(sigma, rhs, &aj1);
+				//}
+				direction = get_direction(&ata, rhs, &diag, 0);
+				//Eigen::VectorXd direction = get_direction(rhs);
+				//cout << "di:" << direction.norm() << endl;
 
-			
-			std::vector<Eigen::Triplet<double> >test_vb;
-			//for (auto i : aj1) {
-			//	int ci, cj, ck;
-			//	ck = i % n;
-			//	cj = i / n;
-			//	ci = cj / n;
-			//	cj = cj % n;
-
-			//	int idx[3];
-			//	idx[0] = ij(ci, cj, n);
-			//	idx[1] = ij(ci, ck, n);
-			//	idx[2] = ij(cj, ck, n);
-			//	test_vb.push_back(Eigen::Triplet<double>(idx[0], idx[1], -sigma));
-			//	test_vb.push_back(Eigen::Triplet<double>(idx[1], idx[0], -sigma));
-			//	test_vb.push_back(Eigen::Triplet<double>(idx[0], idx[2], -sigma));
-			//	test_vb.push_back(Eigen::Triplet<double>(idx[2], idx[0], -sigma));
-			//	test_vb.push_back(Eigen::Triplet<double>(idx[1], idx[2], sigma));
-			//	test_vb.push_back(Eigen::Triplet<double>(idx[2], idx[1], sigma));
-			//}
-			//for (int i = 0; i < 10; i++) {
-			//	cout << test_v[i].row()<<" "<<test_v[i].col()<<" "<<test_v[i].value() << endl;
-			//}
-			//for (int i = 0; i < 10; i++) {
-			//	cout << test_vb[i].row() << " " << test_vb[i].col() << " " << test_vb[i].value() << endl;
-			//}
-			//return;
-
-			Eigen::SparseMatrix<double>ata(var_num, var_num);
-			ata.setFromTriplets(test_v.begin(), test_v.end());
-
-			ata += diag.asDiagonal();
-			ata *= sigma;
-			//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
-			//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
+				//for (int i = 0; i < var_num; i++)
+				//	direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
 
 
-			//cout << "r1:" << rhs.norm() << endl;
-
-			rhs = sigma * rhs + sigma * prox_p_star(x+v/sigma,sigma);
-
-			prt_res << iter_1<<"  "<<rhs.norm() << "  ";
-
-
-			if (rhs.norm() < rlim) {
-				break;
-			}
-			cout << "rhs:" << rhs.norm() << endl;
-			Eigen::VectorXd direction;
-			//if (flaga) {
-			//	direction = get_direction(sigma, rhs, &aj1, &diag);
-			//}
-			//else {
-			//	direction= get_direction(sigma, rhs, &aj1);
-			//}
-			direction = get_direction(&ata, rhs, &diag,0);
-			//Eigen::VectorXd direction = get_direction(rhs);
-			//cout << "di:" << direction.norm() << endl;
-
-			//for (int i = 0; i < var_num; i++)
-			//	direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
-
-			
-			double alpha = get_step_length(direction, sigma,404);
-			cout << "alpha=" << alpha << endl;
-			//if (rhs.norm() < 1e-5 && alpha < 1e-4)
-			//	break;
+				double alpha = get_step_length(direction, sigma, 404);
+				cout << "alpha=" << alpha << endl;
+				//if (rhs.norm() < 1e-5 && alpha < 1e-4)
+				//	break;
 				//flaga = true;
-			x = x + alpha * direction;
-			prt_res << alpha << std::endl;
+
+				x = x + alpha * direction;
+				prt_res << alpha << std::endl;
+
+			}
+
+			double k = get_kkt(sigma);
+			prt_res << "==================\n";
+			if (k < 1e-6)
+				break;
+			//rlim = k * 1e-4;
+
+
+			delete axbu;
 
 		}
+		{
+			bool flag = true;
 
-		double k = get_kkt(sigma);
-		prt_res << "==================\n";
-		if (k < 1e-6)
-			break;
-		//rlim = k * 1e-4;
-
-
-		delete axbu;
-
+			for (int i = 0; i < n; i++) {
+				int64_t index;
+				for (int j = i+1; j < n; j++) {
+					for (int k = j+1; k < n; k++) {
+						int idx[3];
+						idx[0] = ij(i, j, n);
+						idx[1] = ij(i, k, n);
+						idx[2] = ij(j, k, n);
+						index = static_cast<int64_t>(i) * n * n + j * n + k;
+						cons.push_back(index);
+						viscons.insert(index);
+						if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-5 ||
+							x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-5 ||
+							x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-5) {
+							flag = false;
+							goto L;
+						}
+					}
+				}
+			}
+		L:
+			if (flag)break;
+		}
 	}
+
 	cout << "func_value:" << std::setprecision(8)<< func_p(x) << endl;
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
