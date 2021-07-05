@@ -473,7 +473,7 @@ std::pair<int,int> admm_basic::run(double tau,double sigma,double scale_b,double
 
 	int dual_win(0), prim_win(0);
 	int maxsize = 0;
-	for(int k=0;k<3000;k++)
+	for(int k=0;;k++)
 	{
 		rhs = Eigen::VectorXd::Zero(var_num);
 		//atyu(n, x, b, &u, rhs, sigma,scale_a);
