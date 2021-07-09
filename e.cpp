@@ -48,7 +48,7 @@ int main() {
 	}
 	else {
 		norm_ori s2(s);
-		s2.run();
+		s2.run_dense();
 	}
 
 
