@@ -26,15 +26,16 @@ public:
 class au_eigen
 {
 public:
-	au_eigen(int, std::map<int64_t, double>*, Eigen::VectorXd ,Eigen::VectorXd);
+	au_eigen(int, std::map<int64_t, double>*, Eigen::VectorXd ,Eigen::VectorXd, std::vector<int64_t>* cons = NULL);
 	~au_eigen();
-	double operator()(int init=0,int end=-1);
-private:
+	void operator()(Eigen::VectorXd* au, int init, int end);
+	//double operator()(int init=0,int end=-1);
+
 	std::map<int64_t, double>* u;
 	int n;
 	Eigen::VectorXd v;
-	Eigen::VectorXd au;
 	Eigen::VectorXd w;
+	std::vector<int64_t>* cons;
 };
 
 

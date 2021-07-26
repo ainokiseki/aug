@@ -43,14 +43,26 @@ int main() {
 		subs = subs.substr(0,subs.find('_'));
 
 		cout << ssubs << "\t" << subs << "\t" << endl;
+		cout << "cst=delta/sigma,plz input delta(do not input 1e-3, use 0.001 instead):";
+		double cst; int cons;
+		cin >> cst;
+		cout << "number of constraints is no less than cons*n*(n-1)/2,plz input cons:";
+		cin >> cons;
+
 		norm_ori s2(subs, s);
-		s2.run();
+		s2.run(cst,cons);
 	}
 	else {
-		norm_ori s2(s);
-		s2.run_dense();
-	}
+		cout << "cst=delta/sigma,plz input delta(do not input 1e-3, use 0.001 instead):";
+		double cst; int cons;
+		cin >> cst;
+		cout << "number of constraints is no less than cons*n*(n-1)/2,plz input cons:";
+		cin >> cons;
 
+		norm_ori s2(s);
+		s2.run(cst, cons);
+	}
+	cin >> s;
 
 	//cin >> s;
 	//dk s2("graph1k.txt");

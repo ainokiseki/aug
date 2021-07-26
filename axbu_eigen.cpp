@@ -42,7 +42,7 @@ void axbu_eigen::operator() (int init,int end){
 						index = longindex;
 						break;
 					case 1:
-						index = static_cast<int64_t>(i) * n * n + j * n + k;
+						index = static_cast<int64_t>(i) * n * n + k * n + j;
 						break;
 					case 2:
 						index = static_cast<int64_t>(j) * n * n + k * n + i;
@@ -76,50 +76,63 @@ void axbu_eigen::set_function(func_eigen* func) {
 	f = func;
 }
 
-au_eigen::au_eigen(int n, std::map<int64_t, double>* u, Eigen::VectorXd v, Eigen::VectorXd w) :n(n), u(u), v(v),w(w)
+au_eigen::au_eigen(int n, std::map<int64_t, double>* u, Eigen::VectorXd v, Eigen::VectorXd w, std::vector<int64_t>* cons) :n(n), u(u), v(v),w(w),cons(cons)
 {
 	int var_num = n * (n - 1) / 2;
-	au = Eigen::VectorXd::Zero(var_num);
 }
 
 au_eigen::~au_eigen()
 {
 }
 
-double au_eigen::operator()(int init, int end)
+void au_eigen::operator()(Eigen::VectorXd*au, int init, int end)
 {
-	if (end < 0)end = n;
+	if (end < 0)end = cons->size();
 
 	int var_num = n * (n - 1) / 2;
 	//int64_t index = n * (n - 1) * (n - 2) / 2 - (n - init) * (n - init - 1) * (n - init - 2) / 2;
 	//std::cout << init << "\t" << end << "\t" << index << std::endl;
-	for (int i = init; i < end; i++) {
-		for (int j = i + 1; j < n; j++) {
-			for (int k = j + 1; k < n; k++) {
+	for (int istart = init; istart < end; istart++) {
+		int64_t longindex = (*cons)[istart];
+		int i, j, k;
+		k = longindex % n;
+		j = longindex / n;
+		i = j / n;
+		j = j % n;
+
+
 				int idx[3];
 				idx[0] = ij(i, j, n);
 				idx[1] = ij(i, k, n);
 				idx[2] = ij(j, k, n);
-				int64_t longindex[3];
-				longindex[0] = static_cast<int64_t>(i) * n * n + static_cast<int64_t>(j) * n + k;
-				longindex[1] = static_cast<int64_t>(i) * n * n + static_cast<int64_t>(k) * n + j;
-				longindex[2] = static_cast<int64_t>(j) * n * n + static_cast<int64_t>(k) * n + i;
+
 				for (int time = 0; time < 3; time++) {
-					int64_t index = longindex[time];
+					int64_t index ;
+					switch (time)
+					{
+					case 0:
+						index = longindex;
+						break;
+					case 1:
+						index = static_cast<int64_t>(i) * n * n + k * n + j;
+						break;
+					case 2:
+						index = static_cast<int64_t>(j) * n * n + k * n + i;
+					}
+
 					if (u->find(index) == u->end())
 						continue;
 					double tem = (*u)[index];
-					(au)[idx[0]] -= tem;
-					(au)[idx[1]] -= tem;
-					(au)[idx[2]] -= tem;
-					(au)[idx[time]] += 2 * tem;
+					(*au)[idx[0]] -= tem;
+					(*au)[idx[1]] -= tem;
+					(*au)[idx[2]] -= tem;
+					(*au)[idx[time]] += 2 * tem;
 
 				}
-			}
-		}
+
 
 	}
-	return (au + w.cwiseProduct(v)).norm();
+	
 }
 
 axbu_pro::axbu_pro(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma)
