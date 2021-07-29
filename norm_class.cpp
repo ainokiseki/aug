@@ -53,24 +53,20 @@ void m_calc_superphi(int pnum, axbu_eigen axbu, double* alpha, Eigen::VectorXd* 
 }
 void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1,Eigen::VectorXd*diag, int n, axbu_eigen axbu, vector<Eigen::Triplet<double> >*trip) {
 	int var_num = n * (n - 1) / 2;
-	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
-	Eigen::VectorXd* mdiag = new Eigen::VectorXd[pnum];
+
 	vector< vector<int64_t>*>maj1(pnum);
-	vector< vector<Eigen::Triplet<double> >*>mtrip(pnum);
+
 	for (int i = 0; i < pnum; i++) {
 		maj1[i] = new vector<int64_t>;
-		mtrip[i] = new vector<Eigen::Triplet<double> >;
+
 	}
 	//vector<int64_t>* maj1 = new vector<int64_t>[pnum];
-	for (int i = 0; i < pnum; i++) {
-		mdiag[i] = Eigen::VectorXd::Zero(var_num);
 
-		mrhs[i] = Eigen::VectorXd::Zero(var_num);
-	}
 
 	vector<thread>tv;
+	mutex mu[3];
 	for (int i = 0; i < pnum; i++) {
-		axbu.set_function(new func_eigen_rhs_aj1_diag(mrhs + i, maj1[i],mdiag+i,mtrip[i]));
+		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,trip,mu));
 		if (i != pnum - 1) {
 			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1)));
 		}
@@ -81,20 +77,15 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 	}
 	for (int i = 0; i < pnum; i++)
 		tv[i].join();
-	for (int i = 0; i < pnum; i++) {
-		*rhs += mrhs[i];
-		*diag += mdiag[i];
-	}
+
 
 	for (int i = 0; i < pnum; i++) {
 		delete maj1[i];
-		trip->insert(trip->end(), mtrip[i]->begin(), mtrip[i]->end());
-		delete mtrip[i];
+
+
 	}
 
-	delete[]mrhs;
 
-	delete[]mdiag;
 }
 void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, int n, axbu_eigen axbu) {
 	int var_num = n * (n - 1) / 2;
@@ -178,30 +169,30 @@ double norm_basic::get_kkt(double sigma) {
 	kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
 	axbu->set_function(new func_eigen_y(&u, sigma, &y_norm, &kkt_y, &kkt_u));
 	(*axbu)();
-	cout << "u:" << u.size() << endl;
+	std::cout << "u:" << u.size() << endl;
 	Eigen::VectorXd z = w.cwiseProduct(x) + v / sigma - pi_c(w.cwiseProduct(x) + v / sigma, sigma);
 	v = sigma * pi_c(w.cwiseProduct(x) + v / sigma, sigma);
 
 	y_norm = sqrt(y_norm);
 	kkt_u = sqrt(kkt_u) / (1 + y_norm);
 	kkt_y = sqrt(kkt_y) / (1 + y_norm);
-	cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
+	std::cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
 
 
-	//cout << "z_norm" << z.norm() << endl;
+	//std::cout << "z_norm" << z.norm() << endl;
 	kkt_v = (w.cwiseProduct(x) - z).norm() / (1 + z.norm());
 	kkt_z = (v - pi_c(z + v, 1)).norm() / (1 + z.norm());
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);
 	//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
 	double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
-	cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
-	cout << "kkt:" << kkt_final << endl;
+	std::cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+	std::cout << "kkt:" << kkt_final << endl;
 
 
 	return kkt_final;
 
-	//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
+	//std::cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
 
 
 
@@ -226,9 +217,9 @@ double norm_basic::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	lx0 += func_p(w.cwiseProduct(x) + v / sigma - pi_c(w.cwiseProduct(x) + v / sigma, sigma));
 
 	double down = lx0 + c1 * alpha * rhs.dot(direction);
-	//cout << "down:" << down << "\tlx0:" << lx0 << endl;
+	//std::cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
-	cout << "lx0:" << lx0 << "\tdown" << down << endl;
+	std::cout << "lx0:" << lx0 << "\tdown" << down << endl;
 
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
 	axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
@@ -240,7 +231,7 @@ double norm_basic::get_step_length(Eigen::VectorXd& direction, double sigma) {
 		return 1.0;
 
 	for (int i = 0; i < 20; i++) {
-		//cout << "start find step,alpha=" << alpha << endl;
+		//std::cout << "start find step,alpha=" << alpha << endl;
 		double lx = 0;
 		axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
 		(*axbu)();
@@ -265,13 +256,13 @@ void norm_basic::run() {
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
 
 
-		cout << "start main loop,sigma=" << sigma << endl;
+		std::cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
 		for (int iter_1 = 0; iter_1 < 150; iter_1++) {
 
 
 
-			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
+			std::cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<int64_t>aj1;
 			axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
@@ -282,10 +273,10 @@ void norm_basic::run() {
 
 				break;
 			}
-			cout << "rhs:" << rhs.norm() << endl;
+			std::cout << "rhs:" << rhs.norm() << endl;
 			Eigen::VectorXd direction = get_direction(sigma, rhs, &aj1);
 			double alpha = get_step_length(direction, sigma);
-			cout << "alpha=" << alpha << endl;
+			std::cout << "alpha=" << alpha << endl;
 			x = x + alpha * direction;
 
 		}
@@ -298,7 +289,7 @@ void norm_basic::run() {
 
 	}
 
-	cout << "func_value:"<<func_p(w.cwiseProduct(x)) << endl;
+	std::cout << "func_value:"<<func_p(w.cwiseProduct(x)) << endl;
 
 
 
@@ -317,7 +308,7 @@ norm_ori::norm_ori(string graph_name,string data) : metric(graph_name)
 	f >> n >> var_num >> sigma;
 	double tm;
 	f >> tm;
-	cout << "last time:"<<tm << endl;
+	std::cout << "last time:"<<tm << endl;
 	time_record = tm;
 	for (int i = 0; i < var_num; i++) {
 		f >> tm;
@@ -334,7 +325,7 @@ norm_ori::norm_ori(string graph_name,string data) : metric(graph_name)
 		f >> tm2 >> tm;
 		u.insert(pair<int64_t, double>(tm2, tm));
 	}
-	cout << "reload succeed\n" << "u:" << u.size() << endl;
+	std::cout << "reload succeed\n" << "u:" << u.size() << endl;
 }
 norm_ori::~norm_ori()
 {
@@ -361,32 +352,32 @@ double norm_ori::get_kkt(double sigma) {
 	axbu->set_function(new func_eigen_y(&u, sigma, &y_norm, &kkt_y, &kkt_u));
 	(*axbu)();
 
-	cout << "u:" << u.size() << endl;
+	std::cout << "u:" << u.size() << endl;
 	Eigen::VectorXd z = prox_p(x+v/sigma,sigma);
 	v = sigma * prox_p_star(x + v / sigma, sigma);
 
 	y_norm = sqrt(y_norm);
 	kkt_u = sqrt(kkt_u) / (1 + y_norm);
 	kkt_y = sqrt(kkt_y) / (1 + y_norm);
-	cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
+	std::cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
 	Eigen::VectorXd tmp1 = Eigen::VectorXd::Ones(x.size());
 	//kkt_x = au_eigen(n, &u, v, tmp1)();
 	//kkt_x = kkt_x / (1 + v.norm());
 
-	//cout << "z_norm" << z.norm() << endl;
+	//std::cout << "z_norm" << z.norm() << endl;
 	kkt_v = (x - z).norm() / (1 + x.norm());
 	kkt_z = (z - prox_p(z+v,1.0)).norm() / (1 + z.norm());
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);
 	//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
 	double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
-	cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
-	cout << "kkt:" << kkt_final << endl;
+	std::cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+	std::cout << "kkt:" << kkt_final << endl;
 
 
 	return kkt_final;
 
-	//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
+	//std::cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
 
 
 
@@ -403,7 +394,7 @@ double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*c
 	axbu->set_function(new func_eigen_y(&u, sigma, &y_norm, &kkt_y, &kkt_u));
 	(*axbu)();
 
-	cout << "u:" << u.size() << endl;
+	std::cout << "u:" << u.size() << endl;
 	Eigen::VectorXd z = prox_p(x + v / sigma, sigma);
 	v = sigma * prox_p_star(x + v / sigma, sigma);
 
@@ -411,7 +402,7 @@ double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*c
 	kkt_u = sqrt(kkt_u) / (1 + y_norm);
 	kkt_y = sqrt(kkt_y) / (1 + y_norm);
 
-	cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
+	std::cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
 	Eigen::VectorXd tmp1 = Eigen::VectorXd::Ones(x.size());
 	au_eigen au(n, &u, v, tmp1, cons);
 
@@ -421,21 +412,21 @@ double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*c
 	kkt_x = (atu + v).norm() / (1 + v.norm());
 	//kkt_x = kkt_x / (1 + v.norm());
 
-	//cout << "z_norm" << z.norm() << endl;
+	//std::cout << "z_norm" << z.norm() << endl;
 	kkt_v = (x - z).norm() / (1 + x.norm());
 	kkt_z = (z - prox_p(z + v, 1.0)).norm() / (1 + z.norm());
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);
 	//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
 	double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
-	cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
-	cout << "kkt:" << kkt_final << endl;
+	std::cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+	std::cout << "kkt:" << kkt_final << endl;
 
-	rp = std::fmax(kkt_u, kkt_y);
+	rp = std::fmax(kkt_u, kkt_v);
 	rd = kkt_x;
 	return kkt_final;
 
-	//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
+	//std::cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
 
 
 
@@ -473,9 +464,9 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 
 
 	double down = lx0 + c1 * alpha * rhs.dot(direction);
-	//cout << "down:" << down << "\tlx0:" << lx0 << endl;
+	//std::cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
-	cout << "lx0:" << lx0 << "\tdown" << down << endl;
+	std::cout << "lx0:" << lx0 << "\tdown" << down << endl;
 	prt_res << lx0 << "  ";
 
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
@@ -494,7 +485,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	nrhs += sigma * prox_p_star(x+alpha*direction + v / sigma, sigma);
 
 	if (nrhs.dot(direction) < 0) {
-		cout << "green\n";
+		std::cout << "green\n";
 		return 1.0;
 	}
 
@@ -504,7 +495,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	for (int i = 0; i < 20; i++) {
 		nrhs = Eigen::VectorXd::Zero(var_num);
 
-		//cout << "start find step,alpha=" << alpha << endl;
+		//std::cout << "start find step,alpha=" << alpha << endl;
 		double lx = 0;
 		if (mthread==0) {
 			axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
@@ -585,12 +576,12 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,double
 		x -= direction;
 	}
 
-	//cout << nrhs.norm() << endl;
+	//std::cout << nrhs.norm() << endl;
 	nrhs = sigma * nrhs;
 	nrhs += sigma * prox_p_star(x + direction + v / sigma, sigma)+cst*(x-x0);
 
 	if (nrhs.dot(direction) < 0) {
-		//cout << "green\n";
+		//std::cout << "green\n";
 		prt_res << "empty   ";
 		return 1.0;
 	}
@@ -613,9 +604,9 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,double
 
 
 	double down = lx0 + c1 * rhs.dot(direction);
-	//cout << "down:" << down << "\tlx0:" << lx0 << endl;
+	//std::cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
-	//cout << "lx0:" << lx0 << "\tdown" << down << endl;
+	//std::cout << "lx0:" << lx0 << "\tdown" << down << endl;
 	prt_res << lx0 << "  ";
 
 
@@ -644,7 +635,7 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,double
 Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1) {
 	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix() ;
 
-	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+	//std::cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 
 	double a = min(pow(rhs.norm(), 1.5) * 0.5,20.0);
 
@@ -658,24 +649,24 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
 
-	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 	prt_res << cg.iterations() << "\t";
-	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
-	//cout << "CG:" << cg.iterations() << std::endl;
-	//cout << "di:" << direction.norm() << endl;
+	//std::cout << "pro_res:" << (A * direction+rhs).norm() << endl;
+	//std::cout << "CG:" << cg.iterations() << std::endl;
+	//std::cout << "di:" << direction.norm() << endl;
 	return direction;
 }
 Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1,Eigen::VectorXd*diag ) {
 	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
 
-	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+	//std::cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 20.0);
-	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+	//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 	*diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient((*diag + sigma*aj2 + a * Eigen::VectorXd::Ones(var_num)).cwiseSqrt());
 	//*diag = Eigen::VectorXd::Ones(var_num);
 	MatrixReplacementd A(aj1, n, a, &aj2, sigma,diag);
-	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+	//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 
 	//Eigen::BiCGSTAB<MatrixReplacement,  Eigen::IdentityPreconditioner> cg;
 	Eigen::ConjugateGradient<MatrixReplacementd, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
@@ -685,21 +676,21 @@ Eigen::VectorXd norm_ori::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 	
 	Eigen::VectorXd direction = cg.solve(-diag->cwiseProduct(rhs));
 	direction = diag->cwiseProduct(direction);
-	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 	prt_res << cg.iterations() << "\t";
-	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
-	//cout << "CG:" << cg.iterations() << std::endl;
-	//cout << "di:" << direction.norm() << endl;
+	//std::cout << "pro_res:" << (A * direction+rhs).norm() << endl;
+	//std::cout << "CG:" << cg.iterations() << std::endl;
+	//std::cout << "di:" << direction.norm() << endl;
 	return direction;
 }
 Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag) {
 
-	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+	//std::cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 20.0);
 	(*ata) += sigma*aj2.asDiagonal();
 	(*ata) += a * Eigen::VectorXd::Ones(var_num).asDiagonal();
-	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+	//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 
 	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 	double ita = std::fmin(0.5, rhs.norm());
@@ -708,21 +699,21 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>*ata, Eigen::
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
 
-	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 	prt_res << cg.iterations() << "\t";
-	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
-	//cout << "CG:" << cg.iterations() << std::endl;
-	//cout << "di:" << direction.norm() << endl;
+	//std::cout << "pro_res:" << (A * direction+rhs).norm() << endl;
+	//std::cout << "CG:" << cg.iterations() << std::endl;
+	//std::cout << "di:" << direction.norm() << endl;
 	return direction;
 }
 Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag,int ld) {
 
-	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+	//std::cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 20.0);
 	(*ata) += sigma * aj2.asDiagonal();
 	(*ata) += a * Eigen::VectorXd::Ones(var_num).asDiagonal();
-	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+	//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 
 	Eigen::PardisoLDLT<SparseMatrix<double> > cg;
 	double ita = std::fmin(0.5, rhs.norm());
@@ -731,40 +722,74 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 
 	Eigen::VectorXd direction = -cg.solve(rhs);
 
-	//cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	//std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 	//prt_res << cg.iterations() << "\t";
-	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
-	//cout << "CG:" << cg.iterations() << std::endl;
-	//cout << "di:" << direction.norm() << endl;
+	//std::cout << "pro_res:" << (A * direction+rhs).norm() << endl;
+	//std::cout << "CG:" << cg.iterations() << std::endl;
+	//std::cout << "di:" << direction.norm() << endl;
 	return direction;
 }
-Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag, int ld,double cst) {
+Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs,int ld,double cst,int&cgnum) {
 
-	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+	//std::cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 	(*ata) += sigma * aj2.asDiagonal();
 	(*ata) += (a+cst) * Eigen::VectorXd::Ones(var_num).asDiagonal();
-	//cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+	//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 
 	//Eigen::PardisoLDLT<SparseMatrix<double> > cg;
-	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
+	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower|Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 	double ita = std::fmin(0.5, 0.1*rhs.norm());
 	cg.setTolerance(ita/rhs.norm());
 	cg.compute(*ata);
 
 	Eigen::VectorXd direction = -cg.solve(rhs);
-
-	//cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	cgnum = cg.iterations();
+	//std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 	//prt_res << cg.iterations() << "\t";
-	//cout << "pro_res:" << (A * direction+rhs).norm() << endl;
-	//cout << "CG:" << cg.iterations() << std::endl;
-	//cout << "di:" << direction.norm() << endl;
+	//std::cout << "pro_res:" << (A * direction+rhs).norm() << endl;
+	//std::cout << "CG:" << cg.iterations() << std::endl;
+	//std::cout << "di:" << direction.norm() << endl;
 	return direction;
 }
-void norm_ori::run(double cst_const,int con_const) {
+
+void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
+
+	for (int i = start; i < end; i++) {
+		int64_t index;
+		for (int j = i + 1; j < n; j++) {
+			for (int k = j + 1; k < n; k++) {
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
+				index = static_cast<int64_t>(i) * n * n + j * n + k;
+
+				if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+					x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+					x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
+
+					if (viscons.find(index) == viscons.end()) {
+
+						mu->lock();
+						cons.push_back(index);
+						viscons.insert(index);
+						mu->unlock();
+					}
+				}
+			}
+		}
+	}
+
+
+}
+void norm_ori::run(double cst_const,int con_const,int sub_iter) {
+
+
+
 	string pwd("skip");
-	//cout << "plz input pwd:";
+	//std::cout << "plz input pwd:";
 	//cin >> pwd;
 	auto i_start = std::chrono::high_resolution_clock::now();
 
@@ -777,35 +802,58 @@ void norm_ori::run(double cst_const,int con_const) {
 
 	std::vector<int64_t>cons;
 	std::set<int64_t>viscons;
+	std::set<int>xcons;
 	int old_size = viscons.size();
 	while (true) {
+		if (true) {
 
-		for (int i = 0; i < n; i++) {
-			int64_t index;
-			for (int j = i + 1; j < n; j++) {
-				for (int k = j + 1; k < n; k++) {
-					int idx[3];
-					idx[0] = ij(i, j, n);
-					idx[1] = ij(i, k, n);
-					idx[2] = ij(j, k, n);
-					index = static_cast<int64_t>(i) * n * n + j * n + k;
 
-					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
-						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
-						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
+			
+			for (int i = 0; i < n; i++) {
+				int64_t index;
+				for (int j = i + 1; j < n; j++) {
+					for (int k = j + 1; k < n; k++) {
+						int idx[3];
+						idx[0] = ij(i, j, n);
+						idx[1] = ij(i, k, n);
+						idx[2] = ij(j, k, n);
+						index = static_cast<int64_t>(i) * n * n + j * n + k;
 
-						if (viscons.find(index) == viscons.end()) {
-							cons.push_back(index);
-							viscons.insert(index);
+						if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+							x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+							x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
+
+							if (viscons.find(index) == viscons.end()) {
+
+
+									cons.push_back(index);
+									viscons.insert(index);
+									xcons.insert(idx[0]); xcons.insert(idx[1]); xcons.insert(idx[2]);
+							}
 						}
 					}
 				}
 			}
+			cout << xcons.size() << endl;
 		}
+		else {
+			std::vector<thread>vt;
+			mutex mu;
+			for (int i = 0; i < mthread; i++) {
+				int ta, tb;
+				ta = n - (int)(cbrt((i + 1) * 1.0 / mthread) * n);
+				tb = n - (int)(cbrt(i * 1.0 / mthread) * 1.0 * n);
+				vt.push_back(std::thread(cons_generate, ta, tb, n, std::ref(x), std::ref(b), &mu, std::ref(viscons), std::ref(cons)));
+			}
+			for (int i = 0; i < mthread; i++) {
+				vt[i].join();
+			}
+		}
+
 		if (old_size == viscons.size())
 			break;
 		old_size = viscons.size();
-		cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
+		std::cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
 		
 		if (viscons.size() < con_const * var_num / 3) {
 			for (int i = 0; i < n && viscons.size() < 10 * var_num / 3; i++) {
@@ -828,7 +876,7 @@ void norm_ori::run(double cst_const,int con_const) {
 			}
 		}
 		
-		cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
+		std::cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
 		sigma = 1;
 		
 
@@ -864,45 +912,49 @@ void norm_ori::run(double cst_const,int con_const) {
 			//	}
 			//}
 
-			cout << "start loop "<<iter_all+1<<",sigma=" << sigma << endl;
+			std::cout << "start loop "<<iter_all+1<<",sigma=" << sigma << endl;
 			axbu = new axbu_eigen(n, &x, &b, &u, sigma, &cons);
 			bool flaga = true;
 			int iter_1;
-			for (iter_1 = 0; iter_1 < 20; iter_1++) {
+			for (iter_1 = 0; iter_1 < sub_iter; iter_1++) {
 
 
-				//coutcout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
-				//cout << "x:" << x.norm() << endl;
+				//std::coutstd::cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
+				//std::cout << "x:" << x.norm() << endl;
 				rhs = Eigen::VectorXd::Zero(var_num);
 				vector<int64_t>aj1;
 				
-				Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
-				std::vector<Eigen::Triplet<double> >test_v;
-				if (!flaga) {
-					if (mthread == 0) {
-						axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-						(*axbu)();
+
+				Eigen::SparseMatrix<double>ata(var_num, var_num);
+				{
+					Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
+					std::vector<Eigen::Triplet<double> >test_v;
+					if (!flaga) {
+						if (mthread == 0) {
+							axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+							(*axbu)();
+						}
+						else {
+							//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+							m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+						}
 					}
 					else {
-						//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
-						m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
-					}
-				}
-				else {
 
 
-					if (mthread == 0) {
-						axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
-						(*axbu)();
+						if (mthread == 0) {
+							axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
+							(*axbu)();
+						}
+						else {
+							//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
+							m_calc_rhs_and_aj1_diag(mthread, &rhs, &aj1, &diag, n, *axbu, &test_v);
+						}
 					}
-					else {
-						//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
-						m_calc_rhs_and_aj1_diag(mthread, &rhs, &aj1, &diag, n, *axbu, &test_v);
-					}
+					ata.setFromTriplets(test_v.begin(), test_v.end());
+					ata += diag.asDiagonal();
 				}
 
-
-				std::vector<Eigen::Triplet<double> >test_vb;
 				//for (auto i : aj1) {
 				//	int ci, cj, ck;
 				//	ck = i % n;
@@ -922,23 +974,22 @@ void norm_ori::run(double cst_const,int con_const) {
 				//	test_vb.push_back(Eigen::Triplet<double>(idx[2], idx[1], sigma));
 				//}
 				//for (int i = 0; i < 10; i++) {
-				//	cout << test_v[i].row()<<" "<<test_v[i].col()<<" "<<test_v[i].value() << endl;
+				//	std::cout << test_v[i].row()<<" "<<test_v[i].col()<<" "<<test_v[i].value() << endl;
 				//}
 				//for (int i = 0; i < 10; i++) {
-				//	cout << test_vb[i].row() << " " << test_vb[i].col() << " " << test_vb[i].value() << endl;
+				//	std::cout << test_vb[i].row() << " " << test_vb[i].col() << " " << test_vb[i].value() << endl;
 				//}
 				//return;
 
-				Eigen::SparseMatrix<double>ata(var_num, var_num);
-				ata.setFromTriplets(test_v.begin(), test_v.end());
 
-				ata += diag.asDiagonal();
+
+
 				ata *= sigma;
-				//cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
+				//std::cout << diag[0] << "\t" << diag[1] << "\t" << diag[2] << endl;
 				//diag = Eigen::VectorXd::Ones(var_num).cwiseQuotient(diag);
 
 
-				//cout << "r1:" << rhs.norm() << endl;
+				//std::cout << "r1:" << rhs.norm() << endl;
 
 				rhs = sigma * rhs + sigma * prox_p_star(x + v / sigma, sigma)+cst*(x-x0);
 
@@ -948,7 +999,7 @@ void norm_ori::run(double cst_const,int con_const) {
 				if (rhs.norm() < rlim) {
 					break;
 				}
-				//cout << "rhs:" << rhs.norm() << endl;
+				//std::cout << "rhs:" << rhs.norm() << endl;
 				Eigen::VectorXd direction;
 				//if (flaga) {
 				//	direction = get_direction(sigma, rhs, &aj1, &diag);
@@ -956,9 +1007,12 @@ void norm_ori::run(double cst_const,int con_const) {
 				//else {
 				//	direction= get_direction(sigma, rhs, &aj1);
 				//}
-				direction = get_direction(&ata, rhs, &diag, 0,cst);
+				int cgnum;
+				direction = get_direction(&ata, rhs,0,cst,cgnum);
+
+
 				//Eigen::VectorXd direction = get_direction(rhs);
-				//cout << "di:" << direction.norm() << endl;
+				//std::cout << "di:" << direction.norm() << endl;
 
 				//for (int i = 0; i < var_num; i++)
 				//	direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
@@ -967,14 +1021,14 @@ void norm_ori::run(double cst_const,int con_const) {
 				double alpha = get_step_length(direction, sigma, cst);
 				//double alpha = 1;
 
-				//cout << "alpha=" << alpha << endl;
+				//std::cout << "alpha=" << alpha << endl;
 				//if (rhs.norm() < 1e-5 && alpha < 1e-4)
 				//	break;
 				//flaga = true;
 
 				x = x + alpha * direction;
 				prt_res << alpha << std::endl;
-				cout << iter_1<<"\t"<<rhs.norm() << " " <<(rhs+ata*direction).norm()<<" "<<direction.norm()<<" "<< alpha << endl;
+				std::cout << iter_1<<"\t"<<rhs.norm() << "\t" <<(rhs+ata*direction).norm()<<"\t"<<direction.norm()<<"\t"<< alpha << endl;
 			}
 			double rp, rd;
 			double kkt = get_kkt(sigma, rp, rd, &cons);
@@ -1016,7 +1070,7 @@ void norm_ori::run(double cst_const,int con_const) {
 				}
 			}
 
-			cout << "primal:" << primal_win << "\t" << "dual:" << dual_win <<" "<<kkt0<< endl;
+			std::cout << "primal:" << primal_win << "\t" << "dual:" << dual_win <<" "<<kkt0<< endl;
 			kkt0 = kkt;
 			delete axbu;
 
@@ -1024,11 +1078,11 @@ void norm_ori::run(double cst_const,int con_const) {
 		
 	}
 
-	cout << "func_value:" << std::setprecision(8)<< func_p(x) << endl;
+	std::cout << "func_value:" << std::setprecision(8)<< func_p(x) << endl;
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
-	cout << "time is:" << tm << endl;
+	std::cout << "time is:" << tm << endl;
 }
 
 void norm_ori::run_dense() {
@@ -1078,7 +1132,7 @@ void norm_ori::run_dense() {
 		if (old_size == viscons.size())
 			break;
 		old_size = viscons.size();
-		cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
+		std::cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
 
 		if (viscons.size() < 10 * var_num/3) {
 			for (int i = 0; i < n&& viscons.size() < 10 * var_num / 3; i++) {
@@ -1113,8 +1167,8 @@ void norm_ori::run_dense() {
 				}
 			}
 		}
-		cout << "size:" << cons.size()<<"vis:"<<viscons.size() << endl;
-		cout << cons[cons.size() - 1].col() << " " << cons[cons.size() - 1].row() << cons[cons.size() - 1].value() << endl;
+		std::cout << "size:" << cons.size()<<"vis:"<<viscons.size() << endl;
+		std::cout << cons[cons.size() - 1].col() << " " << cons[cons.size() - 1].row() << cons[cons.size() - 1].value() << endl;
 
 		Eigen::SparseMatrix<double>A(viscons.size() * 3, var_num);
 		A.setFromTriplets(cons.begin(), cons.end());
@@ -1131,15 +1185,15 @@ void norm_ori::run_dense() {
 		for (; iter_all < 100; iter_all++) {
 			x0 = x;
 
-			cout << "start main loop,sigma=" << sigma << endl;
+			std::cout << "start main loop,sigma=" << sigma << endl;
 
 			bool flaga = true;
 			int iter_1;
 			for (iter_1 = 0; iter_1 < 20; iter_1++) {
 
 
-				cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
-				cout << "x:" << x.norm() << endl;
+				std::cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
+				std::cout << "x:" << x.norm() << endl;
 				Eigen::VectorXd axbu = A * (x + b) + sigma * su;
 				rhs = sigma * (A.transpose() * axbu.cwiseMax(0) + prox_p_star(x + v / sigma, sigma)) + cst * (x - x0);
 
@@ -1148,7 +1202,7 @@ void norm_ori::run_dense() {
 				Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
 				std::vector<Eigen::Triplet<double> >aj1;
 
-				cout << "before hessie:" << endl;
+				std::cout << "before hessie:" << endl;
 
 
 				Eigen::SparseMatrix<double>hessie (var_num,var_num);
@@ -1156,6 +1210,7 @@ void norm_ori::run_dense() {
 					if (axbu[i] > 0)
 						aj1.insert(aj1.end(), cons.begin() + i * 3, cons.begin() + (i + 1) * 3);
 				}
+
 				Eigen::SparseMatrix<double>AJ(var_num, var_num);
 				hessie *= sigma;
 				hessie += sigma * aj2.asDiagonal();
@@ -1164,7 +1219,7 @@ void norm_ori::run_dense() {
 				Eigen::VectorXd direction = -cg.solve(rhs);
 
 
-				cout << "rhs:" << rhs.norm() << endl;
+				std::cout << "rhs:" << rhs.norm() << endl;
 
 				if (rhs.norm() < 1e-4) {
 					break;
@@ -1197,9 +1252,9 @@ void norm_ori::run_dense() {
 
 
 					double down = lx0 + c1 * alpha * rhs.dot(direction);
-					//cout << "down:" << down << "\tlx0:" << lx0 << endl;
+					//std::cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
-					cout << "lx0:" << lx0 << "\tdown" << down << endl;
+					std::cout << "lx0:" << lx0 << "\tdown" << down << endl;
 					prt_res << lx0 << "  ";
 
 
@@ -1207,7 +1262,7 @@ void norm_ori::run_dense() {
 					Eigen::VectorXd nrhs = sigma * (A.transpose() * (A * (x + b + alpha * direction) + sigma * su).cwiseMax(0.0) + prox_p_star(x + alpha * direction + v / sigma, sigma)) + cst * (x + alpha * direction - x0);
 
 					if (nrhs.dot(direction) < 0) {
-						cout << "green\n";
+						std::cout << "green\n";
 						goto L;
 					}
 
@@ -1217,7 +1272,7 @@ void norm_ori::run_dense() {
 					for (int i = 0; i < 20; i++) {
 						nrhs = Eigen::VectorXd::Zero(var_num);
 
-						//cout << "start find step,alpha=" << alpha << endl;
+						//std::cout << "start find step,alpha=" << alpha << endl;
 						double lx = 0;
 						lx += (A * (x + b + alpha * direction) + sigma * su).cwiseMax(0.0).squaredNorm() * sigma / 2;
 						lx += sigma / 2 * square(prox_p_star(x + alpha * direction + v / sigma, sigma).norm());
@@ -1260,7 +1315,7 @@ void norm_ori::run_dense() {
 
 
 
-				cout << "alpha=" << alpha << endl;
+				std::cout << "alpha=" << alpha << endl;
 				//if (rhs.norm() < 1e-5 && alpha < 1e-4)
 				//	break;
 				//flaga = true;
@@ -1294,17 +1349,17 @@ void norm_ori::run_dense() {
 
 				kkt_x = (A.transpose() * su + v).norm() / (1 + v.norm());
 
-				//cout << "z_norm" << z.norm() << endl;
+				//std::cout << "z_norm" << z.norm() << endl;
 				kkt_v = (x - z).norm() / (1 + x.norm());
 				kkt_z = (z - prox_p(z + v, 1.0)).norm() / (1 + z.norm());
 				//for (int i = 0; i < var_num; i++)
 				//    t_res += abs(x[i] * w[i]);
 				//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
 				double kkt_final = max(max(kkt_y, kkt_u), max(max(kkt_v, kkt_z), kkt_x));
-				cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y <<  endl;
-				cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
-				cout << "kkt:" << kkt_final << endl;
-				//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
+				std::cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y <<  endl;
+				std::cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+				std::cout << "kkt:" << kkt_final << endl;
+				//std::cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
 
 				kkt = kkt_final;
 				rp = max(kkt_u, kkt_v);
@@ -1343,17 +1398,17 @@ void norm_ori::run_dense() {
 						sigma = std::fmin(sigma * 1.5, 1.0e7);
 					}
 			}
-			cout << "primal:" << primal_win << "\t" << "dual:" << dual_win << endl;
+			std::cout << "primal:" << primal_win << "\t" << "dual:" << dual_win << endl;
 			kkt0 = kkt;
 
 		}
 
 	}
-	cout << "func_value:" << std::setprecision(8) << func_p(x) << endl;
+	std::cout << "func_value:" << std::setprecision(8) << func_p(x) << endl;
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
-	cout << "time is:" << tm << endl;
+	std::cout << "time is:" << tm << endl;
 }
 
 norm_1::norm_1(string graph_name) :norm_basic(graph_name)
@@ -1368,7 +1423,7 @@ Eigen::VectorXd norm_1::get_direction(double sigma, Eigen::VectorXd rhs, vector<
 	Eigen::VectorXd aj2 = ((w.cwiseProduct(x) + v / sigma).cwiseAbs().array() < 1 / sigma).matrix().cast<double>();
 	aj2 = aj2.cwiseProduct(w.cwiseProduct(w));
 
-	//cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
+	//std::cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
 
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 
@@ -1377,8 +1432,8 @@ Eigen::VectorXd norm_1::get_direction(double sigma, Eigen::VectorXd rhs, vector<
 	Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
 	cg.compute(A);
 	Eigen::VectorXd direction = cg.solve(-rhs);
-	//cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
-	cout << "CG:" << cg.iterations() << std::endl;
+	//std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	std::cout << "CG:" << cg.iterations() << std::endl;
 
 	return direction;
 }
@@ -1405,7 +1460,7 @@ Eigen::VectorXd norm_2::get_direction(double sigma, Eigen::VectorXd rhs, vector<
 
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 	Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
-	cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
+	std::cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
 
 	MatrixReplacement2 A(aj1, var_num, a, &wx, &w, sigma);
 
@@ -1416,7 +1471,7 @@ Eigen::VectorXd norm_2::get_direction(double sigma, Eigen::VectorXd rhs, vector<
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
 
-	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 
 
 	return direction;
@@ -1435,7 +1490,7 @@ void norm_2::init() {
 	norm_basic::init();
 	for (int i = 0; i < var_num; i++)
 		w[i] = sqrt(w[i]);
-	cout << w.sum() << endl;
+	std::cout << w.sum() << endl;
 }
 
 
@@ -1452,7 +1507,7 @@ Eigen::VectorXd norm_inf::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 	Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
-	//cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
+	//std::cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
 	Eigen::VectorXd r = pi_c(wx,sigma);
 	r = Eigen::VectorXd::Ones(var_num)-r.cwiseEqual(0).cast<double>();
 	MatrixReplacement_inf A(aj1, var_num, a, &wx, &w,&r, sigma);
@@ -1464,7 +1519,7 @@ Eigen::VectorXd norm_inf::get_direction(double sigma, Eigen::VectorXd rhs, vecto
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
 
-	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 
 
 	return direction;
@@ -1522,7 +1577,7 @@ void norm_2_if::init() {
 		input_ct++;
 	}
 
-	cout << "line:" << input_ct << endl;
+	std::cout << "line:" << input_ct << endl;
 	//point list
 	vector<int> target;
 	//int n= 50;
@@ -1530,7 +1585,7 @@ void norm_2_if::init() {
 		target.push_back(it->first);
 	}
 	n = target.size();
-	cout << "n:" << n << endl;
+	std::cout << "n:" << n << endl;
 	var_num = n * (n - 1) / 2;
 	cons_num = n * (n - 1) * (n - 2) / 6;
 	w = Eigen::VectorXd::Zero(var_num);
@@ -1570,8 +1625,8 @@ void norm_2_if::init() {
 		}
 	}
 
-	cout << "w:" << w.sum() << endl;
-	cout << "b:" << b.sum() << endl;
+	std::cout << "w:" << w.sum() << endl;
+	std::cout << "b:" << b.sum() << endl;
 	x = Eigen::VectorXd::Ones(var_num);
 
 	return;
@@ -1583,29 +1638,29 @@ double norm_2_if::get_kkt(double sigma) {
 	kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
 	axbu->set_function(new func_eigen_y(&u, sigma, &y_norm, &kkt_y, &kkt_u));
 	(*axbu)();
-	cout << "u:" << u.size() << endl;
+	std::cout << "u:" << u.size() << endl;
 
 	y_norm = sqrt(y_norm);
 	kkt_u = sqrt(kkt_u) / (1 + y_norm);
 	kkt_y = sqrt(kkt_y) / (1 + y_norm);
-	cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
+	std::cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
 	Eigen::VectorXd v = Eigen::VectorXd::Zero(var_num);
 	//kkt_x = au_eigen(n, &u, v, w)();
 	
 	kkt_x = kkt_x / (1 + x.norm());
 
-	//cout << "z_norm" << z.norm() << endl;
+	//std::cout << "z_norm" << z.norm() << endl;
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);
 	//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
 	double kkt_final = max(max(kkt_u, kkt_y), max(max(kkt_v, kkt_z), kkt_x));
-	cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
-	cout << "kkt:" << kkt_final << endl;
+	std::cout << "kkt_x:" << kkt_x << "\tkkt_z:" << kkt_z << "\tkkt_v:" << kkt_v << endl;
+	std::cout << "kkt:" << kkt_final << endl;
 
 
 	return kkt_final;
 
-	//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
+	//std::cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
 
 
 
@@ -1629,9 +1684,9 @@ double norm_2_if::get_step_length(Eigen::VectorXd& direction, double sigma) {
 	lx0 += func_p(w.cwiseProduct(x));
 
 	double down = lx0 + c1 * alpha * rhs.dot(direction);
-	//cout << "down:" << down << "\tlx0:" << lx0 << endl;
+	//std::cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
-	cout << "lx0:" << lx0 << "\tdown" << down << endl;
+	std::cout << "lx0:" << lx0 << "\tdown" << down << endl;
 
 	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
 	axbu->set_function(new func_eigen_rhs(alpha, &direction, &nrhs));
@@ -1643,7 +1698,7 @@ double norm_2_if::get_step_length(Eigen::VectorXd& direction, double sigma) {
 		return 1.0;
 
 	for (int i = 0; i < 20; i++) {
-		//cout << "start find step,alpha=" << alpha << endl;
+		//std::cout << "start find step,alpha=" << alpha << endl;
 		double lx = 0;
 		axbu->set_function(new func_eigen_phi(alpha, &direction, &lx));
 		(*axbu)();
@@ -1664,10 +1719,10 @@ void norm_2_if::run() {
 	init();
 	double sigma = 1;
 	for (int iter_all = 0; iter_all < 1000; iter_all++, sigma *= 2) {
-		cout << "start main loop,sigma=" << sigma << endl;
+		std::cout << "start main loop,sigma=" << sigma << endl;
 		axbu = new axbu_eigen(n, &x, &b, &u, sigma);
 		for (int iter_1 = 0; iter_1 < 150; iter_1++) {
-			cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
+			std::cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			vector<int64_t>aj1;
 			axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
@@ -1676,10 +1731,10 @@ void norm_2_if::run() {
 			if (rhs.norm() < 1e-6) {
 				break;
 			}
-			cout << "rhs:" << rhs.norm() << endl;
+			std::cout << "rhs:" << rhs.norm() << endl;
 			Eigen::VectorXd direction = get_direction(sigma, rhs, &aj1);
 			double alpha = get_step_length(direction, sigma);
-			cout << "alpha=" << alpha << endl;
+			std::cout << "alpha=" << alpha << endl;
 			x = x + alpha * direction;
 		}
 		double k = get_kkt(sigma);
@@ -1690,7 +1745,7 @@ void norm_2_if::run() {
 		delete axbu;
 
 	}
-	cout << "func_value:" << func_p(w.cwiseProduct(x)) << endl;
+	std::cout << "func_value:" << func_p(w.cwiseProduct(x)) << endl;
 
 
 
@@ -1700,7 +1755,7 @@ Eigen::VectorXd norm_2_if::get_direction(double sigma, Eigen::VectorXd rhs, vect
 
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 	Eigen::VectorXd wx = w.cwiseProduct(x);
-	cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
+	std::cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
 
 	MatrixReplacement3 A(aj1, var_num, a, &wx, &w, 1e9);
 
@@ -1711,7 +1766,7 @@ Eigen::VectorXd norm_2_if::get_direction(double sigma, Eigen::VectorXd rhs, vect
 
 	Eigen::VectorXd direction = cg.solve(-rhs);
 
-	cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
+	std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
 
 
 	return direction;

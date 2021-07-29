@@ -50,17 +50,18 @@ int main() {
 		cin >> cons;
 
 		norm_ori s2(subs, s);
-		s2.run(cst,cons);
+		s2.run(cst,cons,20);
 	}
 	else {
 		cout << "cst=delta/sigma,plz input delta(do not input 1e-3, use 0.001 instead):";
-		double cst; int cons;
+		double cst; int cons; int sub_iter;
 		cin >> cst;
 		cout << "number of constraints is no less than cons*n*(n-1)/2,plz input cons:";
 		cin >> cons;
-
+		cout << "plz input maxium steps of subiteration:";
+		cin >> sub_iter;
 		norm_ori s2(s);
-		s2.run(cst, cons);
+		s2.run(cst, cons,sub_iter);
 	}
 	cin >> s;
 

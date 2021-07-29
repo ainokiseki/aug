@@ -5,6 +5,7 @@
 #include <Eigen/PardisoSupport>
 
 #include<thread>
+#include<mutex>
 #include<math.h>
 #include<numeric>
 #include<string>
@@ -19,7 +20,7 @@
 #include"cg3.h"
 #include"cgdiag.h"
 #include"axbu_eigen.h"
-//#include<omp.h>
+#include<omp.h>
 
 
 class norm_basic:public metric
@@ -58,9 +59,15 @@ public:
 
 	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag, int ld);
 
-	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag, int ld, double cst);
+	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, int ld, double cst, int& cgnum);
 
-	void run(double cst_const=1e-3, int con_const=10);
+	//Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, int ld, double cst);
+
+	//Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag, int ld, double cst);
+
+	void run(double cst_const, int con_const, int sub_iter);
+
+	//void run(double cst_const=1e-3, int con_const=10);
 
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);
@@ -76,7 +83,7 @@ public:
 	double cst = 0;
 	int iter_all = 0;
 	double sigma = 1;
-	int mthread = 8;
+	int mthread = 12;
 	ofstream prt_res;
 	Eigen::VectorXd rhs,x0;
 	map<int64_t, double>u;
