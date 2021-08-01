@@ -3,7 +3,7 @@
 #include<iomanip>
 
 void m_calc_atu(int pnum, Eigen::VectorXd* atu, int n, au_eigen au) {
-	int var_num = n * (n - 1) / 2;
+	int var_num = atu->size();
 	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
 
 	for (int i = 0; i < pnum; i++)
@@ -52,7 +52,7 @@ void m_calc_superphi(int pnum, axbu_eigen axbu, double* alpha, Eigen::VectorXd* 
 	delete[]mphi;
 }
 void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1,Eigen::VectorXd*diag, int n, axbu_eigen axbu, vector<Eigen::Triplet<double> >*trip) {
-	int var_num = n * (n - 1) / 2;
+
 
 	vector< vector<int64_t>*>maj1(pnum);
 
@@ -88,7 +88,7 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 
 }
 void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, int n, axbu_eigen axbu) {
-	int var_num = n * (n - 1) / 2;
+	int var_num = rhs->size();
 	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
 	vector<int64_t>* maj1 = new vector<int64_t>[pnum];
 	for (int i = 0; i < pnum; i++)
@@ -111,7 +111,7 @@ void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, in
 	delete[]maj1;
 }
 void m_calc_rhs(int pnum, Eigen::VectorXd* rhs, int n, axbu_eigen axbu) {
-	int var_num = n * (n - 1) / 2;
+	int var_num = rhs->size();
 	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
 
 	for (int i = 0; i < pnum; i++)
@@ -133,7 +133,7 @@ void m_calc_rhs(int pnum, Eigen::VectorXd* rhs, int n, axbu_eigen axbu) {
 	delete[]mrhs;
 }
 void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eigen::VectorXd* direction) {
-	int var_num = n * (n - 1) / 2;
+	int var_num = direction->size();
 	double* mphi = new double[pnum];
 	for (int i = 0; i < pnum; i++)
 		mphi[i] = 0;
@@ -331,6 +331,15 @@ norm_ori::~norm_ori()
 {
 }
 
+inline Eigen::VectorXd norm_ori::prox_p_star(Eigen::VectorXd x, double sigma,Eigen::VectorXd w) {
+	return x.cwiseAbs().cwiseMin(w / sigma).cwiseProduct(x.cwiseSign());
+}
+inline Eigen::VectorXd norm_ori::prox_p(Eigen::VectorXd x, double sigma, Eigen::VectorXd w) {
+	return (x.cwiseAbs() - w / sigma).cwiseMax(0.0).cwiseProduct(x.cwiseSign());
+}
+inline double norm_ori::func_p(Eigen::VectorXd x, Eigen::VectorXd w) {
+	return w.cwiseProduct(x.cwiseAbs()).sum();
+}
 
 inline Eigen::VectorXd norm_ori::prox_p_star(Eigen::VectorXd x, double sigma) {
 	return x.cwiseAbs().cwiseMin(w / sigma).cwiseProduct(x.cwiseSign());
@@ -383,7 +392,7 @@ double norm_ori::get_kkt(double sigma) {
 
 
 }
-double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*cons) {
+double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*cons,std::map<int,int>*colidx) {
 
 	double y_norm = 0;
 	double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
@@ -395,26 +404,26 @@ double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*c
 	(*axbu)();
 
 	std::cout << "u:" << u.size() << endl;
-	Eigen::VectorXd z = prox_p(x + v / sigma, sigma);
-	v = sigma * prox_p_star(x + v / sigma, sigma);
+	Eigen::VectorXd z = prox_p(sub_x + sub_v / sigma, sigma,sub_w);
+	sub_v = sigma * prox_p_star(sub_x + sub_v / sigma, sigma, sub_w);
 
 	y_norm = sqrt(y_norm);
 	kkt_u = sqrt(kkt_u) / (1 + y_norm);
 	kkt_y = sqrt(kkt_y) / (1 + y_norm);
 
 	std::cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
-	Eigen::VectorXd tmp1 = Eigen::VectorXd::Ones(x.size());
-	au_eigen au(n, &u, v, tmp1, cons);
+	Eigen::VectorXd tmp1 = Eigen::VectorXd::Ones(sub_x.size());
+	au_eigen au(n, &u, v, tmp1, cons,colidx);
 
-	Eigen::VectorXd atu = Eigen::VectorXd::Zero(var_num);
+	Eigen::VectorXd atu = Eigen::VectorXd::Zero(sub_x.size());
 	m_calc_atu(mthread, &atu, n, au);
 	//kkt_x = au_eigen(n, &u, v, tmp1,cons)();
-	kkt_x = (atu + v).norm() / (1 + v.norm());
+	kkt_x = (atu + sub_v).norm() / (1 + sub_v.norm());
 	//kkt_x = kkt_x / (1 + v.norm());
 
 	//std::cout << "z_norm" << z.norm() << endl;
-	kkt_v = (x - z).norm() / (1 + x.norm());
-	kkt_z = (z - prox_p(z + v, 1.0)).norm() / (1 + z.norm());
+	kkt_v = (sub_x - z).norm() / (1 + sub_x.norm());
+	kkt_z = (z - prox_p(z + sub_v, 1.0,sub_w)).norm() / (1 + z.norm());
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);
 	//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
@@ -565,20 +574,20 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,double
 
 
 
-	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(var_num);
+	Eigen::VectorXd nrhs = Eigen::VectorXd::Zero(sub_x.size());
 	if (mthread == 0) {
 		axbu->set_function(new func_eigen_rhs(1.0, &direction, &nrhs));
 		(*axbu)();
 	}
 	else {
-		x += direction;
+		sub_x += direction;
 		m_calc_rhs(mthread, &nrhs, n, *axbu);
-		x -= direction;
+		sub_x -= direction;
 	}
 
 	//std::cout << nrhs.norm() << endl;
 	nrhs = sigma * nrhs;
-	nrhs += sigma * prox_p_star(x + direction + v / sigma, sigma)+cst*(x-x0);
+	nrhs += sigma * prox_p_star(sub_x + direction + sub_v / sigma, sigma,sub_w)+cst*(sub_x-x0);
 
 	if (nrhs.dot(direction) < 0) {
 		//std::cout << "green\n";
@@ -597,9 +606,9 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,double
 		lxnorm[i] = 0.0;
 	m_calc_superphi(mthread, *axbu, alpha, &direction, lxnorm);
 	lx0 = lxnorm[0];
-	lx0 = sigma / 2 * lx0 + sigma / 2 * square(prox_p_star(x + v / sigma, sigma).norm());
+	lx0 = sigma / 2 * lx0 + sigma / 2 * square(prox_p_star(sub_x + sub_v / sigma, sigma, sub_w).norm());
 
-	lx0 += func_p(prox_p(x + v / sigma, sigma))+ cst / 2 * (x - x0).squaredNorm();
+	lx0 += func_p(prox_p(sub_x + sub_v / sigma, sigma,sub_w),sub_w)+ cst / 2 * (sub_x - x0).squaredNorm();
 
 
 
@@ -620,8 +629,8 @@ double norm_ori::get_step_length(Eigen::VectorXd& direction, double sigma,double
 		double lx = lxnorm[i];
 
 		lx = sigma / 2 * lx;
-		lx += sigma / 2 * square(prox_p_star(x + alp * direction + v / sigma, sigma).norm());
-		lx += func_p(prox_p(x + alp * direction + v / sigma, sigma))+cst / 2 * (x+alp*direction - x0).squaredNorm();
+		lx += sigma / 2 * square(prox_p_star(sub_x + alp * direction + sub_v / sigma, sigma,sub_w).norm());
+		lx += func_p(prox_p(sub_x + alp * direction + sub_v / sigma, sigma,sub_w),sub_w)+cst / 2 * (sub_x+alp*direction - x0).squaredNorm();
 
 		if (lx <= down) {
 			return alp;
@@ -732,10 +741,10 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs,int ld,double cst,int&cgnum) {
 
 	//std::cout << "rnorm:" << r_norm << "\trnew:" << r_new << endl;
-	Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
+	Eigen::VectorXd aj2 = (((sub_x + sub_v / sigma).cwiseAbs() - sub_w / sigma).array() <= 0.0).cast<double>().matrix();
 	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 	(*ata) += sigma * aj2.asDiagonal();
-	(*ata) += (a+cst) * Eigen::VectorXd::Ones(var_num).asDiagonal();
+	(*ata) += (a+cst) * Eigen::VectorXd::Ones(rhs.size()).asDiagonal();
 	//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 
 	//Eigen::PardisoLDLT<SparseMatrix<double> > cg;
@@ -754,7 +763,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 	return direction;
 }
 
-void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
+void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu,std::map<int,int>&colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
 
 	for (int i = start; i < end; i++) {
 		int64_t index;
@@ -772,10 +781,19 @@ void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd&
 
 					if (viscons.find(index) == viscons.end()) {
 
-						mu->lock();
+						for (int tp = 0; tp < 3; tp++) {
+							if (colidx.find(idx[tp]) == colidx.end()) {
+								mu[1].lock();
+								int tmmp = colidx.size();
+								colidx[idx[tp]] = tmmp;
+								mu[1].unlock();
+							}
+						}
+
+						mu[0].lock();
 						cons.push_back(index);
 						viscons.insert(index);
-						mu->unlock();
+						mu[0].unlock();
 					}
 				}
 			}
@@ -802,10 +820,11 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 	std::vector<int64_t>cons;
 	std::set<int64_t>viscons;
-	std::set<int>xcons;
+
+	std::map<int, int>colidx;
 	int old_size = viscons.size();
 	while (true) {
-		if (true) {
+		if (false) {
 
 
 			
@@ -824,26 +843,30 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 							x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
 
 							if (viscons.find(index) == viscons.end()) {
-
-
+								for (int tp = 0; tp < 3; tp++) {
+									if (colidx.find(idx[tp]) == colidx.end()) {
+										int tmmp = colidx.size();
+										colidx[idx[tp]] = tmmp;
+									}
+								}
 									cons.push_back(index);
 									viscons.insert(index);
-									xcons.insert(idx[0]); xcons.insert(idx[1]); xcons.insert(idx[2]);
+
 							}
 						}
 					}
 				}
 			}
-			cout << xcons.size() << endl;
+
 		}
 		else {
 			std::vector<thread>vt;
-			mutex mu;
+			mutex mu[2];
 			for (int i = 0; i < mthread; i++) {
 				int ta, tb;
 				ta = n - (int)(cbrt((i + 1) * 1.0 / mthread) * n);
 				tb = n - (int)(cbrt(i * 1.0 / mthread) * 1.0 * n);
-				vt.push_back(std::thread(cons_generate, ta, tb, n, std::ref(x), std::ref(b), &mu, std::ref(viscons), std::ref(cons)));
+				vt.push_back(std::thread(cons_generate, ta, tb, n, std::ref(x), std::ref(b), mu,std::ref(colidx), std::ref(viscons), std::ref(cons)));
 			}
 			for (int i = 0; i < mthread; i++) {
 				vt[i].join();
@@ -866,6 +889,17 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 
 						if (viscons.find(index) == viscons.end()) {
+							int idx[3];
+							idx[0] = ij(i, j, n);
+							idx[1] = ij(i, k, n);
+							idx[2] = ij(j, k, n);
+
+							for (int tp = 0; tp < 3; tp++) {
+								if (colidx.find(idx[tp]) == colidx.end()) {
+									int tmmp = colidx.size();
+									colidx[idx[tp]] = tmmp;
+								}
+							}
 							cons.push_back(index);
 							viscons.insert(index);
 						}
@@ -885,10 +919,26 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 		double kkt0 = 1;
 		double kkt = 0.1;
 
+		sub_x = Eigen::VectorXd::Zero(colidx.size());
+		sub_b = Eigen::VectorXd::Zero(colidx.size());
+		sub_w = Eigen::VectorXd::Zero(colidx.size());
+		sub_v = Eigen::VectorXd::Zero(colidx.size());
 
 
+
+		for (auto i = colidx.begin(); i != colidx.end(); i++) {
+
+			sub_x[i->second] = x[i->first];
+			sub_b[i->second] = b[i->first];
+			sub_w[i->second] = w[i->first];
+			sub_v[i->second] = v[i->first];
+		}
+		int sub_var = colidx.size();
+
+		
+		cout << colidx.size() << endl;
 		for (iter_all=0; iter_all < 100; iter_all++) {
-			x0 = x;
+			x0 = sub_x;
 			cst = cst_const / sigma;
 			//if (pwd != "skip" && iter_all > 0) {
 			//	ofstream model(string("model_save/") + pwd + string("_") + graph_name + string("_") + to_string(iter_all) + string(".dat"), std::ios::out | std::ios::binary);
@@ -913,7 +963,8 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 			//}
 
 			std::cout << "start loop "<<iter_all+1<<",sigma=" << sigma << endl;
-			axbu = new axbu_eigen(n, &x, &b, &u, sigma, &cons);
+			axbu = new axbu_eigen(n, &sub_x, &sub_b, &u, sigma, &cons,&colidx);
+
 			bool flaga = true;
 			int iter_1;
 			for (iter_1 = 0; iter_1 < sub_iter; iter_1++) {
@@ -921,13 +972,13 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 				//std::coutstd::cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
 				//std::cout << "x:" << x.norm() << endl;
-				rhs = Eigen::VectorXd::Zero(var_num);
+				rhs = Eigen::VectorXd::Zero(sub_var);
 				vector<int64_t>aj1;
 				
 
-				Eigen::SparseMatrix<double>ata(var_num, var_num);
+				Eigen::SparseMatrix<double>ata(sub_var, sub_var);
 				{
-					Eigen::VectorXd diag = Eigen::VectorXd::Zero(var_num);
+					Eigen::VectorXd diag = Eigen::VectorXd::Zero(sub_var);
 					std::vector<Eigen::Triplet<double> >test_v;
 					if (!flaga) {
 						if (mthread == 0) {
@@ -947,11 +998,14 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 							(*axbu)();
 						}
 						else {
+
 							//m_calc_rhs_and_aj1(mthread, &rhs, &aj1, n, *axbu);
 							m_calc_rhs_and_aj1_diag(mthread, &rhs, &aj1, &diag, n, *axbu, &test_v);
 						}
 					}
+
 					ata.setFromTriplets(test_v.begin(), test_v.end());
+
 					ata += diag.asDiagonal();
 				}
 
@@ -991,7 +1045,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 				//std::cout << "r1:" << rhs.norm() << endl;
 
-				rhs = sigma * rhs + sigma * prox_p_star(x + v / sigma, sigma)+cst*(x-x0);
+				rhs = sigma * rhs + sigma * prox_p_star(sub_x + sub_v / sigma, sigma,sub_w)+cst*(sub_x-x0);
 
 				prt_res << iter_1 << "  " << rhs.norm() << "  ";
 
@@ -1026,12 +1080,12 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 				//	break;
 				//flaga = true;
 
-				x = x + alpha * direction;
+				sub_x += alpha * direction;
 				prt_res << alpha << std::endl;
 				std::cout << iter_1<<"\t"<<rhs.norm() << "\t" <<(rhs+ata*direction).norm()<<"\t"<<direction.norm()<<"\t"<< alpha << endl;
 			}
 			double rp, rd;
-			double kkt = get_kkt(sigma, rp, rd, &cons);
+			double kkt = get_kkt(sigma, rp, rd, &cons,&colidx);
 
 			
 			
@@ -1075,10 +1129,15 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 			delete axbu;
 
 		}
-		
+		for (auto i = colidx.begin(); i != colidx.end(); i++) {
+			x[i->first] = sub_x[i->second];
+			b[i->first] = sub_b[i->second];
+			w[i->first] = sub_w[i->second];
+			v[i->first] = sub_v[i->second];
+		}
 	}
 
-	std::cout << "func_value:" << std::setprecision(8)<< func_p(x) << endl;
+	std::cout << "func_value:" << std::setprecision(8)<< func_p(x,w) << endl;
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
@@ -1091,6 +1150,8 @@ void norm_ori::run_dense() {
 	
 	std::vector<Eigen::Triplet<double> >cons;
 	std::set<int64_t>viscons;
+	std::map<int, int>colidx;
+
 	int old_size = viscons.size();
 	Eigen::VectorXd su;
 	x = Eigen::VectorXd::Zero(var_num);
@@ -1107,22 +1168,24 @@ void norm_ori::run_dense() {
 					idx[2] = ij(j, k, n);
 					index = static_cast<int64_t>(i) * n * n + j * n + k;
 
-					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-6 ||
-						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-6 ||
-						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-6) {
+					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
 
 						if (viscons.find(index) == viscons.end()) {
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[0], 1));
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[1], -1));
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[2], -1));
-
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, idx[0], -1));
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, idx[1], 1));
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, idx[2], -1));
-
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, idx[0], -1));
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, idx[1], -1));
-							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, idx[2], 1));
+							for(int tp=0;tp<3;tp++)
+								if (colidx.find(idx[tp]) == colidx.end()) {
+									colidx[idx[tp]] = colidx.size();
+								}
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[0]], 1));
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[1]], -1));
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[2]], -1));
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3+1, colidx[idx[0]], -1));
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3+1, colidx[idx[1]], 1));
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3+1, colidx[idx[2]], -1));
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3+2, colidx[idx[0]], -1));
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3+2, colidx[idx[1]], -1));
+							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3+2, colidx[idx[2]], 1));
 							viscons.insert(index);
 						}
 					}
@@ -1134,7 +1197,7 @@ void norm_ori::run_dense() {
 		old_size = viscons.size();
 		std::cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
 
-		if (viscons.size() < 10 * var_num/3) {
+		if (viscons.size() < 0 * var_num/3) {
 			for (int i = 0; i < n&& viscons.size() < 10 * var_num / 3; i++) {
 				int64_t index;
 				for (int j = i + 1; j < n&& viscons.size() < 10 * var_num / 3; j++) {
@@ -1148,6 +1211,11 @@ void norm_ori::run_dense() {
 
 
 						if (viscons.find(index) == viscons.end()) {
+							for (int tp = 0; tp < 3; tp++)
+								if (colidx.find(idx[tp]) == colidx.end()) {
+									colidx[idx[tp]] = colidx.size();
+								}
+
 							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[0], 1));
 							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[1], -1));
 							cons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[2], -1));
@@ -1167,15 +1235,31 @@ void norm_ori::run_dense() {
 				}
 			}
 		}
-		std::cout << "size:" << cons.size()<<"vis:"<<viscons.size() << endl;
-		std::cout << cons[cons.size() - 1].col() << " " << cons[cons.size() - 1].row() << cons[cons.size() - 1].value() << endl;
 
-		Eigen::SparseMatrix<double>A(viscons.size() * 3, var_num);
+		std::cout << "size:" << cons.size()<<"vis:"<<viscons.size() << endl;
+		//std::cout << cons[cons.size() - 1].col() << " " << cons[cons.size() - 1].row() << cons[cons.size() - 1].value() << endl;
+
+
+
+		Eigen::SparseMatrix<double>A(viscons.size() * 3, colidx.size());
 		A.setFromTriplets(cons.begin(), cons.end());
 
 
 		su.conservativeResize(viscons.size()*3);
-		double cst = 1e-3 / sigma;
+		Eigen::VectorXd sub_x(colidx.size());
+		Eigen::VectorXd sub_b(colidx.size());
+		Eigen::VectorXd sub_w(colidx.size());
+		Eigen::VectorXd sub_v(colidx.size());
+		for (auto i = colidx.begin(); i != colidx.end();i++) {
+			sub_x[i->second] = x[i->first];
+			sub_b[i->second] = b[i->first];
+			sub_w[i->second] = w[i->first];
+			sub_v[i->second] = v[i->first];
+		}
+
+
+
+
 		Eigen::VectorXd x0;
 		double	primal_win = 0;
 		double dual_win = 0;
@@ -1183,43 +1267,63 @@ void norm_ori::run_dense() {
 		double kkt = 0.1;
 
 		for (; iter_all < 100; iter_all++) {
-			x0 = x;
+			double cst = 1e-3 / sigma;
+			x0 = sub_x;
 
-			std::cout << "start main loop,sigma=" << sigma << endl;
+			std::cout << "start loop "<<iter_all+1<<", sigma = " << sigma << endl;
 
 			bool flaga = true;
 			int iter_1;
 			for (iter_1 = 0; iter_1 < 20; iter_1++) {
 
 
-				std::cout << "start find minimum of phi(x),iter time:" << iter_1 << endl;
-				std::cout << "x:" << x.norm() << endl;
-				Eigen::VectorXd axbu = A * (x + b) + sigma * su;
-				rhs = sigma * (A.transpose() * axbu.cwiseMax(0) + prox_p_star(x + v / sigma, sigma)) + cst * (x - x0);
+				
+
+				Eigen::VectorXd axbu2 = A * (sub_x + sub_b) + 1/sigma * su;
+				rhs = sigma * (A.transpose() * axbu2.cwiseMax(0) + prox_p_star(sub_x + sub_v / sigma, sigma,sub_w)) + cst * (sub_x - x0);
 
 				Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
-				double a = min(pow(rhs.norm(), 1.5) * 0.5, 20.0);
-				Eigen::VectorXd aj2 = (((x + v / sigma).cwiseAbs() - w / sigma).array() <= 0.0).cast<double>().matrix();
+				double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
+				Eigen::VectorXd aj2 = (((sub_x + sub_v / sigma).cwiseAbs() - sub_w / sigma).array() <= 0.0).cast<double>().matrix();
 				std::vector<Eigen::Triplet<double> >aj1;
 
-				std::cout << "before hessie:" << endl;
+				
+				int pnum = omp_get_max_threads();
+				Eigen::SparseMatrix<double>hessie(colidx.size(),colidx.size());
 
 
-				Eigen::SparseMatrix<double>hessie (var_num,var_num);
-				for (int i = 0; i < axbu.size(); i++) {
-					if (axbu[i] > 0)
-						aj1.insert(aj1.end(), cons.begin() + i * 3, cons.begin() + (i + 1) * 3);
+
+
+				std::vector<Eigen::Triplet<double> >aj3;
+
+				//cout << "axbu2:" << axbu2.size() << endl;
+				for (int i = 0; i < axbu2.size(); i++) {
+					if (axbu2[i] > 0) {
+						for (int tp = 0; tp < 3; tp++) {
+
+
+							auto j = cons[i * 3+tp];
+							j.m_row = aj3.size() / 3;
+							aj3.push_back(j);
+						}
+					}
 				}
+				Eigen::SparseMatrix<double>hessiet(aj3.size()/3, colidx.size());
 
-				Eigen::SparseMatrix<double>AJ(var_num, var_num);
+				hessiet.setFromTriplets(aj3.begin(), aj3.end());
+
+				hessie = hessiet.transpose() * hessiet;
+
 				hessie *= sigma;
 				hessie += sigma * aj2.asDiagonal();
-				hessie += ((a + cst) * Eigen::VectorXd::Ones(var_num)).asDiagonal();
+				hessie += ((a + cst) * Eigen::VectorXd::Ones(colidx.size())).asDiagonal();
 				cg.compute(hessie);
+
+				cg.setTolerance(std::fmin(0.5, 0.1*rhs.norm())/ rhs.norm());
 				Eigen::VectorXd direction = -cg.solve(rhs);
 
 
-				std::cout << "rhs:" << rhs.norm() << endl;
+
 
 				if (rhs.norm() < 1e-4) {
 					break;
@@ -1245,24 +1349,24 @@ void norm_ori::run_dense() {
 					auto square = [](double x) {return x * x; };
 
 
-					lx0 += (A * (x + b) + sigma * su).cwiseMax(0.0).squaredNorm() * sigma / 2;
-					lx0 += sigma / 2 * square(prox_p_star(x + v / sigma, sigma).norm());
-					lx0 += func_p(prox_p(x + v / sigma, sigma));
-					lx0 += cst / 2 * (x - x0).squaredNorm();
+					lx0 += (A * (sub_x + sub_b) + 1/sigma * su).cwiseMax(0.0).squaredNorm() * sigma / 2;
+					lx0 += sigma / 2 * square(prox_p_star(sub_x + sub_v / sigma, sigma, sub_w).norm());
+					lx0 += func_p(prox_p(sub_x + sub_v / sigma, sigma, sub_w), sub_w);
+					lx0 += cst / 2 * (sub_x - x0).squaredNorm();
 
 
 					double down = lx0 + c1 * alpha * rhs.dot(direction);
 					//std::cout << "down:" << down << "\tlx0:" << lx0 << endl;
 
-					std::cout << "lx0:" << lx0 << "\tdown" << down << endl;
+					
 					prt_res << lx0 << "  ";
 
 
 
-					Eigen::VectorXd nrhs = sigma * (A.transpose() * (A * (x + b + alpha * direction) + sigma * su).cwiseMax(0.0) + prox_p_star(x + alpha * direction + v / sigma, sigma)) + cst * (x + alpha * direction - x0);
+					Eigen::VectorXd nrhs = sigma * (A.transpose() * (A * (sub_x + sub_b + alpha * direction) + 1/sigma * su).cwiseMax(0.0) + prox_p_star(sub_x + alpha * direction + sub_v / sigma, sigma, sub_w)) + cst * (sub_x + alpha * direction - x0);
 
 					if (nrhs.dot(direction) < 0) {
-						std::cout << "green\n";
+						
 						goto L;
 					}
 
@@ -1270,14 +1374,14 @@ void norm_ori::run_dense() {
 					lb = 0; ub = 1;
 					double glb = -1; double gub = 1;
 					for (int i = 0; i < 20; i++) {
-						nrhs = Eigen::VectorXd::Zero(var_num);
+
 
 						//std::cout << "start find step,alpha=" << alpha << endl;
 						double lx = 0;
-						lx += (A * (x + b + alpha * direction) + sigma * su).cwiseMax(0.0).squaredNorm() * sigma / 2;
-						lx += sigma / 2 * square(prox_p_star(x + alpha * direction + v / sigma, sigma).norm());
-						lx += func_p(prox_p(x + alpha * direction + v / sigma, sigma));
-						lx += cst / 2 * (x + alpha * direction - x0).squaredNorm();
+						lx += (A * (sub_x + sub_b + alpha * direction) + 1/sigma * su).cwiseMax(0.0).squaredNorm() * sigma / 2;
+						lx += sigma / 2 * square(prox_p_star(sub_x + alpha * direction + sub_v / sigma, sigma, sub_w).norm());
+						lx += func_p(prox_p(sub_x + alpha * direction + sub_v / sigma, sigma, sub_w), sub_w);
+						lx += cst / 2 * (sub_x + alpha * direction - x0).squaredNorm();
 						if (lx <= down) {
 							break;
 						}
@@ -1315,12 +1419,13 @@ void norm_ori::run_dense() {
 
 
 
-				std::cout << "alpha=" << alpha << endl;
+				//std::cout << "alpha=" << alpha << endl;
 				//if (rhs.norm() < 1e-5 && alpha < 1e-4)
 				//	break;
 				//flaga = true;
 
-				x = x + alpha * direction;
+				sub_x = sub_x + alpha * direction;
+				std::cout << iter_1 << "\t" << rhs.norm() <<  "\t" << direction.norm() << "\t" << alpha << endl;
 				prt_res << alpha << std::endl;
 
 			}
@@ -1333,25 +1438,25 @@ void norm_ori::run_dense() {
 				kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
 
 
-				su += sigma * (A * (x + b) - (A * (x + b) + sigma * su).cwiseMin(0));
+				su += sigma * (A * (sub_x + sub_b) - (A * (sub_x + sub_b) + sigma * su).cwiseMin(0));
 
 
 
 
-				Eigen::VectorXd z = prox_p(x + v / sigma, sigma);
-				v = sigma * prox_p_star(x + v / sigma, sigma);
+				Eigen::VectorXd z = prox_p(sub_x + sub_v / sigma, sigma, sub_w);
+				sub_v = sigma * prox_p_star(sub_x + sub_v / sigma, sigma, sub_w);
 
 
-				Eigen::VectorXd y = (A * (x + b) + sigma * su).cwiseMin(0.0);
+				Eigen::VectorXd y = (A * (sub_x + sub_b) + sigma * su).cwiseMin(0.0);
 
-				kkt_u = (A * (x + b) - y).norm() / (1 + y.norm());
+				kkt_u = (A * (sub_x + sub_b) - y).norm() / (1 + y.norm());
 				kkt_y = (y - (y + su).cwiseMin(0)).norm() / (1 + y.norm());
 
-				kkt_x = (A.transpose() * su + v).norm() / (1 + v.norm());
+				kkt_x = (A.transpose() * su + sub_v).norm() / (1 + sub_v.norm());
 
 				//std::cout << "z_norm" << z.norm() << endl;
-				kkt_v = (x - z).norm() / (1 + x.norm());
-				kkt_z = (z - prox_p(z + v, 1.0)).norm() / (1 + z.norm());
+				kkt_v = (sub_x - z).norm() / (1 + sub_x.norm());
+				kkt_z = (z - prox_p(z + sub_v, 1.0, sub_w)).norm() / (1 + z.norm());
 				//for (int i = 0; i < var_num; i++)
 				//    t_res += abs(x[i] * w[i]);
 				//prt_res << "f(Ax-b)+p(x) \t" << t_res << endl;
@@ -1384,7 +1489,8 @@ void norm_ori::run_dense() {
 					dual_win += 1;
 
 
-				if (true)
+				if (iter_all % 3 == 2) {
+
 					if (primal_win > std::fmax(1, 1.2 * dual_win)) {
 						primal_win = 0;
 						sigma = min(sigma / 1.2, 1.0e7);
@@ -1394,14 +1500,17 @@ void norm_ori::run_dense() {
 						dual_win = 0;
 						sigma = max(sigma * 1.5, 1.0e0);
 					}
-					else if (kkt > kkt0 * 0.7) {
-						sigma = std::fmin(sigma * 1.5, 1.0e7);
-					}
+
+				}
+				else if (kkt > kkt0 * 0.7) {
+					sigma = std::fmin(sigma * 1.5, 1.0e7);
+				}
 			}
 			std::cout << "primal:" << primal_win << "\t" << "dual:" << dual_win << endl;
 			kkt0 = kkt;
 
 		}
+		
 
 	}
 	std::cout << "func_value:" << std::setprecision(8) << func_p(x) << endl;

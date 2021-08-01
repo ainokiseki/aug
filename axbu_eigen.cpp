@@ -1,8 +1,8 @@
 #include "axbu_eigen.h"
 #include<iostream>
 
-axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma, std::vector<int64_t>* cons) :
-	n(n), x(x), b(b), u(u), sigma(sigma),f(NULL),cons(cons)
+axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma, std::vector<int64_t>* cons, std::map<int, int>*colidx) :
+	n(n), x(x), b(b), u(u), sigma(sigma),f(NULL),cons(cons),colidx(colidx)
 {
 }
 
@@ -25,9 +25,9 @@ void axbu_eigen::operator() (int init,int end){
 
 
 				int idx[3];
-				idx[0] = ij(i, j, n);
-				idx[1] = ij(i, k, n);
-				idx[2] = ij(j, k, n);
+				idx[0] = (*colidx)[ij(i, j, n)];
+				idx[1] = (*colidx)[ij(i, k, n)];
+				idx[2] = (*colidx)[ij(j, k, n)];
 
 
 				double axbu = 0;
@@ -76,7 +76,7 @@ void axbu_eigen::set_function(func_eigen* func) {
 	f = func;
 }
 
-au_eigen::au_eigen(int n, std::map<int64_t, double>* u, Eigen::VectorXd v, Eigen::VectorXd w, std::vector<int64_t>* cons) :n(n), u(u), v(v),w(w),cons(cons)
+au_eigen::au_eigen(int n, std::map<int64_t, double>* u, Eigen::VectorXd v, Eigen::VectorXd w, std::vector<int64_t>* cons, std::map<int, int>* colidx) :n(n), u(u), v(v),w(w),cons(cons),colidx(colidx)
 {
 	int var_num = n * (n - 1) / 2;
 }
@@ -102,9 +102,9 @@ void au_eigen::operator()(Eigen::VectorXd*au, int init, int end)
 
 
 				int idx[3];
-				idx[0] = ij(i, j, n);
-				idx[1] = ij(i, k, n);
-				idx[2] = ij(j, k, n);
+				idx[0] = (*colidx)[ij(i, j, n)];
+				idx[1] = (*colidx)[ij(i, k, n)];
+				idx[2] = (*colidx)[ij(j, k, n)];
 
 				for (int time = 0; time < 3; time++) {
 					int64_t index ;

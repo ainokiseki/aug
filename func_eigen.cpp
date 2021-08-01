@@ -157,7 +157,7 @@ void func_eigen_y::operator()(double axbu, int* idx, int time, int64_t index)
 
 	double y = (axb < 0 ? axb : 0.0);
 	*y_norm += y * y;
-	*kkt_y += (axb - y) * (axb - y);
+	*kkt_u += (axb - y) * (axb - y);
 	double y_plus_u;
 	if (u->find(index)==u->end())
 	{
@@ -167,7 +167,7 @@ void func_eigen_y::operator()(double axbu, int* idx, int time, int64_t index)
 		y_plus_u = (y + (*u)[index] > 0 ? y : -(*u)[index]);
 	}
 
-	*kkt_u += y_plus_u * y_plus_u;
+	*kkt_y += y_plus_u * y_plus_u;
 
 	
 }

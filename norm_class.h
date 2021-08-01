@@ -49,6 +49,12 @@ public:
 	norm_ori(string graph_name, string data);
 	~norm_ori();
 
+	Eigen::VectorXd prox_p_star(Eigen::VectorXd x, double sigma, Eigen::VectorXd w);
+
+	Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma, Eigen::VectorXd w);
+
+	double func_p(Eigen::VectorXd x, Eigen::VectorXd w);
+
 	inline Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma) ;
 	inline Eigen::VectorXd prox_p_star (Eigen::VectorXd x, double sigma);
 	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1);
@@ -72,7 +78,7 @@ public:
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);
 	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons);
-
+	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons, std::map<int, int>* colidx);
 	double get_step_length(Eigen::VectorXd& direction, double sigma);
 	double get_step_length(Eigen::VectorXd& direction, double sigma, double cst);
 
@@ -88,6 +94,10 @@ public:
 	Eigen::VectorXd rhs,x0;
 	map<int64_t, double>u;
 	axbu_eigen* axbu;
+	Eigen::VectorXd sub_x;
+	Eigen::VectorXd sub_b;
+	Eigen::VectorXd sub_w;
+	Eigen::VectorXd sub_v;
 };
 
 class norm_1:public norm_basic 
