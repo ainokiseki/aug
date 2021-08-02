@@ -65,8 +65,9 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 
 	vector<thread>tv;
 	mutex mu[3];
+	int cnum[3] = {0,0,0};
 	for (int i = 0; i < pnum; i++) {
-		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,trip,mu));
+		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,trip,mu,cnum));
 		if (i != pnum - 1) {
 			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1)));
 		}
@@ -78,6 +79,7 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 	for (int i = 0; i < pnum; i++)
 		tv[i].join();
 
+	//cout << cnum[0]<<" "<<cnum[1]<<" "<<cnum[2] << endl;
 
 	for (int i = 0; i < pnum; i++) {
 		delete maj1[i];
@@ -783,12 +785,14 @@ void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd&
 					if (viscons.find(index) == viscons.end()) {
 
 						for (int tp = 0; tp < 3; tp++) {
+							mu[1].lock();
 							if (colidx.find(idx[tp]) == colidx.end()) {
-								mu[1].lock();
+								
 								int tmmp = colidx.size();
 								colidx[idx[tp]] = tmmp;
-								mu[1].unlock();
+								
 							}
+							mu[1].unlock();
 						}
 
 						mu[0].lock();

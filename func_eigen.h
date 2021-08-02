@@ -12,6 +12,7 @@ public:
 	~func_eigen();
 	virtual void operator()(double axbu,int*idx,int time, int64_t index)=0;
 	std::mutex* mu;
+	int* cnum;
 private:
 
 };
@@ -29,6 +30,7 @@ private:
 class func_eigen_rhs_aj1_diag :public func_eigen
 {
 public:
+	func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1, Eigen::VectorXd* diag, std::vector<Eigen::Triplet<double> >* triv, std::mutex* muu,int*num);
 	func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1,Eigen::VectorXd*diag, std::vector<Eigen::Triplet<double> >* triv,std::mutex*muu);
 	func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1, Eigen::VectorXd* diag, std::vector<Eigen::Triplet<double> >* triv);
 	~func_eigen_rhs_aj1_diag();
