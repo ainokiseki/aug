@@ -297,6 +297,7 @@ void norm_basic::run() {
 
 norm_ori::norm_ori(string graph_name) :metric(graph_name)
 {
+	mthread = std::thread::hardware_concurrency();
 	iter_all = 0;
 }
 norm_ori::norm_ori(string graph_name,string data) : metric(graph_name)
@@ -912,7 +913,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 		
 		std::cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
 		sigma = 1;
-		
+		std::cout << "total num of variables:" << var_num << " num of current variables:" << colidx.size() << endl;
 
 		double	primal_win = 0;
 		double dual_win = 0;
@@ -1129,6 +1130,8 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 			delete axbu;
 
 		}
+		std::cout << "sub_func_value:" << std::setprecision(8) << func_p(sub_x, sub_w) << endl;
+
 		for (auto i = colidx.begin(); i != colidx.end(); i++) {
 			x[i->first] = sub_x[i->second];
 			b[i->first] = sub_b[i->second];
@@ -1303,7 +1306,7 @@ void norm_ori::run_dense() {
 
 
 							auto j = cons[i * 3+tp];
-							j.m_row = aj3.size() / 3;
+							//j.m_row = aj3.size() / 3;
 							aj3.push_back(j);
 						}
 					}
