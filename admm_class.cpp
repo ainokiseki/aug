@@ -473,102 +473,133 @@ std::pair<int,int> admm_basic::run(double tau,double sigma,double scale_b,double
 
 	int dual_win(0), prim_win(0);
 	int maxsize = 0;
-	for(int k=0;;k++)
-	{
-		rhs = Eigen::VectorXd::Zero(var_num);
-		//atyu(n, x, b, &u, rhs, sigma,scale_a);
-		m_atyu(24, n, x, b, &u, rhs, sigma, scale_a);
-		rhs += prox_p(x + v / sigma, sigma) - v / sigma;
-		//cg
-		//cout << "atyu\n";
+	std::vector<int64_t>cons;
+	std::set<int64_t>viscons;
+	int old_size = viscons.size();
+	while (true) {
 
-		double tol = 1e-10;
-		Eigen::VectorXd r = rhs;
-		Eigen::VectorXd p(var_num);
-		Eigen::VectorXd res = Eigen::VectorXd::Zero(var_num);
-		double row, row_old;
-		row = r.squaredNorm();
-		double delta = tol * rhs.norm();
-		//cout << "cgstart\n";
+
+
+		for (int i = 0; i < n; i++) {
+			int64_t index;
+			for (int j = i + 1; j < n; j++) {
+				for (int k = j + 1; k < n; k++) {
+					int idx[3];
+					idx[0] = ij(i, j, n);
+					idx[1] = ij(i, k, n);
+					idx[2] = ij(j, k, n);
+					index = static_cast<int64_t>(i) * n * n + j * n + k;
+
+					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
+
+						if (viscons.find(index) == viscons.end()) {
+							cons.push_back(index);
+							viscons.insert(index);
+						}
+					}
+				}
+			}
+		}
+
+
+		for (int k = 0;; k++)
 		{
+			rhs = Eigen::VectorXd::Zero(var_num);
+			//atyu(n, x, b, &u, rhs, sigma,scale_a);
+			m_atyu(24, n, x, b, &u, rhs, sigma, scale_a);
+			rhs += prox_p(x + v / sigma, sigma) - v / sigma;
+			//cg
+			//cout << "atyu\n";
 
-			int i = 0;
-			for (; sqrt(row) > delta; i++) {
-				if (i == 0) {
-					p = r;
+			double tol = 1e-10;
+			Eigen::VectorXd r = rhs;
+			Eigen::VectorXd p(var_num);
+			Eigen::VectorXd res = Eigen::VectorXd::Zero(var_num);
+			double row, row_old;
+			row = r.squaredNorm();
+			double delta = tol * rhs.norm();
+			//cout << "cgstart\n";
+			{
+
+				int i = 0;
+				for (; sqrt(row) > delta; i++) {
+					if (i == 0) {
+						p = r;
+					}
+					else {
+						p = r + row / row_old * p;
+					}
+
+					Eigen::VectorXd ap = Eigen::VectorXd::Zero(var_num);
+					m_atax(24, n, p, ap);
+					ap /= (scale_a * scale_a);
+					ap += p;
+
+					double mu = row / p.dot(ap);
+					res += mu * p;
+					r -= mu * ap;
+					row_old = row;
+					row = r.squaredNorm();
 				}
-				else {
-					p = r + row / row_old * p;
+				//cout << "  i:" << i << "  ";
+			}
+			//cout << "cgend\n";
+			//cg end
+
+			//cout << "res:" << (rhs - test).norm() << endl;
+
+
+
+			x = res;
+			double y_norm, kkt_u;
+			y_norm = kkt_u = 0;
+			Eigen::VectorXd atu = Eigen::VectorXd::Zero(var_num);
+			m_all_in_all(24, n, u, x, b, atu, kkt_u, y_norm, sigma, tau, scale_a);
+			Eigen::VectorXd z = prox_p(x + v / sigma, sigma);
+			v += sigma * tau * (x - z);
+
+			double kkt_x = (atu + v).norm() / (1 + v.norm());
+			double true_ku = scale_b * sqrt(kkt_u) / (1 + scale_b * sqrt(y_norm));
+			kkt_u = sqrt(kkt_u) / (1 + sqrt(y_norm));
+			double kkt_v = (x - z).norm() / (1 + z.norm());
+
+			//cout << "allinall\n";
+			if (std::fmax(kkt_u, kkt_v) > kkt_x) {
+				dual_win++;
+			}
+			else {
+				prim_win++;
+			}
+			if ((k + 1) % itertime(k) == 0) {
+				if (prim_win > dual_win * 1.2 && prim_win > 1) {
+					prim_win = 0;
+					sigma /= 3;
 				}
-
-				Eigen::VectorXd ap = Eigen::VectorXd::Zero(var_num);
-				m_atax(24,n, p, ap);
-				ap /= (scale_a * scale_a);
-				ap += p;
-
-				double mu = row / p.dot(ap);
-				res += mu * p;
-				r -= mu * ap;
-				row_old = row;
-				row = r.squaredNorm();
+				else if (dual_win > prim_win * 1.2 && dual_win > 1) {
+					dual_win = 0;
+					sigma *= 3;
+				}
 			}
-			//cout << "  i:" << i << "  ";
+			kkt_x = scale_a * scale_a * (atu + v).norm() / (1 + scale_a * scale_a * v.norm());
+
+			kkt_v = scale_b / scale_a * (x - z).norm() / (1 + scale_b / scale_a * z.norm());
+
+
+			double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
+			maxsize = fmax(maxsize, u.size());
+			cout << k << "\t" << kkt << "\t" << func_p(x) * scale_b << "\t" << sigma << "\t" << u.size() << endl;
+			if (kkt < 1e-3)
+				return std::pair<int, int>(k, maxsize);
+
+
+			//cout << "sig:"<<sigma << endl;
+			//cout << rd << "\t" << rp << endl;
+
 		}
-		//cout << "cgend\n";
-		//cg end
 
- 		//cout << "res:" << (rhs - test).norm() << endl;
-
-
-
-		x = res;
-		double y_norm, kkt_u;
-		y_norm = kkt_u = 0;
-		Eigen::VectorXd atu = Eigen::VectorXd::Zero(var_num);
-		m_all_in_all(24,n, u, x, b, atu, kkt_u, y_norm, sigma, tau, scale_a);
-		Eigen::VectorXd z = prox_p(x + v / sigma, sigma);
-		v += sigma *tau* (x - z);
-
-		double kkt_x = (atu + v).norm() / (1 + v.norm());
-		double true_ku = scale_b * sqrt(kkt_u) / (1 + scale_b * sqrt(y_norm));
-		kkt_u = sqrt(kkt_u) / (1 + sqrt(y_norm));
-		double kkt_v = (x - z).norm() / (1 + z.norm());
-
-		//cout << "allinall\n";
-		if (std::fmax(kkt_u, kkt_v) > kkt_x) {
-			dual_win++;
-		}
-		else {
-			prim_win++;
-		}
-		if ((k + 1) % itertime(k) == 0) {
-			if (prim_win > dual_win * 1.2 && prim_win > 1) {
-				prim_win = 0;
-				sigma /= 3;
-			}
-			else if (dual_win > prim_win * 1.2 && dual_win > 1) {
-				dual_win = 0;
-				sigma *= 3;
-			}
-		}
-		kkt_x = scale_a * scale_a * (atu + v).norm() / (1 + scale_a * scale_a * v.norm());
-
-		kkt_v = scale_b / scale_a * (x - z).norm() / (1 + scale_b / scale_a * z.norm());
-
-
-		double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
-		maxsize = fmax(maxsize, u.size());
-		cout << k << "\t" << kkt << "\t"<<func_p(x)*scale_b<<"\t"<< sigma<<"\t"<<u.size()<<endl;
-		if (kkt < 1e-3)
-			return std::pair<int,int>(k,maxsize);
-
-
-		//cout << "sig:"<<sigma << endl;
-		//cout << rd << "\t" << rp << endl;
-			
 	}
-
-
 
 
 }
