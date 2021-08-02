@@ -65,9 +65,9 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 
 	vector<thread>tv;
 	mutex mu[3];
-	int cnum[3] = {0,0,0};
+
 	for (int i = 0; i < pnum; i++) {
-		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,trip,mu,cnum));
+		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,trip,mu));
 		if (i != pnum - 1) {
 			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1)));
 		}
@@ -825,10 +825,12 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 	std::vector<int64_t>cons;
 	std::set<int64_t>viscons;
-
+	double c_t=0;
 	std::map<int, int>colidx;
 	int old_size = viscons.size();
 	while (true) {
+		auto c_start = std::chrono::high_resolution_clock::now();
+
 		if (false) {
 
 
@@ -918,6 +920,14 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 		std::cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
 		sigma = 1;
 		std::cout << "total num of variables:" << var_num << " num of current variables:" << colidx.size() << endl;
+
+		auto c_end = std::chrono::high_resolution_clock::now();
+		auto c_eld = std::chrono::duration_cast<std::chrono::nanoseconds>(c_end - c_start);
+		c_t += double(c_eld.count()) * 1.0 * 1e-9;
+
+
+
+
 
 		double	primal_win = 0;
 		double dual_win = 0;
@@ -1148,7 +1158,8 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
-	std::cout << "time is:" << tm << endl;
+	std::cout << "total time is:" << tm << endl;
+	std::cout << "cons generate time is:" << c_t << endl;
 }
 
 void norm_ori::run_dense() {

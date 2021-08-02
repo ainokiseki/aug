@@ -39,11 +39,7 @@ void func_eigen_rhs_aj1::operator()(double axbu, int* idx, int time, int64_t ind
 func_eigen_rhs_aj1_diag::func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1,Eigen::VectorXd*diag, std::vector<Eigen::Triplet<double> >* triv) :rhs(rhs), aj1(aj1),diag(diag),triv(triv)
 {
 }
-func_eigen_rhs_aj1_diag::func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1, Eigen::VectorXd* diag, std::vector<Eigen::Triplet<double>>* triv, std::mutex* muu, int* num) : rhs(rhs), aj1(aj1), diag(diag), triv(triv)
-{
-	mu = muu;
-	cnum = num;
-}
+
 func_eigen_rhs_aj1_diag::func_eigen_rhs_aj1_diag(Eigen::VectorXd* rhs, std::vector<int64_t>* aj1, Eigen::VectorXd* diag, std::vector<Eigen::Triplet<double> >* triv, std::mutex* muu) : rhs(rhs), aj1(aj1), diag(diag), triv(triv)
 {
 	mu = muu;
@@ -57,7 +53,7 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 
 	if (axbu > 0) {
 		(mu + 1)->lock();
-		(*cnum)++;
+
 
 		for (int i = 0; i < 3; i++) {
 			if (i == time)continue;
@@ -68,7 +64,7 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 		(mu + 1)->unlock();
 
 		(mu + 2)->lock();
-		cnum[1]++;
+
 
 		(*diag)[idx[0]] += 1;
 		(*diag)[idx[1]] += 1;
@@ -83,7 +79,7 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 		//ms[2] = int(std::fmin(idx[1], idx[2]));
 
 		mu->lock();
-		cnum[2]++;
+
 		if (time == 0) {
 
 			//triv->push_back(Eigen::Triplet<double>(ms[0], ml[0], -1.0));
