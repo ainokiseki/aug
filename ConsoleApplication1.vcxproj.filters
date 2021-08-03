@@ -44,6 +44,9 @@
     <ClInclude Include="cgdiag.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mytime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="e.cpp">
@@ -68,6 +71,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dk.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mytime.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

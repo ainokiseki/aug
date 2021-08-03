@@ -1,6 +1,7 @@
-
+#include"mytime.h"
 #include"norm_class.h"
 #include<iomanip>
+
 
 void m_calc_atu(int pnum, Eigen::VectorXd* atu, int n, au_eigen au) {
 	int var_num = atu->size();
@@ -982,6 +983,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 			bool flaga = true;
 			int iter_1;
+			timer time1,time2,time3,time4;
 			for (iter_1 = 0; iter_1 < sub_iter; iter_1++) {
 
 
@@ -990,11 +992,12 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 				rhs = Eigen::VectorXd::Zero(sub_var);
 				vector<int64_t>aj1;
 				
-
+					time1.tic();
 				Eigen::SparseMatrix<double>ata(sub_var, sub_var);
 				{
 					Eigen::VectorXd diag = Eigen::VectorXd::Zero(sub_var);
 					std::vector<Eigen::Triplet<double> >test_v;
+
 					if (!flaga) {
 						if (mthread == 0) {
 							axbu->set_function(new func_eigen_rhs_aj1(&rhs, &aj1));
@@ -1023,7 +1026,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 					ata += diag.asDiagonal();
 				}
-
+				time1.toc();
 				//for (auto i : aj1) {
 				//	int ci, cj, ck;
 				//	ck = i % n;
@@ -1077,8 +1080,9 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 				//	direction= get_direction(sigma, rhs, &aj1);
 				//}
 				int cgnum;
+				time2.tic();
 				direction = get_direction(&ata, rhs,0,cst,cgnum);
-
+				time2.toc();
 
 				//Eigen::VectorXd direction = get_direction(rhs);
 				//std::cout << "di:" << direction.norm() << endl;
@@ -1086,8 +1090,9 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 				//for (int i = 0; i < var_num; i++)
 				//	direction[i] = double(ceil(direction[i] * 1e12)) / 1e12;
 
-
+				time3.tic();
 				double alpha = get_step_length(direction, sigma, cst);
+				time3.toc();
 				//double alpha = 1;
 
 				//std::cout << "alpha=" << alpha << endl;
@@ -1100,10 +1105,11 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 				std::cout << iter_1<<"\t"<<rhs.norm() << "\t" <<(rhs+ata*direction).norm()<<"\t"<<direction.norm()<<"\t"<< alpha << endl;
 			}
 			double rp, rd;
+			time4.tic();
 			double kkt = get_kkt(sigma, rp, rd, &cons,&colidx);
-
-			
-			
+			time4.toc();
+			cout << time1.time() << " " << time2.time() << " " << time3.time()<<" "<<time4.time()  << endl;
+			return;
 
 			prt_res << "==================\n";
 			if (kkt < 1e-4)

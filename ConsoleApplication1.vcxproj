@@ -176,6 +176,7 @@
     </ClInclude>
     <ClInclude Include="tri.h" />
     <ClInclude Include="func_eigen.h" />
+    <ClInclude Include="mytime.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dk.cpp" />
@@ -183,6 +184,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="metric.cpp" />
+    <ClCompile Include="mytime.cpp" />
     <ClCompile Include="norm_class.h" />
     <ClCompile Include="axbu_eigen.cpp" />
     <ClCompile Include="func_eigen.cpp" />
