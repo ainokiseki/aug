@@ -54,7 +54,7 @@ void m_calc_superphi(int pnum, axbu_eigen axbu, double* alpha, Eigen::VectorXd* 
 }
 void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1,Eigen::VectorXd*diag, int n, axbu_eigen axbu, vector<Eigen::Triplet<double> >*trip) {
 
-
+	
 	vector< vector<int64_t>*>maj1(pnum);
 
 	for (int i = 0; i < pnum; i++) {
@@ -62,13 +62,28 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 
 	}
 	//vector<int64_t>* maj1 = new vector<int64_t>[pnum];
+	int var_num = rhs->size();
+	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
+	Eigen::VectorXd* mdiag = new Eigen::VectorXd[pnum];
+	std::vector<std::vector<Eigen::Triplet<double> > > mtrip(pnum);
+	for (int i = 0; i < pnum; i++) {
 
 
+		mrhs[i] = Eigen::VectorXd::Zero(var_num);
+		mdiag[i] = Eigen::VectorXd::Zero(var_num);
+	}
 	vector<thread>tv;
-	mutex mu[3];
+
+
+
+
+
+
+
+	mutex*mu=new mutex[var_num];
 
 	for (int i = 0; i < pnum; i++) {
-		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,trip,mu));
+		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,&(mtrip[i]),mu));
 		if (i != pnum - 1) {
 			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1)));
 		}
@@ -80,15 +95,22 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 	for (int i = 0; i < pnum; i++)
 		tv[i].join();
 
+	for (int i = 0; i < pnum; i++) {
+
+
+
+		trip->insert(trip->end(),mtrip[i].begin(), mtrip[i].end());
+	}
 	//cout << cnum[0]<<" "<<cnum[1]<<" "<<cnum[2] << endl;
 
 	for (int i = 0; i < pnum; i++) {
 		delete maj1[i];
-
+		
 
 	}
-
-
+	delete[] mrhs;
+	delete[] mdiag;
+	delete[] mu;
 }
 void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, int n, axbu_eigen axbu) {
 	int var_num = rhs->size();
@@ -829,6 +851,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 	double c_t=0;
 	std::map<int, int>colidx;
 	int old_size = viscons.size();
+	timer time1, time2, time3, time4;
 	while (true) {
 		auto c_start = std::chrono::high_resolution_clock::now();
 
@@ -983,7 +1006,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 			bool flaga = true;
 			int iter_1;
-			timer time1,time2,time3,time4;
+
 			for (iter_1 = 0; iter_1 < sub_iter; iter_1++) {
 
 
@@ -1108,8 +1131,8 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 			time4.tic();
 			double kkt = get_kkt(sigma, rp, rd, &cons,&colidx);
 			time4.toc();
-			cout << time1.time() << " " << time2.time() << " " << time3.time()<<" "<<time4.time()  << endl;
-			return;
+			
+			
 
 			prt_res << "==================\n";
 			if (kkt < 1e-4)
@@ -1166,6 +1189,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 	double tm = double(eld.count()) * 1.0 * 1e-9;
 	std::cout << "total time is:" << tm << endl;
 	std::cout << "cons generate time is:" << c_t << endl;
+	cout << time1.time() << " " << time2.time() << " " << time3.time() << " " << time4.time() << endl;
 }
 
 void norm_ori::run_dense() {

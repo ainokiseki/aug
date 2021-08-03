@@ -52,24 +52,25 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 {
 
 	if (axbu > 0) {
-		(mu + 1)->lock();
 
 
+		
 		for (int i = 0; i < 3; i++) {
 			if (i == time)continue;
+			mu[idx[i]].lock();
 			(*rhs)(idx[i]) -= axbu;
+			(*diag)[idx[i]] += 1;
+			mu[idx[i]].unlock();
 		}
+		mu[idx[time]].lock();
 		(*rhs)(idx[time]) += axbu;
-
-		(mu + 1)->unlock();
-
-		(mu + 2)->lock();
+		(*diag)[idx[time]] += 1;
+		mu[idx[time]].unlock();
 
 
-		(*diag)[idx[0]] += 1;
-		(*diag)[idx[1]] += 1;
-		(*diag)[idx[2]] += 1;
-		(mu + 2)->unlock();
+
+		
+		
 		//int ml[3],ms[3];
 		//ml[0] = int(std::fmax(idx[0], idx[1]));
 		//ml[1] = int(std::fmax(idx[0], idx[2]));
@@ -78,7 +79,7 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 		//ms[1] = int(std::fmin(idx[0], idx[2]));
 		//ms[2] = int(std::fmin(idx[1], idx[2]));
 
-		mu->lock();
+		
 
 		if (time == 0) {
 
@@ -119,7 +120,7 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 			triv->push_back(Eigen::Triplet<double>(idx[1], idx[2], -1.0));
 			triv->push_back(Eigen::Triplet<double>(idx[2], idx[1], -1.0));
 		}
-		mu->unlock();
+		
 	}
 }
 func_eigen_phi::func_eigen_phi(double alpha, Eigen::VectorXd* direction, double* norm,int debug) :alpha(alpha), direction(direction), norm(norm),debug(debug)
