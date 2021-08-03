@@ -57,15 +57,15 @@ void func_eigen_rhs_aj1_diag::operator()(double axbu, int* idx, int time, int64_
 		
 		for (int i = 0; i < 3; i++) {
 			if (i == time)continue;
-			mu[idx[i]].lock();
+			mu[idx[i]%10000].lock();
 			(*rhs)(idx[i]) -= axbu;
 			(*diag)[idx[i]] += 1;
-			mu[idx[i]].unlock();
+			mu[idx[i]%10000].unlock();
 		}
-		mu[idx[time]].lock();
+		mu[idx[time]%10000].lock();
 		(*rhs)(idx[time]) += axbu;
 		(*diag)[idx[time]] += 1;
-		mu[idx[time]].unlock();
+		mu[idx[time]%10000].unlock();
 
 
 

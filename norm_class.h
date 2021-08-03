@@ -78,7 +78,7 @@ public:
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);
 	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons);
-	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons, std::map<int, int>* colidx);
+	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons, std::unordered_map<int, int>* colidx);
 	double get_step_length(Eigen::VectorXd& direction, double sigma);
 	double get_step_length(Eigen::VectorXd& direction, double sigma, double cst);
 

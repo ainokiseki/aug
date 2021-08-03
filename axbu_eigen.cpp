@@ -1,7 +1,7 @@
 #include "axbu_eigen.h"
 #include<iostream>
 
-axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma, std::vector<int64_t>* cons, std::map<int, int>*colidx) :
+axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma, std::vector<int64_t>* cons, std::unordered_map<int, int>*colidx) :
 	n(n), x(x), b(b), u(u), sigma(sigma),f(NULL),cons(cons),colidx(colidx)
 {
 }
@@ -76,7 +76,7 @@ void axbu_eigen::set_function(func_eigen* func) {
 	f = func;
 }
 
-au_eigen::au_eigen(int n, std::map<int64_t, double>* u, Eigen::VectorXd v, Eigen::VectorXd w, std::vector<int64_t>* cons, std::map<int, int>* colidx) :n(n), u(u), v(v),w(w),cons(cons),colidx(colidx)
+au_eigen::au_eigen(int n, std::map<int64_t, double>* u, Eigen::VectorXd v, Eigen::VectorXd w, std::vector<int64_t>* cons, std::unordered_map<int, int>* colidx) :n(n), u(u), v(v),w(w),cons(cons),colidx(colidx)
 {
 	int var_num = n * (n - 1) / 2;
 }

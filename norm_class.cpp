@@ -66,12 +66,7 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
 	Eigen::VectorXd* mdiag = new Eigen::VectorXd[pnum];
 	std::vector<std::vector<Eigen::Triplet<double> > > mtrip(pnum);
-	for (int i = 0; i < pnum; i++) {
 
-
-		mrhs[i] = Eigen::VectorXd::Zero(var_num);
-		mdiag[i] = Eigen::VectorXd::Zero(var_num);
-	}
 	vector<thread>tv;
 
 
@@ -80,7 +75,7 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 
 
 
-	mutex*mu=new mutex[var_num];
+	mutex*mu=new mutex[10000];
 
 	for (int i = 0; i < pnum; i++) {
 		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,&(mtrip[i]),mu));
@@ -108,8 +103,7 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 		
 
 	}
-	delete[] mrhs;
-	delete[] mdiag;
+
 	delete[] mu;
 }
 void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, int n, axbu_eigen axbu) {
@@ -418,7 +412,7 @@ double norm_ori::get_kkt(double sigma) {
 
 
 }
-double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*cons,std::map<int,int>*colidx) {
+double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*cons,std::unordered_map<int,int>*colidx) {
 
 	double y_norm = 0;
 	double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
@@ -789,7 +783,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 	return direction;
 }
 
-void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu,std::map<int,int>&colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
+void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu,std::unordered_map<int,int>&colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
 
 	for (int i = start; i < end; i++) {
 		int64_t index;
@@ -849,7 +843,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 	std::vector<int64_t>cons;
 	std::set<int64_t>viscons;
 	double c_t=0;
-	std::map<int, int>colidx;
+	std::unordered_map<int, int>colidx;
 	int old_size = viscons.size();
 	timer time1, time2, time3, time4;
 	while (true) {

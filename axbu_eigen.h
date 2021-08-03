@@ -1,12 +1,13 @@
 #pragma once
 #include<Eigen/Dense>
 #include<map>
+#include<unordered_map>
 #include"func_eigen.h"
 //#include"cg_inf.h"
 class axbu_eigen
 {
 public:
-	axbu_eigen(int n,Eigen::VectorXd*x, Eigen::VectorXd* b, std::map<int64_t,double>*u ,double sigma, std::vector<int64_t>* cons=NULL, std::map<int, int>*colidx=NULL);
+	axbu_eigen(int n,Eigen::VectorXd*x, Eigen::VectorXd* b, std::map<int64_t,double>*u ,double sigma, std::vector<int64_t>* cons=NULL, std::unordered_map<int, int>*colidx=NULL);
 	~axbu_eigen();
 	void operator()(int init=0, int end=-1);
 
@@ -20,14 +21,14 @@ public:
 	Eigen::VectorXd* b;
 	std::map<int64_t, double>* u;
 	double sigma;
-	std::map<int, int>*colidx;
+	std::unordered_map<int, int>*colidx;
 	func_eigen* f;
 	std::vector<int64_t>* cons;
 };
 class au_eigen
 {
 public:
-	au_eigen(int, std::map<int64_t, double>*, Eigen::VectorXd ,Eigen::VectorXd, std::vector<int64_t>* cons = NULL, std::map<int, int>* colidx = NULL);
+	au_eigen(int, std::map<int64_t, double>*, Eigen::VectorXd ,Eigen::VectorXd, std::vector<int64_t>* cons = NULL, std::unordered_map<int, int>* colidx = NULL);
 	~au_eigen();
 	void operator()(Eigen::VectorXd* au, int init, int end);
 	//double operator()(int init=0,int end=-1);
@@ -37,7 +38,7 @@ public:
 	Eigen::VectorXd v;
 	Eigen::VectorXd w;
 	std::vector<int64_t>* cons;
-	std::map<int, int>* colidx;
+	std::unordered_map<int, int>* colidx;
 };
 
 
