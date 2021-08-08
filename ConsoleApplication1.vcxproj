@@ -147,7 +147,7 @@
       <ConformanceMode>false</ConformanceMode>
       <Optimization>MaxSpeed</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>E:\code\eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\eigen_test\eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Strict</FloatingPointModel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
