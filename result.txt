@@ -1,1 +1,1 @@
-tau:1.618 sigma:0.001 scale_b:1 scale_c:9 itertime:0 memory:2217822
+tau:1.618 sigma:0.001 scale_b:1 scale_c:9 itertime:0 memory:181263

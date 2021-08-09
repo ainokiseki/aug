@@ -622,8 +622,8 @@ std::pair<int,int> admm_basic::run(double tau,double sigma,double scale_b,double
 			//cout << "res:" << (rhs - test).norm() << endl;
 
 
-			double ita = std::fmin(0.5, 0.1 * rhs.norm());
-			cg.setTolerance(ita / rhs.norm());
+			//double ita = std::fmin(0.5, 0.1 * rhs.norm());
+			//cg.setTolerance(ita / rhs.norm());
 
 			x = cg.solve(rhs);
 			
@@ -664,8 +664,8 @@ std::pair<int,int> admm_basic::run(double tau,double sigma,double scale_b,double
 
 			double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
 			maxsize = fmax(maxsize, u.size());
-			cout << k << "\t" << kkt << "\t" << func_p(x) * scale_b << "\t" << sigma << "\t" << u.size() << endl;
-			if (kkt < 1e-3) {
+			cout << k << "\t" << kkt << "\t" << func_p(x) * scale_b*3 << "\t" << sigma << "\t" << u.size() << endl;
+			if (kkt < 1e-4) {
 
 
 				finalres = std::pair<int, int>(k, maxsize);
