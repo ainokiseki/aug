@@ -28,19 +28,47 @@ class norm_basic:public metric
 public:
 	norm_basic(string graph_name);
 	~norm_basic();
-	virtual inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma)=0;
-	virtual Eigen::VectorXd get_direction(double sigma,Eigen::VectorXd rhs,vector<int64_t>*aj1)=0;
+	virtual Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma)=0;
+
+
+
+
+
+	virtual void plus_aj2(Eigen::SparseMatrix<double>& ata,double sigma)=0;
+
+	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, int ld, double cst, int& cgnum);
+
+	//Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, int ld, double cst);
+
+	//Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag, int ld, double cst);
+
+	void run(double cst_const, int con_const, int sub_iter);
+
+	//void run(double cst_const=1e-3, int con_const=10);
+
 	virtual double func_p(Eigen::VectorXd x)=0;
 	double get_kkt(double sigma);
-	double get_step_length(Eigen::VectorXd& direction, double sigma);;
-	void run();
+	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons);
+	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons, std::unordered_map<int, int>* colidx);
+	double get_step_length(Eigen::VectorXd& direction, double sigma);
+	double get_step_length(Eigen::VectorXd& direction, double sigma, double cst);
 
-
-
-
-	Eigen::VectorXd rhs;
+	Eigen::VectorXd get_direction_hand(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1, Eigen::VectorXd* diag);
+	//void run();
+	void run_dense();
+	double time_record = 0;
+	double cst = 0;
+	int iter_all = 0;
+	double sigma = 1;
+	int mthread = 12;
+	ofstream prt_res;
+	Eigen::VectorXd rhs, x0;
 	map<int64_t, double>u;
 	axbu_eigen* axbu;
+	Eigen::VectorXd sub_x;
+	Eigen::VectorXd sub_b;
+	Eigen::VectorXd sub_w;
+	Eigen::VectorXd sub_v;
 };
 class norm_ori :public metric
 {
@@ -105,9 +133,9 @@ class norm_1:public norm_basic
 public:
 	norm_1(string graph_name);
 	~norm_1();
-	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1);
+	void plus_aj2(Eigen::SparseMatrix<double>& ata,double sigma);
 	double func_p(Eigen::VectorXd x);
-	inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma);
+	Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma);
 private:
 
 };
