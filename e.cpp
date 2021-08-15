@@ -65,14 +65,25 @@ int main() {
 		cin >> cons;
 		cout << "plz input maxium steps of subiteration:";
 		cin >> sub_iter;
-		norm_1 s2(s);
+		norm_ori s2(s);
 		s2.run(cst, cons,sub_iter);
+
+		dk s3(s);
+		s3.run_test(1e-4);
+
 	//}
-	cin >> s;
+	//cin >> s;
 
 	//cin >> s;
-	//dk s2("graph1k.txt");
-	//s2.run_test(1e-5);
+	// 
+	// 
+	// 
+	//dk s2(s);
+	//s2.run_test(1e-3);
+	// 
+	// 
+	// 
+	// 
 	// 
 	// 
 	//string dataname;

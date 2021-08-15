@@ -11,6 +11,7 @@ public:
 	~dk();
 	void triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction);
 	void biloop();
+	void multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction, int te);
 	void multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction);
 
 
@@ -52,3 +53,13 @@ public:
 	std::mutex mut;
 };
 
+class dk_mutex :public dk_triloop
+{
+public:
+	dk_mutex(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::map<int64_t, double>* c1, std::map<int64_t, double>* c2);
+	~dk_mutex();
+	void operator()(int istart, int iend);
+	std::mutex* mute;
+
+
+};

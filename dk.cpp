@@ -101,11 +101,29 @@ void dk::biloop()
 		}
 	}
 }
+void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction,int te) {
+	int pnum = 32;
+
+	dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b, correction, next_correction);
+	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
+	vector<thread>v;
+	for (int i = 0; i < pnum; i++) {
+
+		v.push_back(thread(std::ref(dkloop), n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
+
+
+	}
+	for (int i = 0; i < pnum; i++) {
+		v[i].join();
+	}
+}
+
 void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction) {
 	int threadnum = 24;
 	int block = 10;
 	int blocknum = (n-1) / block+1;
 	dk_triloop dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
+	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
 	vector<thread>v;
 	for (int t = 0; t < blocknum; t++) {
 		//Æ½¾ù·ÖÅäblock
@@ -207,7 +225,7 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 }
 
 
-int dk::run_test(double threshod=1e-5)
+int dk::run_test(double threshod=1e-3)
 {
 	init();
 	auto i_start = std::chrono::high_resolution_clock::now();
@@ -224,7 +242,7 @@ int dk::run_test(double threshod=1e-5)
 	for (k = 0; k < 10000; k++) {
 		kkt_2 = kkt_1 = 0.0;
 		//triloop(c1,c2);
-		multi_triloop(c1, c2);
+		multi_triloop(c1, c2,0);
 		biloop();
 		c1->clear();
 		std::swap(c1, c2);
@@ -240,7 +258,7 @@ int dk::run_test(double threshod=1e-5)
 			double kkt_1 = 0;
 			double kkt_2 = 0;
 			vector<thread>v;
-			int pnum = 8;
+			int pnum = 32;
 
 
 			double* mphi = new double[pnum];
@@ -644,4 +662,102 @@ void dk_triloop::operator()(int istart, int iend, int kstart, int blocksize)
 			}
 		}
 	}
+}
+
+dk_mutex::dk_mutex(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::map<int64_t, double>* c1, std::map<int64_t, double>* c2):dk_triloop(n,y,m,inv_w,mat_b,c1,c2)
+{
+	mute = new std::mutex[n*n];
+}
+
+dk_mutex::~dk_mutex()
+{
+	delete[] mute;
+}
+
+void dk_mutex::operator()(int istart, int iend)
+{
+
+		for (int i = istart; i <iend; i++) {
+
+
+			for (int j = i + 1; j < n;j++) {
+				std::vector<std::pair<int64_t, double>>tv;
+				for (int k = j + 1; k < n;k++) {
+
+					double fm = (*inv_w)(i, j) + (*inv_w)(i, k) + (*inv_w)(j, k);
+					double mu;
+					int64_t ijk;
+					ijk = static_cast<int64_t>(i) * n * n + j * n + k;
+					
+
+					std::map<int64_t,double>::iterator flg = correction->find(ijk);
+
+					mute[i * n + j].lock();
+					mute[i * n + k].lock();
+					mute[j * n + k].lock();
+					if (flg!=correction->end()) {
+						(*y)(i, j) += flg->second * (*inv_w)(i, j) / fm;
+						(*y)(i, k) -= flg->second * (*inv_w)(i, k) / fm;
+						(*y)(j, k) -= flg->second * (*inv_w)(j, k) / fm;
+					}
+					mu = (*y)(i, j) + (*mat_b)(i, j) - ((*y)(i, k) + (*mat_b)(i, k)) - ((*y)(j, k) + (*mat_b)(j, k));
+					if (mu > 0) {
+						(*y)(i, j) -= mu * (*inv_w)(i, j) / fm;
+						(*y)(i, k) += mu * (*inv_w)(i, k) / fm;
+						(*y)(j, k) += mu * (*inv_w)(j, k) / fm;
+						tv.push_back(std::pair<int64_t, double>(ijk, mu));
+
+					}
+
+
+
+					ijk = static_cast<int64_t>(i) * n * n + k * n + j;
+
+					flg = correction->find(ijk);
+
+					if (flg!=correction->end()) {
+						(*y)(i, k) += flg->second * (*inv_w)(i, k) / fm;
+						(*y)(i, j) -= flg->second * (*inv_w)(i, j) / fm;
+						(*y)(j, k) -= flg->second * (*inv_w)(j, k) / fm;
+					}
+					mu = (*y)(i, k) + (*mat_b)(i, k) - ((*y)(i, j) + (*mat_b)(i, j)) - ((*y)(j, k) + (*mat_b)(j, k));
+					if (mu > 0) {
+						(*y)(i, k) -= mu * (*inv_w)(i, k) / fm;
+						(*y)(i, j) += mu * (*inv_w)(i, j) / fm;
+						(*y)(j, k) += mu * (*inv_w)(j, k) / fm;
+						tv.push_back(std::pair<int64_t, double>(ijk, mu));
+
+
+					}
+					ijk = static_cast<int64_t>(j) * n * n + i * n + k;
+
+					flg = correction->find(ijk);
+
+					if (flg!=correction->end()) {
+						(*y)(j, k) += flg->second * (*inv_w)(j, k) / fm;
+						(*y)(i, k) -= flg->second * (*inv_w)(i, k) / fm;
+						(*y)(i, j) -= flg->second * (*inv_w)(i, j) / fm;
+					}
+					mu = (*y)(j, k) + (*mat_b)(j, k) - ((*y)(i, k) + (*mat_b)(i, k)) - ((*y)(i, j) + (*mat_b)(i, j));
+					if (mu > 0) {
+						(*y)(j, k) -= mu * (*inv_w)(j, k) / fm;
+						(*y)(i, k) += mu * (*inv_w)(i, k) / fm;
+						(*y)(i, j) += mu * (*inv_w)(i, j) / fm;
+						tv.push_back(std::pair<int64_t, double>(ijk, mu));
+
+
+					}
+					mute[i * n + j].unlock();
+					mute[i * n + k].unlock();
+					mute[j * n + k].unlock();
+				}
+
+				mut.lock();
+				for (int index = 0; index < tv.size(); index++) {
+					next_correction->insert(tv[index]);
+				}
+				mut.unlock();
+			}
+		}
+	
 }
