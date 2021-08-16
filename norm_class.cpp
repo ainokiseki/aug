@@ -1517,7 +1517,25 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 		}
 	}
 
-	std::cout << "func_value:" << std::setprecision(8)<< func_p(x,w) << endl;
+	double dobj = 0;
+	for (auto iter = u.begin(); iter != u.end(); iter++) {
+		int64_t longindex = iter->first;
+		int i, j, k;
+		k = longindex % n;
+		j = longindex / n;
+		i = j / n;
+		j = j % n;
+		int idx[3];
+		idx[0] = ij(i, j, n);
+		idx[1] = ij(i, k, n);
+		idx[2] = ij(j, k, n);
+		dobj += iter->second * (b[idx[0]]-b[idx[1]]-b[idx[2]]);
+
+
+	}
+
+
+	std::cout << "func_value:" << std::setprecision(8)<< func_p(x,w) <<"\t"<<dobj << endl;
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
