@@ -525,7 +525,7 @@ void norm_basic::run(double cst_const, int con_const, int sub_iter) {
 
 				//std::cout << "r1:" << rhs.norm() << endl;
 
-				rhs = sigma * rhs + sigma * pi_c(sub_w.cwiseProduct(sub_x) + sub_v / sigma, sigma) + cst * (sub_x - x0);
+				rhs = sigma * rhs + sigma * pi_c(sub_w.cwiseProduct(sub_x) + sub_v / sigma, sigma).cwiseProduct(sub_w) + cst * (sub_x - x0);
 
 				prt_res << iter_1 << "  " << rhs.norm() << "  ";
 
@@ -1930,7 +1930,7 @@ norm_1::~norm_1()
 
 void norm_1::plus_aj2(Eigen::SparseMatrix<double>& ata,double sigma)
 {
-	Eigen::VectorXd aj2=sigma * ((sub_w.cwiseProduct(sub_x) + sub_v / sigma).cwiseAbs().array() < 1 / sigma).matrix().cast<double>();
+	Eigen::VectorXd aj2=sigma * (((sub_w.cwiseProduct(sub_x) + sub_v / sigma).cwiseAbs().array() < 1 / sigma).matrix().cast<double>());
 	aj2=aj2.cwiseProduct(sub_w.cwiseProduct(sub_w));
 	ata += aj2.asDiagonal();
 }
@@ -2313,7 +2313,7 @@ double norm_basic::get_step_length(Eigen::VectorXd& direction, double sigma){
 
 	//std::cout << nrhs.norm() << endl;
 	nrhs = sigma * nrhs;
-	nrhs += sigma * sigma * pi_c(sub_w.cwiseProduct(sub_x) + sub_v / sigma, sigma) + cst * (sub_x - x0);
+	nrhs += sigma * pi_c(sub_w.cwiseProduct(sub_x) + sub_v / sigma, sigma).cwiseProduct(sub_w) + cst * (sub_x - x0);
 
 	if (nrhs.dot(direction) < 0) {
 		//std::cout << "green\n";
@@ -2393,11 +2393,11 @@ double norm_basic::get_kkt(double sigma, double& rp, double& rd, std::vector<int
 	Eigen::VectorXd atu = Eigen::VectorXd::Zero(sub_x.size());
 	m_calc_atu(mthread, &atu, n, au);
 	//kkt_x = au_eigen(n, &u, v, tmp1,cons)();
-	kkt_x = (atu + sub_v).norm() / (1 + sub_v.norm());
+	kkt_x = (atu + sub_w.cwiseProduct(sub_v)).norm() / (1 + sub_w.norm()*sub_v.norm());
 	//kkt_x = kkt_x / (1 + v.norm());
 
 	//std::cout << "z_norm" << z.norm() << endl;
-	kkt_v = (sub_w.cwiseProduct(sub_x) - z).norm() / (1 + sub_x.norm());
+	kkt_v = (sub_w.cwiseProduct(sub_x) - z).norm() / (1 + sub_w.norm()*sub_x.norm());
 	kkt_z = (sub_v - pi_c(z + sub_v, 1.0)).norm() / (1 + z.norm());
 	//for (int i = 0; i < var_num; i++)
 	//    t_res += abs(x[i] * w[i]);

@@ -69,8 +69,8 @@ int main() {
 		//norm_ori s2(s);
 		//s2.run(cst, cons,sub_iter);
 
-		norm_ori s3(s);
-		s3.run(0.001,0,30);
+		norm_1 s3(s);
+		s3.run(0.01,0,30);
 
 	//}
 	//cin >> s;

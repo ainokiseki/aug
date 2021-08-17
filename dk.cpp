@@ -118,7 +118,7 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 	}
 }
 void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction, std::vector<int64_t>* cons) {
-	int pnum = 12;
+	int pnum = 32;
 
 	dk_mutex_cg dkloop(n, &y, &m, &inv_w, &mat_b, correction, next_correction,cons);
 	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
@@ -192,7 +192,67 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 
 	}
 }
+void get_kkt_cg(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, double* kkt_1, double* kkt_2, dk* th,std::vector<int64_t>*cons, int start = 0, int end = -1) {
+	if (end < 0)end = cons->size();
+	int n = th->n;
+	for (int ist = start; ist < end; ist++) {
 
+
+
+
+		int64_t longindex, ijk;
+		longindex = (*cons)[ist];
+		int ii, jj, kk;
+		kk = longindex % n;
+		jj = longindex / n;
+		ii = jj / n;
+		jj = jj % n;
+		ijk = static_cast<int64_t>(ii) * th->n * th->n + jj * th->n + kk;
+		double ty;
+		double fm = th->inv_w(ii, jj) + th->inv_w(ii, kk) + th->inv_w(jj, kk);
+		double mu = th->y(ii, jj) + th->mat_b(ii, jj) - (th->y(ii, kk) + th->mat_b(ii, kk)) - (th->y(jj, kk) + th->mat_b(jj, kk));
+
+		if (c1->find(ijk) == c1->end()) {
+			ty = 0;
+		}
+		else {
+			ty = (*c1)[ijk] / (fm * th->gam);
+		}
+		if (mu + ty > 0) {
+			(*kkt_1) += mu * mu;
+		}
+		(*kkt_2) += mu * mu;
+
+		ijk = static_cast<int64_t>(ii) * th->n * th->n + kk * th->n + jj;
+		mu = th->y(ii, kk) + th->mat_b(ii, kk) - (th->y(ii, jj) + th->mat_b(ii, jj)) - (th->y(jj, kk) + th->mat_b(jj, kk));
+		if (c1->find(ijk) == c1->end()) {
+			ty = 0;
+		}
+		else {
+			ty = (*c1)[ijk] / (fm * th->gam);
+		}
+		if (mu + ty > 0) {
+			(*kkt_1) += mu * mu;
+		}
+		(*kkt_2) += mu * mu;
+
+		ijk = static_cast<int64_t>(jj) * th->n * th->n + kk * th->n + ii;
+		mu = th->y(jj, kk) + th->mat_b(jj, kk) - (th->y(ii, kk) + th->mat_b(ii, kk)) - (th->y(ii, jj) + th->mat_b(ii, jj));
+		if (c1->find(ijk) == c1->end()) {
+			ty = 0;
+		}
+		else {
+			ty = (*c1)[ijk] / (fm * th->gam);
+		}
+		if (mu + ty > 0) {
+			(*kkt_1) += mu * mu;
+		}
+		(*kkt_2) += mu * mu;
+
+	}
+	
+
+}
 void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, double* kkt_1,double* kkt_2, dk* th ,int start = 0,int end=-1) {
 	if (end < 0)end = th->n;
 	for (int ii = start; ii < end; ii++) {
@@ -269,10 +329,11 @@ int dk::run_cg(double threshod = 1e-3)
 				for (int k = j + 1; k < n; k++) {
 
 					index = static_cast<int64_t>(i) * n * n + j * n + k;
-
-					if (y(i, j) + mat_b(i, j) - (y(i, k) + mat_b(i, k)) - (y(j, k) + mat_b(j, k)) > 1e-4 ||
-						y(j, k) + mat_b(j, k) - (y(i, k) + mat_b(i, k)) - (y(i, j) + mat_b(i, j)) >1e-4||
-						y(i, j) + mat_b(i, j) - (y(i, k) + mat_b(i, k)) - (y(j, k) + mat_b(j, k)) > 1e-4) {
+					if (viscons.find(index) != viscons.end())
+						continue;
+					if (y(i, j) + mat_b(i, j) - (y(i, k) + mat_b(i, k)) - (y(j, k) + mat_b(j, k)) > 1e-3 ||
+						y(j, k) + mat_b(j, k) - (y(i, k) + mat_b(i, k)) - (y(i, j) + mat_b(i, j)) >1e-3||
+						y(i, k) + mat_b(i, k) - (y(i, j) + mat_b(i, j)) - (y(j, k) + mat_b(j, k))>1e-3) {
 
 						if (viscons.find(index) == viscons.end()) {
 							cons.push_back(index);
@@ -283,8 +344,8 @@ int dk::run_cg(double threshod = 1e-3)
 				}
 			}
 		}
-		if (viscons.size() < 10 * var_num/3) {
-			for (int i = 0; i < n && viscons.size() < 10 * var_num / 3; i++) {
+		if (viscons.size() < 1000 * var_num/3) {
+			for (int i = 0; i < n && viscons.size() < 1000 * var_num / 3; i++) {
 				int64_t index;
 				for (int j = i + 1; j < n; j++) {
 					for (int k = j + 1; k < n; k++) {
@@ -307,9 +368,10 @@ int dk::run_cg(double threshod = 1e-3)
 		oldsize = viscons.size();
 		cout << "size:" << viscons.size() << endl;
 		for (k = 0; k < 10000; k++) {
+			cout << "K:" << k << endl;
 			kkt_2 = kkt_1 = 0.0;
 			//triloop(c1,c2);
-			multi_triloop(c1, c2, 0);
+			multi_triloop(c1, c2, &cons);
 			biloop();
 			c1->clear();
 			std::swap(c1, c2);
@@ -335,9 +397,15 @@ int dk::run_cg(double threshod = 1e-3)
 				vector<thread>tv;
 				for (int i = 0; i < pnum; i++) {
 					int a, b;
-					a = n - (int)(cbrt((i + 1) * 1.0 / pnum) * n);
-					b = n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n);
-					tv.push_back(std::thread(get_kkt, c1, c2, mphi + i, mphi2 + i, this, a, b));
+					if (i != pnum - 1) {
+						a = cons.size() / pnum * i;
+						b = cons.size() / pnum * (i + 1);
+					}
+					else {
+						a = cons.size() / pnum * i;
+						b = cons.size();
+					}
+					tv.push_back(std::thread(get_kkt_cg, c1, c2, mphi + i, mphi2 + i, this,&cons, a, b));
 
 				}
 				for (int i = 0; i < pnum; i++)
@@ -1033,9 +1101,9 @@ void dk_mutex::operator()(int istart, int iend)
 		}
 	
 }
-dk_mutex_cg::dk_mutex_cg(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::map<int64_t, double>* c1, std::map<int64_t, double>* c2,std::vector<int64_t>*cons) :dk_mutex(n, y, m, inv_w, mat_b, c1, c2)
+dk_mutex_cg::dk_mutex_cg(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::map<int64_t, double>* c1, std::map<int64_t, double>* c2,std::vector<int64_t>*con) :dk_mutex(n, y, m, inv_w, mat_b, c1, c2)
 {
-	cons = cons;
+	cons = con;
 }
 
 dk_mutex_cg::~dk_mutex_cg()
@@ -1046,7 +1114,7 @@ dk_mutex_cg::~dk_mutex_cg()
 void dk_mutex_cg::operator()(int istart, int iend)
 {
 
-	for (int ist = istart; istart < iend; istart++) {
+	for (int ist = istart; ist < iend; ist++) {
 
 
 
@@ -1104,7 +1172,7 @@ void dk_mutex_cg::operator()(int istart, int iend)
 
 
 		}
-		ijk = static_cast<int64_t>(j) * n * n + i * n + k;
+		ijk = static_cast<int64_t>(j) * n * n + k * n + i;
 
 		flg = correction->find(ijk);
 
