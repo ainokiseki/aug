@@ -147,7 +147,7 @@
       <ConformanceMode>false</ConformanceMode>
       <Optimization>MaxSpeed</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>E:\code\eigen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\code\eigen;C:\gurobi912\win64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Strict</FloatingPointModel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -158,11 +158,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <Profile>true</Profile>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\tools\MATLAB\extern\lib\win64\microsoft;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gurobi_c++mt2019.lib;gurobi_c++mtd2019.lib;gurobi91.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\tools\MATLAB\extern\lib\win64\microsoft;C:\gurobi912\win64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="admm_class.h" />
     <ClInclude Include="cg.h" />
     <ClInclude Include="cg2.h" />
     <ClInclude Include="cg3.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="cg_admm.h" />
     <ClInclude Include="cg_inf.h" />
     <ClInclude Include="dk.h" />
+    <ClInclude Include="gurobi.h" />
     <ClInclude Include="metric.h" />
     <ClInclude Include="axbu_eigen.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
@@ -179,10 +181,12 @@
     <ClInclude Include="mytime.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="admm_class.cpp" />
     <ClCompile Include="dk.cpp" />
     <ClCompile Include="e.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="gurobi.cpp" />
     <ClCompile Include="metric.cpp" />
     <ClCompile Include="mytime.cpp" />
     <ClCompile Include="norm_class.h" />

@@ -2,6 +2,7 @@
 #include"dk.h"
 #include<chrono>
 #include<string>
+#include"gurobi.h"
 //#include"admm_class.h"
 
 
@@ -70,8 +71,16 @@ int main() {
 		//s2.run(cst, cons,sub_iter);
 
 		norm_1 s3(s);
-		s3.run(0.01,0,30);
 
+		int n = s3.n;
+		int var_num = n * (n - 1) / 2;
+		for (int i = 0; i < var_num; i++) {
+			s3.w[i] = 1;
+		}
+		//s3.run(0.001,0,30);
+
+		s3.run(0,0,30);
+		s3.matrix_generate('o');
 	//}
 	//cin >> s;
 

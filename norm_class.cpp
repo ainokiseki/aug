@@ -270,6 +270,33 @@ double norm_basic::get_kkt(double sigma) {
 //
 //}
 
+void norm_basic::plus_aj2(Eigen::SparseMatrix<double>& ata, double sigma)
+{
+	return;
+}
+
+Eigen::VectorXd norm_basic::get_direction(Eigen::SparseMatrix<double>& ata, double sigma, Eigen::VectorXd& rhs)
+{
+	
+		plus_aj2(ata, sigma);
+		//Eigen::VectorXd aj2 = (((sub_x + sub_v / sigma).cwiseAbs() - sub_w / sigma).array() <= 0.0).cast<double>().matrix();
+
+		double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
+
+		ata += (a + cst) * Eigen::VectorXd::Ones(rhs.size()).asDiagonal();
+		//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+
+		//Eigen::PardisoLDLT<SparseMatrix<double> > cg;
+		Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
+		double ita = std::fmin(0.5, 0.1 * rhs.norm());
+		cg.setTolerance(ita / rhs.norm());
+		cg.compute(ata);
+
+		return -cg.solve(rhs);
+
+	
+}
+
 void norm_basic::run(double cst_const, int con_const, int sub_iter) {
 
 
@@ -544,26 +571,10 @@ void norm_basic::run(double cst_const, int con_const, int sub_iter) {
 				int cgnum;
 				time2.tic();
 
-				{
-					plus_aj2(ata,sigma);
-					//Eigen::VectorXd aj2 = (((sub_x + sub_v / sigma).cwiseAbs() - sub_w / sigma).array() <= 0.0).cast<double>().matrix();
 
-					double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
 
-					ata+= (a + cst) * Eigen::VectorXd::Ones(rhs.size()).asDiagonal();
-					//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
 
-					//Eigen::PardisoLDLT<SparseMatrix<double> > cg;
-					Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
-					double ita = std::fmin(0.5, 0.1 * rhs.norm());
-					cg.setTolerance(ita / rhs.norm());
-					cg.compute(ata);
-
-					direction = -cg.solve(rhs);
-					cgnum = cg.iterations();
-				
-				
-				}
+				direction = get_direction(ata,sigma,rhs);
 
 				time2.toc();
 
@@ -600,7 +611,7 @@ void norm_basic::run(double cst_const, int con_const, int sub_iter) {
 			if (kkt < 1e-4)
 				break;
 			//rlim = k * 1e-4;
-			if (iter_1 == 20) {
+			if (iter_1 == sub_iter) {
 				sigma = 1;
 				primal_win = 0;
 				dual_win = 0;
@@ -1164,6 +1175,7 @@ void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd&
 
 
 }
+
 void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 
@@ -1949,32 +1961,16 @@ Eigen::VectorXd norm_1::pi_c(Eigen::VectorXd x, double sigma) {
 
 norm_2::norm_2(string graph_name) :norm_basic(graph_name)
 {
+	for (int i = 0; i < w.size(); i++) {
+		w[i] = sqrt(w[i]);
+	}
 }
 
 norm_2::~norm_2()
 {
 }
 
-Eigen::VectorXd norm_2::get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1) {
 
-	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
-	Eigen::VectorXd wx = w.cwiseProduct(x) + v / sigma;
-	std::cout << "wx::" << wx.norm() << "\t" << 1 / sigma << endl;
-
-	MatrixReplacement2 A(aj1, var_num, a, &wx, &w, sigma);
-
-	Eigen::ConjugateGradient<MatrixReplacement2, Eigen::Lower | Eigen::Upper, Eigen::IdentityPreconditioner> cg;
-	cg.setTolerance(1e-10);
-	cg.compute(A);
-
-
-	Eigen::VectorXd direction = cg.solve(-rhs);
-
-	std::cout << "CG:       #iterations: " << cg.iterations() << ", estimated error: " << cg.error() << std::endl;
-
-
-	return direction;
-}
 
 double norm_2::func_p(Eigen::VectorXd x) {
 	return x.norm();
@@ -1990,6 +1986,41 @@ void norm_2::init() {
 	for (int i = 0; i < var_num; i++)
 		w[i] = sqrt(w[i]);
 	std::cout << w.sum() << endl;
+}
+
+Eigen::VectorXd norm_2::get_direction(Eigen::SparseMatrix<double>& ata, double sigma, Eigen::VectorXd& rhs)
+{
+
+
+	//Eigen::VectorXd aj2 = (((sub_x + sub_v / sigma).cwiseAbs() - sub_w / sigma).array() <= 0.0).cast<double>().matrix();
+	
+	double a = min(pow(rhs.norm(), 1.5) * 0.5, 0.5);
+
+	ata += (a + cst) * Eigen::VectorXd::Ones(rhs.size()).asDiagonal();
+	//std::cout << (*diag)[0] << "\t" << (*diag)[1] << "\t" << (*diag)[2] << endl;
+
+	//Eigen::PardisoLDLT<SparseMatrix<double> > cg;
+	Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
+	double ita = std::fmin(0.5, 0.1 * rhs.norm());
+	cg.setTolerance(ita / rhs.norm());
+	Eigen::VectorXd fx = sub_w.cwiseProduct(sub_w.cwiseProduct(sub_x) + sub_v / sigma);
+	if (fx.norm() < 1 / sigma) {
+		ata+= sigma*sub_w.cwiseProduct(sub_w).asDiagonal();
+		cg.compute(ata);
+		return -cg.solve(rhs);
+	}
+	else {
+
+		ata+= 1/fx.norm()* sub_w.cwiseProduct(sub_w).asDiagonal();
+		cg.compute(ata);
+		Eigen::VectorXd afx = cg.solve(fx);
+		Eigen::VectorXd arhs = -cg.solve(rhs);
+
+		Eigen::VectorXd dir= afx* (fx.dot(arhs)) / (1 - fx.dot(afx) / pow(fx.norm(), 3)) + arhs;
+
+		return dir;
+
+	}
 }
 
 
@@ -2416,3 +2447,5 @@ double norm_basic::get_kkt(double sigma, double& rp, double& rd, std::vector<int
 
 
 }
+
+

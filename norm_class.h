@@ -34,10 +34,10 @@ public:
 
 
 
-	virtual void plus_aj2(Eigen::SparseMatrix<double>& ata,double sigma)=0;
+	virtual void plus_aj2(Eigen::SparseMatrix<double>& ata,double sigma);
 
 	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, int ld, double cst, int& cgnum);
-
+	virtual Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>& ata, double sigma, Eigen::VectorXd&rhs);
 	//Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, int ld, double cst);
 
 	//Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag, int ld, double cst);
@@ -145,10 +145,11 @@ class norm_2 :public norm_basic
 public:
 	norm_2(string graph_name);
 	~norm_2();
-	Eigen::VectorXd get_direction(double sigma, Eigen::VectorXd rhs, vector<int64_t>* aj1);
+
 	double func_p(Eigen::VectorXd x);
 	inline Eigen::VectorXd pi_c(Eigen::VectorXd x, double sigma);
 	void init();
+	Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>& ata, double sigma, Eigen::VectorXd& rhs);
 private:
 
 };

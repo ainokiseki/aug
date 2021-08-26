@@ -19,7 +19,7 @@ public:
 	metric(std::string graph_name);
 	~metric();
 	void init();
-
+	void matrix_generate(char type);
 	string graph_name;
 	int n, var_num;
 	int64_t cons_num;

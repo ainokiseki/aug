@@ -1,6 +1,6 @@
 #include"metric.h"
 
-
+extern inline int64_t ij(int64_t x, int64_t y, int64_t n);
 
 metric::metric(std::string graph_name) :graph_name(graph_name)
 {
@@ -78,4 +78,48 @@ void metric::init()
 
 
 	return;
+}
+
+void metric::matrix_generate(char type)
+{
+
+	int tmp_it = 0;
+	if (type == 'r') {
+
+		std::ofstream matrix("matrix.3", std::ios::out);
+		matrix << n << " " << n << endl;
+		for (int i = 0; i < n; i++)
+		{
+
+			for (int j = 0; j < n; j++, tmp_it++) {
+				if (i == j) {
+					matrix << 0 << " ";
+				}
+				else {
+					matrix << b[ij(i, j, n)] << " ";
+				}
+				//calculate d
+			}
+			matrix << endl;
+		}
+	}
+	else if (type == 'o') {
+		std::ofstream matrix("matrixo.3", std::ios::out);
+		for (int i = 0; i < n; i++)
+		{
+
+			for (int j = 0; j < n; j++, tmp_it++) {
+				if (i == j) {
+					matrix << 0 << " ";
+				}
+				else {
+					matrix << fmax(x[ij(i,j,n)]+b[ij(i, j, n)],0) << " ";
+				}
+				//calculate d
+			}
+			matrix << endl;
+		}
+
+
+	}
 }
