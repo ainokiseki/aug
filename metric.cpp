@@ -119,7 +119,5 @@ void metric::matrix_generate(char type)
 			}
 			matrix << endl;
 		}
-
-
 	}
 }

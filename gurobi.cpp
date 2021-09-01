@@ -55,7 +55,7 @@ gurobi::~gurobi()
 {
 }
 
-void gurobi::run()
+double gurobi::run(int type)
 {
 
 	string pwd("skip");
@@ -74,6 +74,7 @@ void gurobi::run()
 	std::unordered_map<int, int>colidx;
 	int old_size = viscons.size();
 	timer time1, time2, time3, time4;
+	double answer;
 	while (true) {
 		auto c_start = std::chrono::high_resolution_clock::now();
 
@@ -173,14 +174,19 @@ void gurobi::run()
 		auto c_end = std::chrono::high_resolution_clock::now();
 		auto c_eld = std::chrono::duration_cast<std::chrono::nanoseconds>(c_end - c_start);
 		c_t += double(c_eld.count()) * 1.0 * 1e-9;
-
-		n1(viscons, colidx);
+		if (type == 1) {
+			answer= n1(viscons, colidx);
+		}
+		else if (type == 2) {
+			answer= n2(viscons, colidx);
+		}
+		
 
 	}
-
+	return answer;
 }
 
-void gurobi::n1(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx)
+double gurobi::n1(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx)
 {
 
 	GRBEnv env = GRBEnv();
@@ -235,9 +241,10 @@ void gurobi::n1(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx
 
 	delete[] y;
 	delete[] m;
+	return model.get(GRB_DoubleAttr_ObjVal);
 }
 
-void gurobi::n2(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx)
+double gurobi::n2(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx)
 {
 	GRBEnv env = GRBEnv();
 	GRBModel model = GRBModel(env);
@@ -286,5 +293,5 @@ void gurobi::n2(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx
 	}
 
 	delete[] y;
-
+	return model.get(GRB_DoubleAttr_ObjVal);
 }

@@ -6,9 +6,9 @@ class gurobi:public metric
 public:
 	gurobi(string graphname);
 	~gurobi();
-	void run();
-	void n1(std::set<int64_t>&viscons , std::unordered_map<int, int>&colidx);
-	void n2(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx);
+	double run(int type);
+	double n1(std::set<int64_t>&viscons , std::unordered_map<int, int>&colidx);
+	double n2(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx);
 private:
 
 };

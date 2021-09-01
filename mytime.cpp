@@ -18,7 +18,7 @@ void timer::toc()
 	end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
 	tm += double(eld.count()) * 1.0 * 1e-9;
-
+	blink= double(eld.count()) * 1.0 * 1e-9;
 }
 
 double timer::time()

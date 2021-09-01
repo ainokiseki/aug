@@ -22,7 +22,7 @@ public:
 
 	int run_cg(double threshod);
 
-	int run_test(double threshod);
+	double run_test(double threshod);
 
 
 

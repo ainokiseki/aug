@@ -2,7 +2,7 @@
 #include<iomanip>
 dk::dk(string graph_name) :metric(graph_name)
 {
-	gam =5;
+	gam =10;
 }
 dk::dk(string graph_name,double g) : metric(graph_name)
 {
@@ -102,7 +102,7 @@ void dk::biloop()
 	}
 }
 void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction,int te) {
-	int pnum = 8;
+	int pnum = 32;
 
 	dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b, correction, next_correction);
 	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
@@ -272,7 +272,10 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 				if (mu + ty > 0) {
 					(*kkt_1) += mu * mu;
 				}
-				(*kkt_2) += mu * mu;
+				else {
+					(*kkt_1) += ty * ty;
+				}
+				(*kkt_2) += ty * ty;
 
 				ijk = static_cast<int64_t>(ii) * th->n * th->n + kk * th->n + jj;
 				mu = th->y(ii, kk) + th->mat_b(ii, kk) - (th->y(ii, jj) + th->mat_b(ii, jj)) - (th->y(jj, kk) + th->mat_b(jj, kk));
@@ -285,7 +288,10 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 				if (mu + ty > 0) {
 					(*kkt_1) += mu * mu;
 				}
-				(*kkt_2) += mu * mu;
+				else {
+					(*kkt_1) += ty * ty;
+				}
+				(*kkt_2) += ty * ty;
 
 				ijk = static_cast<int64_t>(jj) * th->n * th->n + ii * th->n + kk;
 				mu = th->y(jj, kk) + th->mat_b(jj, kk) - (th->y(ii, kk) + th->mat_b(ii, kk)) - (th->y(ii, jj) + th->mat_b(ii, jj));
@@ -298,7 +304,10 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 				if (mu + ty > 0) {
 					(*kkt_1) += mu * mu;
 				}
-				(*kkt_2) += mu * mu;
+				else {
+					(*kkt_1) += ty * ty;
+				}
+				(*kkt_2) += ty * ty;
 			}
 		}
 	}
@@ -344,7 +353,7 @@ int dk::run_cg(double threshod = 1e-3)
 				}
 			}
 		}
-		if (viscons.size() < 1000 * var_num/3) {
+		if (viscons.size() < 0 * var_num/3) {
 			for (int i = 0; i < n && viscons.size() < 1000 * var_num / 3; i++) {
 				int64_t index;
 				for (int j = i + 1; j < n; j++) {
@@ -552,7 +561,7 @@ int dk::run_cg(double threshod = 1e-3)
 	return k;
 }
 
-int dk::run_test(double threshod=1e-3)
+double dk::run_test(double threshod=1e-3)
 {
 	init();
 	auto i_start = std::chrono::high_resolution_clock::now();
@@ -730,8 +739,13 @@ int dk::run_test(double threshod=1e-3)
 		j = j % n;
 
 		dobj += iter->second * (mat_b(i, j) - mat_b(i, k) - mat_b(j, k));
-
-
+	}
+	int ct = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++) {
+			x[ct] = y(i, j);
+			ct++;
+		}
 	}
 	std::cout << "final res:" << trueobj / (2 * gam) + pobj << "k1:" << kkt_1 << "k2:" << kkt_2 << std::endl;
 	std::cout << "gam:" << gam << "\tobj:"<< lastobj << "\tdobj:"<<dobj<<endl;
@@ -739,7 +753,9 @@ int dk::run_test(double threshod=1e-3)
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
 	cout << "time is:" << tm << endl;
-	return k;
+	
+
+	return lastobj;
 }
 void dk::run()
 {

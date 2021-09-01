@@ -3,9 +3,41 @@
 #include<chrono>
 #include<string>
 #include"gurobi.h"
+#include"admm_class.h"
+#include"mytime.h"
 //#include"admm_class.h"
+typedef std::pair<double, double> pdd;
+typedef std::pair<pdd, pdd>ppdd;
+std::pair<double,double> test(Eigen::VectorXd mat,int n) {
 
+	double dist = 0;
+	double maxdist = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++) {
+			for (int k = j + 1; k < n; k++) {
 
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
+
+				double res2;
+				res2 = mat[idx[0]] - mat[idx[1]] - mat[idx[2]];
+				dist += fmax(0, res2);
+				maxdist = fmax(maxdist, res2);
+				res2 = mat[idx[1]] - mat[idx[0]] - mat[idx[2]];
+				dist += fmax(0, res2);
+				maxdist = fmax(maxdist, res2);
+				res2 = mat[idx[2]] - mat[idx[1]] - mat[idx[0]];
+				dist += fmax(0, res2);
+				maxdist = fmax(maxdist, res2);
+			}
+		}
+	}
+	cout << "sum:" << dist << endl;
+	cout << "max:" << maxdist << endl;
+	return std::pair<double,double>(dist, maxdist);
+}
 int main() {
 
 	//vector<double>vx = { 1,5,20};
@@ -37,8 +69,58 @@ int main() {
 	//s.run_test(1e-2);
 	// 
 	// 
-	string s;
-	cin >> s;
+	vector<string>target = {"graph400.txt"};
+	vector<ppdd>res;
+	timer tm;
+	for (auto i : target) {
+		admm_basic s1(i);
+		admm_basic s2(i);
+
+		double a1, a2, a3;
+		for (int j = 0; j < s1.n * (s1.n - 1) / 2; j++) {
+			s1.w[j]  = 1;
+		}
+
+		tm.tic();
+		a1=s1.run();
+		tm.toc();
+		auto c1 = pdd(a1, tm.blink);
+		auto b1=ppdd(c1,test(s1.x+s1.b,s1.n));
+		
+		
+
+
+		res.push_back(b1);		//res.push_back(b2);		
+
+	}
+	//vector<double>tau = { 1.618,1.9 };
+	//vector<double>sigma = { 1,0.1,0.001 };
+	//vector<double>scale_c = { 1,9 };
+	//for (auto i : tau) {
+	//	for (auto j : sigma) {
+	//		for (auto k : scale_c) {
+
+	//			admm_basic s2("graph500.txt");
+	//			tm.tic();
+	//			double rs=s2.run(i, j, 1, k);
+	//			tm.toc();
+	//			res.push_back(ppdd(pdd(rs, tm.blink), test(s2.x + s2.b, s2.n)));
+	//		}
+	//	}
+	//}
+	//admm_basic s2("graph500.txt");
+
+	//	for (int j = 0; j < s2.n * (s2.n - 1) / 2; j++) {
+	//	s2.w[j] = 1;
+	//}
+
+	//tm.tic();
+	//double tp=s2.run();
+	//tm.toc();
+	//res.push_back(ppdd(pdd(tp, tm.blink), test(s2.x + s2.b, s2.n)));
+	for (auto i : res) {
+		cout << "res:" << i.first.first<<"\t"<<i.first.second<< "\t" << "sum:" << i.second.first << " " << "max:" << i.second.second << endl;
+	}
 	//norm_ori s2(s);
 	//s2.run_dense();
 	//s2.run(0.001, 0, 20);
@@ -70,17 +152,7 @@ int main() {
 		//norm_ori s2(s);
 		//s2.run(cst, cons,sub_iter);
 
-		norm_1 s3(s);
 
-		int n = s3.n;
-		int var_num = n * (n - 1) / 2;
-		for (int i = 0; i < var_num; i++) {
-			s3.w[i] = 1;
-		}
-		//s3.run(0.001,0,30);
-
-		s3.run(0,0,30);
-		s3.matrix_generate('o');
 	//}
 	//cin >> s;
 
