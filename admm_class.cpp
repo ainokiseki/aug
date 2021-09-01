@@ -23,7 +23,7 @@ int itertime(int x) {
 	}
 
 }
-void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, double tau = 1.0, double scale_a = 1.0, int start = 0, int end = -1) {
+void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>colidx, double tau = 1.0, double scale_a = 1.0, int start = 0, int end = -1) {
 	auto square = [](double x) {return x * x; };
 	std::vector<std::pair<int64_t, double> >ins;
 	std::vector<std::map<int64_t, double>::iterator>del;
@@ -38,9 +38,9 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 		j = j % n;
 
 		int idx[3];
-		idx[0] = ij(i, j, n);
-		idx[1] = ij(i, k, n);
-		idx[2] = ij(j, k, n);
+		idx[0] = colidx[ij(i, j, n)];
+		idx[1] = colidx[ij(i, k, n)];
+		idx[2] = colidx[ij(j, k, n)];
 
 
 		int64_t longindex[3];
@@ -194,7 +194,7 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 	}
 	mu->unlock();
 }
-void m_all_in_all(int pnum, int n, std::map<int64_t, double>& u, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, double tau = 1.0, double scale_a = 1.0) {
+void m_all_in_all(int pnum, int n, std::map<int64_t, double>& u, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>&colidx, double tau = 1.0, double scale_a = 1.0) {
 	std::vector<std::thread>v;
 	std::vector<Eigen::VectorXd>vatu;
 	std::vector<double>vaxby(pnum), vy_norm(pnum);
@@ -219,7 +219,7 @@ void m_all_in_all(int pnum, int n, std::map<int64_t, double>& u, Eigen::VectorXd
 
 
 
-		v.push_back(std::thread(all_in_all, &mu, n, ref(u), ref(x), ref(b), ref(vatu[i]), ref(old_x), ref(vaxby[i]), ref(vy_norm[i]), sigma, ref(cons), tau, scale_a, va, vb));
+		v.push_back(std::thread(all_in_all, &mu, n, ref(u), ref(x), ref(b), ref(vatu[i]), ref(old_x), ref(vaxby[i]), ref(vy_norm[i]), sigma, ref(cons),ref(colidx), tau, scale_a, va, vb));
 	}
 	for (int i = 0; i < pnum; i++) {
 		v[i].join();
@@ -364,7 +364,7 @@ void m_atax(int pnum, int n, Eigen::VectorXd& x, Eigen::VectorXd& res, std::vect
 		res += vatu[i];
 	}
 }
-void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, double>* u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, double scale_a = 1, int start = 0, int end = -1) {
+void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, double>* u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>&colidx,double scale_a = 1, int start = 0, int end = -1) {
 
 	if (end < 0)end = cons.size();
 	for (int istart = start; istart < end; istart++) {
@@ -376,9 +376,9 @@ void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, doubl
 		j = j % n;
 
 		int idx[3];
-		idx[0] = ij(i, j, n);
-		idx[1] = ij(i, k, n);
-		idx[2] = ij(j, k, n);
+		idx[0] = colidx[ij(i, j, n)];
+		idx[1] = colidx[ij(i, k, n)];
+		idx[2] = colidx[ij(j, k, n)];
 
 		double axbu;
 
@@ -444,7 +444,7 @@ void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, doubl
 		res[idx[0]] -= tem / scale_a;
 	}
 }
-void m_atyu(int pnum, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, double>* u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, double scale_a = 1) {
+void m_atyu(int pnum, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, double>* u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>&colidx, double scale_a = 1) {
 	std::vector<std::thread>v;
 	std::vector<Eigen::VectorXd>vatu;
 	for (int i = 0; i < pnum; i++) {
@@ -459,7 +459,7 @@ void m_atyu(int pnum, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<in
 		else {
 			vb = cons.size();
 		}
-		v.push_back(std::thread(atyu, n, ref(x), ref(b), u, ref(vatu[i]), sigma, cons, scale_a, va, vb));
+		v.push_back(std::thread(atyu, n, ref(x), ref(b), u, ref(vatu[i]), sigma, ref(cons),ref(colidx), scale_a, va, vb));
 	}
 	for (int i = 0; i < pnum; i++) {
 		v[i].join();
@@ -503,7 +503,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 	//scale_b = b.norm();
 
 	b = b * 3 / scale_b;
-
+	std::unordered_map<int, int>colidx;
 	// = b / b.norm();
 	scale_a = 3;
 
@@ -534,24 +534,30 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 					idx[2] = ij(j, k, n);
 					index = static_cast<int64_t>(i) * n * n + j * n + k;
 
-					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-2 ||
-						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-2 ||
-						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-2) {
+					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-3 ||
+						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-3 ||
+						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-3) {
 
 						if (viscons.find(index) == viscons.end()) {
+							for (int tp = 0; tp < 3; tp++) {
+								if (colidx.find(idx[tp]) == colidx.end()) {
+									int tmmp = colidx.size();
+									colidx[idx[tp]] = tmmp;
+								}
+							}
 							cons.push_back(index);
 
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[0], 1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[1], -1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, idx[2], -1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[0]], 1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[1]], -1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[2]], -1));
 
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, idx[0], -1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, idx[1], 1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, idx[2], -1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[0]], -1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[1]], 1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[2]], -1));
 
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, idx[0], -1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, idx[1], -1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, idx[2], 1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[0]], -1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[1]], -1));
+							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[2]], 1));
 
 
 
@@ -564,38 +570,69 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 		cout << "cons:" << viscons.size() << endl;
 
 		if (old_size == viscons.size()) {
+			double dobj;
+			for (auto id : u) {
+				int64_t longindex = id.first;
+				int i, j, k;
+				k = longindex % n;
+				j = longindex / n;
+				i = j / n;
+				j = j % n;
+				int idx[3];
+				idx[0] = colidx[ij(i, j, n)];
+				idx[1] = colidx[ij(i, k, n)];
+				idx[2] = colidx[ij(j, k, n)];
+				dobj += id.second * (b[idx[0]] - b[idx[1]] - b[idx[2]]);
+			}
+			cout << "dobj:" << dobj/3 << endl;
+
+
+
 			x = x / scale_a * scale_b;
 			b = b / 3;
 			return finalres;
 		}
 		old_size = viscons.size();
-		Eigen::SparseMatrix<double> hst(viscons.size() * 3, var_num);
-		Eigen::SparseMatrix<double> hs(var_num, var_num);
+		Eigen::SparseMatrix<double> hst(viscons.size() * 3, colidx.size());
+		Eigen::SparseMatrix<double> hs(colidx.size(), colidx.size());
 		hst.setFromTriplets(acons.begin(), acons.end());
 		hs = hst.transpose() * hst / (scale_a * scale_a);
 
-		hs += Eigen::VectorXd::Ones(var_num).asDiagonal();
+		hs += Eigen::VectorXd::Ones(colidx.size()).asDiagonal();
 		Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 
 		cg.compute(hs);
 
+		sub_x = Eigen::VectorXd::Zero(colidx.size());
+		sub_b = Eigen::VectorXd::Zero(colidx.size());
+		sub_w = Eigen::VectorXd::Zero(colidx.size());
+		sub_v = Eigen::VectorXd::Zero(colidx.size());
 
 
+
+		for (auto i = colidx.begin(); i != colidx.end(); i++) {
+
+			sub_x[i->second] = x[i->first];
+			sub_b[i->second] = b[i->first];
+			sub_w[i->second] = w[i->first];
+			sub_v[i->second] = v[i->first];
+		}
+		int sub_var = colidx.size();
 
 		for (int k = 0;; k++)
 		{
-			Eigen::VectorXd old_x = x;
-			rhs = Eigen::VectorXd::Zero(var_num);
+			Eigen::VectorXd old_x = sub_x;
+			rhs = Eigen::VectorXd::Zero(sub_var);
 			//atyu(n, x, b, &u, rhs, sigma,scale_a);
-			m_atyu(32, n, x, b, &u, rhs, sigma, cons, scale_a);
-			rhs += prox_p(x + v / sigma, sigma) - v / sigma;
+			m_atyu(32, n, sub_x, sub_b, &u, rhs, sigma, cons, colidx, scale_a);
+			rhs += prox_p(sub_x + sub_v / sigma, sigma) - sub_v / sigma;
 			//cg
 			//cout << "atyu\n";
 
 			double tol = 1e-10;
 			Eigen::VectorXd r = rhs;
-			Eigen::VectorXd p(var_num);
-			Eigen::VectorXd res = Eigen::VectorXd::Zero(var_num);
+			Eigen::VectorXd p(sub_var);
+			Eigen::VectorXd res = Eigen::VectorXd::Zero(sub_var);
 			double row, row_old;
 			row = r.squaredNorm();
 			double delta = tol * rhs.norm();
@@ -638,20 +675,20 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 			//double ita = std::fmin(0.5, 0.1 * rhs.norm());
 			//cg.setTolerance(ita / rhs.norm());
 
-			x = cg.solve(rhs);
+			sub_x = cg.solve(rhs);
 
 
 			double y_norm, kkt_u;
 			y_norm = kkt_u = 0;
-			Eigen::VectorXd atu = Eigen::VectorXd::Zero(var_num);
-			m_all_in_all(32, n, u, x, b, atu, old_x, kkt_u, y_norm, sigma, cons, tau, scale_a);
-			Eigen::VectorXd z = prox_p(x + v / sigma, sigma);
-			v += sigma * tau * (x - z);
+			Eigen::VectorXd atu = Eigen::VectorXd::Zero(sub_var);
+			m_all_in_all(32, n, u, sub_x, sub_b, atu, old_x, kkt_u, y_norm, sigma, cons, colidx, tau, scale_a);
+			Eigen::VectorXd z = prox_p(sub_x + sub_v / sigma, sigma);
+			sub_v += sigma * tau * (sub_x - z);
 
-			double kkt_x = (atu + v).norm() / (1 + v.norm());
+			double kkt_x = (atu + sub_v).norm() / (1 + sub_v.norm());
 			double true_ku = scale_b * sqrt(kkt_u) / (1 + scale_b * sqrt(y_norm));
 			kkt_u = sqrt(kkt_u) / (1 + sqrt(y_norm));
-			double kkt_v = (x - z).norm() / (1 + z.norm());
+			double kkt_v = (sub_x - z).norm() / (1 + z.norm());
 
 			//cout << "allinall\n";
 			if (std::fmax(kkt_u, kkt_v) > kkt_x) {
@@ -670,29 +707,28 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 					sigma *= 3;
 				}
 			}
-			kkt_x = (atu + v).norm() / (1 + v.norm());
+			kkt_x = (atu + sub_v).norm() / (1 + sub_v.norm());
 
-			kkt_v = scale_b / scale_a * (x - z).norm() / (1 + scale_b / scale_a * z.norm());
+			kkt_v = scale_b / scale_a * (sub_x - z).norm() / (1 + scale_b / scale_a * z.norm());
 
 
 			double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
 			maxsize = fmax(maxsize, u.size());
-			cout << k << "\t" << kkt << "\t" << func_p(x) * scale_b * 3 << "\t" << sigma << "\t" << u.size() << endl;
-			if (kkt < 1e-2) {
-
-
-				finalres = func_p(x) * scale_b*scale_c /scale_a;
+			cout << k << "\t" << kkt << "\t" << func_p(sub_x) * scale_b * 3 << "\t" << sigma << "\t" << u.size() << endl;
+			if (kkt < 1e-3) {
+				finalres = func_p(sub_x) * scale_b * scale_c / scale_a;
 				break;
 			}
-
 			//cout << "sig:"<<sigma << endl;
 			//cout << rd << "\t" << rp << endl;
-
+			for (auto i = colidx.begin(); i != colidx.end(); i++) {
+				x[i->first] = sub_x[i->second];
+				b[i->first] = sub_b[i->second];
+				w[i->first] = sub_w[i->second];
+				v[i->first] = sub_v[i->second];
+			}
 		}
-
 	}
-
-
 }
 
 void admm_basic::run_dense() {
@@ -879,7 +915,7 @@ double admm_base::run(double tau, double sigma, double scale_b, double scale_c) 
 			Eigen::VectorXd old_x = x;
 			rhs = Eigen::VectorXd::Zero(var_num);
 			//atyu(n, x, b, &u, rhs, sigma,scale_a);
-			m_atyu(32, n, x, b, &u, rhs, sigma, cons, scale_a);
+			//m_atyu(32, n, x, b, &u, rhs, sigma, cons, scale_a);
 			rhs += w.cwiseProduct(z -v / sigma);
 			//cg
 			//cout << "atyu\n";
@@ -936,7 +972,7 @@ double admm_base::run(double tau, double sigma, double scale_b, double scale_c) 
 			double y_norm, kkt_u;
 			y_norm = kkt_u = 0;
 			Eigen::VectorXd atu = Eigen::VectorXd::Zero(var_num);
-			m_all_in_all(32, n, u, x, b, atu, old_x, kkt_u, y_norm, sigma, cons, tau, scale_a);
+			//m_all_in_all(32, n, u, x, b, atu, old_x, kkt_u, y_norm, sigma, cons, tau, scale_a);
 			z = w.cwiseProduct(x)+v/sigma-pi_c(w.cwiseProduct(x) + v / sigma, sigma);
 			v += sigma * tau * (w.cwiseProduct(x) - z);
 

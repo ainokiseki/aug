@@ -33,3 +33,4 @@ void cacap(Eigen::VectorXd* res, int start, int end, std::vector<int64_t>* aj1, 
         (*res)[idx[2]] -= num;
     }
 }
+

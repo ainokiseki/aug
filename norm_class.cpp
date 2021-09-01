@@ -172,6 +172,49 @@ void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eig
 
 	delete[]mphi;
 }
+
+void cons_generate(int start, int end, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::unordered_map<int, int>& colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
+
+	for (int i = start; i < end; i++) {
+		int64_t index;
+		for (int j = i + 1; j < n; j++) {
+			for (int k = j + 1; k < n; k++) {
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
+				index = static_cast<int64_t>(i) * n * n + j * n + k;
+
+				if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+					x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
+					x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
+
+					if (viscons.find(index) == viscons.end()) {
+
+						for (int tp = 0; tp < 3; tp++) {
+							mu[1].lock();
+							if (colidx.find(idx[tp]) == colidx.end()) {
+
+								int tmmp = colidx.size();
+								colidx[idx[tp]] = tmmp;
+
+							}
+							mu[1].unlock();
+						}
+
+						mu[0].lock();
+						cons.push_back(index);
+						viscons.insert(index);
+						mu[0].unlock();
+					}
+				}
+			}
+		}
+	}
+
+
+}
+
 norm_basic::norm_basic(string graph_name) :metric(graph_name)
 {
 	mthread = std::thread::hardware_concurrency();
@@ -1134,47 +1177,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 	return direction;
 }
 
-void cons_generate(int start,int end,int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu,std::unordered_map<int,int>&colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
 
-	for (int i = start; i < end; i++) {
-		int64_t index;
-		for (int j = i + 1; j < n; j++) {
-			for (int k = j + 1; k < n; k++) {
-				int idx[3];
-				idx[0] = ij(i, j, n);
-				idx[1] = ij(i, k, n);
-				idx[2] = ij(j, k, n);
-				index = static_cast<int64_t>(i) * n * n + j * n + k;
-
-				if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
-					x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
-					x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
-
-					if (viscons.find(index) == viscons.end()) {
-
-						for (int tp = 0; tp < 3; tp++) {
-							mu[1].lock();
-							if (colidx.find(idx[tp]) == colidx.end()) {
-								
-								int tmmp = colidx.size();
-								colidx[idx[tp]] = tmmp;
-								
-							}
-							mu[1].unlock();
-						}
-
-						mu[0].lock();
-						cons.push_back(index);
-						viscons.insert(index);
-						mu[0].unlock();
-					}
-				}
-			}
-		}
-	}
-
-
-}
 
 void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 

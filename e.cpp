@@ -86,8 +86,7 @@ int main() {
 		tm.toc();
 		auto c1 = pdd(a1, tm.blink);
 		auto b1=ppdd(c1,test(s1.x+s1.b,s1.n));
-		
-		
+
 
 
 		res.push_back(b1);		//res.push_back(b2);		
