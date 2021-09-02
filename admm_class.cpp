@@ -502,11 +502,11 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 	//w = w / 9;
 	//scale_b = b.norm();
 
-	b = b * 3 / scale_b;
+
 	std::unordered_map<int, int>colidx;
 	// = b / b.norm();
 	scale_a = 3;
-
+	b = b * 3 / scale_b;
 	w = w / scale_c;
 	Eigen::VectorXd rhs(var_num);
 
@@ -570,21 +570,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 		cout << "cons:" << viscons.size() << endl;
 
 		if (old_size == viscons.size()) {
-			double dobj;
-			for (auto id : u) {
-				int64_t longindex = id.first;
-				int i, j, k;
-				k = longindex % n;
-				j = longindex / n;
-				i = j / n;
-				j = j % n;
-				int idx[3];
-				idx[0] = colidx[ij(i, j, n)];
-				idx[1] = colidx[ij(i, k, n)];
-				idx[2] = colidx[ij(j, k, n)];
-				dobj += id.second * (b[idx[0]] - b[idx[1]] - b[idx[2]]);
-			}
-			cout << "dobj:" << dobj/3 << endl;
+
 
 
 
@@ -714,19 +700,35 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 
 			double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
 			maxsize = fmax(maxsize, u.size());
-			cout << k << "\t" << kkt << "\t" << func_p(sub_x) * scale_b * 3 << "\t" << sigma << "\t" << u.size() << endl;
+			double dobj = 0;
+			for (auto id : u) {
+				int64_t longindex = id.first;
+				int i, j, k;
+				k = longindex % n;
+				j = longindex / n;
+				i = j / n;
+				j = j % n;
+				int idx[3];
+				idx[0] = colidx[ij(i, j, n)];
+				idx[1] = colidx[ij(i, k, n)];
+				idx[2] = colidx[ij(j, k, n)];
+				dobj += id.second * (sub_b[idx[0]] - sub_b[idx[1]] - sub_b[idx[2]]);
+			}
+			cout << "dobj:" << dobj/9<< endl;
+			cout << k << "\t" << kkt << "\t" << func_p(sub_x) * scale_b / 3 << "\t" << sigma << "\t" << u.size() << endl;
 			if (kkt < 1e-3) {
+				for (auto i = colidx.begin(); i != colidx.end(); i++) {
+					x[i->first] = sub_x[i->second];
+					b[i->first] = sub_b[i->second];
+					w[i->first] = sub_w[i->second];
+					v[i->first] = sub_v[i->second];
+				}
 				finalres = func_p(sub_x) * scale_b * scale_c / scale_a;
 				break;
 			}
 			//cout << "sig:"<<sigma << endl;
 			//cout << rd << "\t" << rp << endl;
-			for (auto i = colidx.begin(); i != colidx.end(); i++) {
-				x[i->first] = sub_x[i->second];
-				b[i->first] = sub_b[i->second];
-				w[i->first] = sub_w[i->second];
-				v[i->first] = sub_v[i->second];
-			}
+
 		}
 	}
 }

@@ -293,7 +293,7 @@ void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, doubl
 				}
 				(*kkt_2) += ty * ty;
 
-				ijk = static_cast<int64_t>(jj) * th->n * th->n + ii * th->n + kk;
+				ijk = static_cast<int64_t>(jj) * th->n * th->n + kk * th->n + ii;
 				mu = th->y(jj, kk) + th->mat_b(jj, kk) - (th->y(ii, kk) + th->mat_b(ii, kk)) - (th->y(ii, jj) + th->mat_b(ii, jj));
 				if (c1->find(ijk) == c1->end()) {
 					ty = 0;
@@ -585,12 +585,16 @@ double dk::run_test(double threshod=1e-3)
 		pobj = 0.0;
 		int index = 0;
 
-		pobj = Eigen::MatrixXd(m.cwiseProduct(inv_w.transpose()).triangularView<Eigen::StrictlyUpper>()).sum();
+
 
 
 		kkt_1 = kkt_2 = 0.0;
 		double kkt_3 = 0;
 		if (k % 50 == 0) {
+			pobj = Eigen::MatrixXd(m.cwiseProduct(inv_w.transpose()).triangularView<Eigen::StrictlyUpper>()).sum();
+			double wnorm= Eigen::MatrixXd(y.cwiseProduct(y.cwiseProduct(inv_w.transpose())).triangularView<Eigen::StrictlyUpper>()).sum();
+			wnorm += Eigen::MatrixXd(m.cwiseProduct(m.cwiseProduct(inv_w.transpose())).triangularView<Eigen::StrictlyUpper>()).sum();
+
 			double kkt_1 = 0;
 			double kkt_2 = 0;
 			vector<thread>v;
@@ -714,7 +718,21 @@ double dk::run_test(double threshod=1e-3)
 
 			lastobj = pobj;
 			kkt_3 = sqrt(kkt_1) / (1 + sqrt(kkt_2));
-			std::cout << k << " " << std::setprecision(8) << pobj << "\tkkt_3:" << kkt_3 << std::endl;
+			double dobj = 0;
+			for (auto iter = c1->begin(); iter != c1->end(); iter++) {
+				int64_t longindex = iter->first;
+				int i, j, k;
+				k = longindex % n;
+				j = longindex / n;
+				i = j / n;
+				j = j % n;
+				double fm = inv_w(i, j) + inv_w(i, k) + inv_w(j, k);
+
+				dobj += iter->second * (mat_b(i, j) - mat_b(i, k) - mat_b(j, k))/fm;
+			}
+			dobj /= gam;
+
+			std::cout << k << " " << std::setprecision(8) << pobj << "\tkkt_3:" << kkt_3 <<"\tdobj:"<<dobj <<"\twnorm:"<<wnorm<< std::endl;
 			if (std::fabs(kkt_3) < threshod)break;
 		}
 
@@ -729,17 +747,7 @@ double dk::run_test(double threshod=1e-3)
 
 		}
 	}
-	double dobj = 0;
-	for (auto iter = c1->begin(); iter != c1->end();iter++) {
-		int64_t longindex = iter->first;
-		int i, j, k;
-		k = longindex % n;
-		j = longindex / n;
-		i = j / n;
-		j = j % n;
 
-		dobj += iter->second * (mat_b(i, j) - mat_b(i, k) - mat_b(j, k));
-	}
 	int ct = 0;
 	for (int i = 0; i < n; i++) {
 		for (int j = i + 1; j < n; j++) {
@@ -747,8 +755,8 @@ double dk::run_test(double threshod=1e-3)
 			ct++;
 		}
 	}
-	std::cout << "final res:" << trueobj / (2 * gam) + pobj << "k1:" << kkt_1 << "k2:" << kkt_2 << std::endl;
-	std::cout << "gam:" << gam << "\tobj:"<< lastobj << "\tdobj:"<<dobj<<endl;
+	std::cout << "final res:" << trueobj / (2 * gam) + pobj << "k1:" << kkt_1 << "k2:" << kkt_2 << std::endl; 
+	std::cout << "gam:" << gam << "\tobj:"<< lastobj << endl;
 	auto i_end = std::chrono::high_resolution_clock::now();
 	auto eld = std::chrono::duration_cast<std::chrono::nanoseconds>(i_end - i_start);
 	double tm = double(eld.count()) * 1.0 * 1e-9;
@@ -1085,7 +1093,7 @@ void dk_mutex::operator()(int istart, int iend)
 
 
 					}
-					ijk = static_cast<int64_t>(j) * n * n + i * n + k;
+					ijk = static_cast<int64_t>(j) * n * n + k * n + i;
 
 					flg = correction->find(ijk);
 

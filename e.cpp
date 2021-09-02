@@ -69,11 +69,11 @@ int main() {
 	//s.run_test(1e-2);
 	// 
 	// 
-	vector<string>target = {"graph400.txt"};
+	vector<string>target = {"graph100.txt"};
 	vector<ppdd>res;
 	timer tm;
 	for (auto i : target) {
-		admm_basic s1(i);
+		dk s1(i);
 		admm_basic s2(i);
 
 		double a1, a2, a3;
@@ -82,7 +82,7 @@ int main() {
 		}
 
 		tm.tic();
-		a1=s1.run();
+		a1=s1.run_test(1e-3);
 		tm.toc();
 		auto c1 = pdd(a1, tm.blink);
 		auto b1=ppdd(c1,test(s1.x+s1.b,s1.n));
