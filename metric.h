@@ -16,7 +16,7 @@ using namespace std;
 class metric
 {
 public:
-	metric(std::string graph_name);
+	metric(std::string graph_name,int type=0);
 	~metric();
 	void init();
 	void matrix_generate(char type);

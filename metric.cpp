@@ -1,8 +1,8 @@
 #include"metric.h"
 
-extern inline int64_t ij(int64_t x, int64_t y, int64_t n);
+extern int64_t ij(int64_t x, int64_t y, int64_t n);
 
-metric::metric(std::string graph_name) :graph_name(graph_name)
+metric::metric(std::string graph_name,int type) :graph_name(graph_name)
 {
 	ifstream graph(graph_name, ios::in);
 	map<int, set<int> > g;
@@ -61,6 +61,28 @@ metric::metric(std::string graph_name) :graph_name(graph_name)
 			//calculate d
 		}
 	}
+
+	if (type == 1) {
+		tmp_it = 0;
+		for (int i = 0; i < n; i++)
+		{
+			int t_i = target[i];
+			for (int j = i + 1; j < n; j++, tmp_it++) {
+				int t_j = target[j];
+				if (g[t_i].find(t_j) != g[t_i].end()) {
+					b[tmp_it] = 0;
+					w[tmp_it] = 1;
+				}
+				else {
+					b[tmp_it] = 1;
+					w[tmp_it] = 1;
+				}
+
+				//calculate d
+			}
+		}
+	}
+
 
 	cout << "w:" << w.sum() << endl;
 	cout << "b:" << b.sum() << endl;

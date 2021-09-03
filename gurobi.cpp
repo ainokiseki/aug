@@ -46,7 +46,7 @@ void cons_generate(int start, int end, int n, Eigen::VectorXd& x, Eigen::VectorX
 
 
 }
-gurobi::gurobi(string graphname) :metric(graphname)
+gurobi::gurobi(string graphname,int type) :metric(graphname,type)
 {
 
 }
@@ -178,7 +178,7 @@ double gurobi::run(int type)
 			answer= n1(viscons, colidx);
 		}
 		else if (type == 2) {
-			answer= n2(viscons, colidx);
+			answer= n2s(viscons, colidx);
 		}
 		
 
@@ -293,5 +293,63 @@ double gurobi::n2(std::set<int64_t>& viscons, std::unordered_map<int, int>& coli
 	}
 
 	delete[] y;
+	return model.get(GRB_DoubleAttr_ObjVal);
+}
+
+double gurobi::n2s(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx)
+{
+
+	GRBEnv env = GRBEnv();
+	GRBModel model = GRBModel(env);
+	GRBVar* y = model.addVars(colidx.size(), GRB_CONTINUOUS);
+	GRBVar* m = model.addVars(colidx.size(), GRB_CONTINUOUS);
+	try
+	{
+		GRBQuadExpr obj = 0;
+
+
+		for (auto i : colidx) {
+			y[i.second].set(GRB_DoubleAttr_Start, x[i.first] + b[i.first]);
+			m[i.second].set(GRB_DoubleAttr_Start, fabs(x[i.first]));
+
+			obj += m[i.second] * w[i.first];
+			obj += m[i.second] * m[i.second] * w[i.first]/20;
+			obj+= (y[i.second]-b[i.first] )* (y[i.second] - b[i.first]) * w[i.first]/20;
+			//model.addGenConstrAbs(m[i.second], y[i.second] - b[i.first]);
+			model.addConstr(m[i.second] - y[i.second] + b[i.first] >= 0);
+			model.addConstr(m[i.second] + y[i.second] - b[i.first] >= 0);
+		}
+
+
+		for (auto index : viscons) {
+			int i, j, k;
+			k = index % n;
+			j = index / n;
+			i = j / n;
+			j = j % n;
+			int idx[3];
+			idx[0] = colidx[ij(i, j, n)];
+			idx[1] = colidx[ij(i, k, n)];
+			idx[2] = colidx[ij(j, k, n)];
+			model.addConstr(y[idx[0]] - y[idx[1]] - y[idx[2]] <= 0);
+			model.addConstr(y[idx[1]] - y[idx[0]] - y[idx[2]] <= 0);
+			model.addConstr(y[idx[2]] - y[idx[1]] - y[idx[0]] <= 0);
+		}
+		model.setObjective(obj, GRB_MINIMIZE);
+		model.optimize();
+
+		cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+		for (auto i : colidx) {
+			x[i.first] = y[i.second].get(GRB_DoubleAttr_X) - b[i.first];
+		}
+	}
+	catch (GRBException e) {
+		cout << "Error code = " << e.getErrorCode() << endl;
+		cout << e.getMessage() << endl;
+
+	}
+
+	delete[] y;
+	delete[] m;
 	return model.get(GRB_DoubleAttr_ObjVal);
 }

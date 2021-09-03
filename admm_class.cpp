@@ -483,7 +483,7 @@ admm_basic::~admm_basic()
 inline double admm_basic::func_p(Eigen::VectorXd x) {
 	return w.cwiseProduct(x.cwiseAbs()).sum();
 }
-inline Eigen::VectorXd admm_basic::prox_p(Eigen::VectorXd x, double sigma) {
+inline Eigen::VectorXd admm_basic::prox_p(Eigen::VectorXd x, double sigma,Eigen::VectorXd w) {
 	return (x.cwiseAbs() - w / sigma).cwiseMax(0.0).cwiseProduct(x.cwiseSign());
 }
 double admm_basic::get_kkt(double sigma) {
@@ -501,7 +501,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 	//b = b / b.norm();
 	//w = w / 9;
 	//scale_b = b.norm();
-
+	//scale_c = 3;
 
 	std::unordered_map<int, int>colidx;
 	// = b / b.norm();
@@ -534,9 +534,9 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 					idx[2] = ij(j, k, n);
 					index = static_cast<int64_t>(i) * n * n + j * n + k;
 
-					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-3 ||
-						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-3 ||
-						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-3) {
+					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 3e-2 ||
+						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 3e-2 ||
+						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 3e-2) {
 
 						if (viscons.find(index) == viscons.end()) {
 							for (int tp = 0; tp < 3; tp++) {
@@ -611,7 +611,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 			rhs = Eigen::VectorXd::Zero(sub_var);
 			//atyu(n, x, b, &u, rhs, sigma,scale_a);
 			m_atyu(32, n, sub_x, sub_b, &u, rhs, sigma, cons, colidx, scale_a);
-			rhs += prox_p(sub_x + sub_v / sigma, sigma) - sub_v / sigma;
+			rhs += prox_p(sub_x + sub_v / sigma, sigma,sub_w) - sub_v / sigma;
 			//cg
 			//cout << "atyu\n";
 
@@ -668,7 +668,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 			y_norm = kkt_u = 0;
 			Eigen::VectorXd atu = Eigen::VectorXd::Zero(sub_var);
 			m_all_in_all(32, n, u, sub_x, sub_b, atu, old_x, kkt_u, y_norm, sigma, cons, colidx, tau, scale_a);
-			Eigen::VectorXd z = prox_p(sub_x + sub_v / sigma, sigma);
+			Eigen::VectorXd z = prox_p(sub_x + sub_v / sigma, sigma,sub_w);
 			sub_v += sigma * tau * (sub_x - z);
 
 			double kkt_x = (atu + sub_v).norm() / (1 + sub_v.norm());
@@ -693,38 +693,68 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 					sigma *= 3;
 				}
 			}
-			kkt_x = (atu + sub_v).norm() / (1 + sub_v.norm());
-
+			kkt_x = scale_c*( atu + sub_v).norm() / (1 + scale_c*sub_v.norm());
+			//double kkt_z=scale_b/scale_a*(z - prox_p(z + sub_v, 1.0, sub_w)).norm() / (1 + scale_b / scale_a * z.norm());
 			kkt_v = scale_b / scale_a * (sub_x - z).norm() / (1 + scale_b / scale_a * z.norm());
 
-
+			//cout << kkt_x << " " << kkt_v << " " << true_ku <<" !:"<<kkt_z<< endl;
 			double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
 			maxsize = fmax(maxsize, u.size());
-			double dobj = 0;
-			for (auto id : u) {
-				int64_t longindex = id.first;
-				int i, j, k;
-				k = longindex % n;
-				j = longindex / n;
-				i = j / n;
-				j = j % n;
-				int idx[3];
-				idx[0] = colidx[ij(i, j, n)];
-				idx[1] = colidx[ij(i, k, n)];
-				idx[2] = colidx[ij(j, k, n)];
-				dobj += id.second * (sub_b[idx[0]] - sub_b[idx[1]] - sub_b[idx[2]]);
-			}
-			cout << "dobj:" << dobj/9<< endl;
-			cout << k << "\t" << kkt << "\t" << func_p(sub_x) * scale_b / 3 << "\t" << sigma << "\t" << u.size() << endl;
-			if (kkt < 1e-3) {
-				for (auto i = colidx.begin(); i != colidx.end(); i++) {
-					x[i->first] = sub_x[i->second];
-					b[i->first] = sub_b[i->second];
-					w[i->first] = sub_w[i->second];
-					v[i->first] = sub_v[i->second];
+
+			cout << k << "\t" << kkt << "\t" << func_p(sub_x) * scale_b*scale_c / 3 << "\t" << sigma << "\t" << u.size() << endl;
+			if (kkt < 1e-2) {
+				bool flg = true;
+				for (auto iter : cons) {
+					int64_t longindex = iter;
+					int i, j, k;
+					k = longindex % n;
+					j = longindex / n;
+					i = j / n;
+					j = j % n;
+					int idx[3];
+					idx[0] = colidx[ij(i, j, n)];
+					idx[1] = colidx[ij(i, k, n)];
+					idx[2] = colidx[ij(j, k, n)];
+					if (sub_x[idx[0]] + sub_b[idx[0]] - sub_x[idx[1]] - sub_b[idx[1]] - sub_x[idx[2]] - sub_b[idx[2]] > 3e-2 ||
+						sub_x[idx[1]] + sub_b[idx[1]] - sub_x[idx[0]] - sub_b[idx[0]] - sub_x[idx[2]] - sub_b[idx[2]] > 3e-2 ||
+						sub_x[idx[2]] + sub_b[idx[2]] - sub_x[idx[1]] - sub_b[idx[1]] - sub_x[idx[0]] - sub_b[idx[0]] > 3e-2) {
+						flg = false;
+						break;
+					}
 				}
-				finalres = func_p(sub_x) * scale_b * scale_c / scale_a;
-				break;
+				if (!flg) {
+					continue;
+				}
+				double pobj = func_p(sub_x) * scale_b / 3;
+				double dobj = 0;
+				for (auto id : u) {
+					int64_t longindex = id.first;
+					int i, j, k;
+					k = longindex % n;
+					j = longindex / n;
+					i = j / n;
+					j = j % n;
+					int idx[3];
+					idx[0] = colidx[ij(i, j, n)];
+					idx[1] = colidx[ij(i, k, n)];
+					idx[2] = colidx[ij(j, k, n)];
+					dobj += id.second * (sub_b[idx[0]] - sub_b[idx[1]] - sub_b[idx[2]]);
+				}
+				dobj /= scale_a * scale_a;
+				dobj *= scale_b * scale_c;
+				cout << "dobj:" << dobj << endl;
+				if (fabs(pobj - dobj) / dobj < 1e-3) {
+
+
+					for (auto i = colidx.begin(); i != colidx.end(); i++) {
+						x[i->first] = sub_x[i->second];
+						b[i->first] = sub_b[i->second];
+						w[i->first] = sub_w[i->second];
+						v[i->first] = sub_v[i->second];
+					}
+					finalres = func_p(sub_x) * scale_b * scale_c / scale_a;
+					break;
+				}
 			}
 			//cout << "sig:"<<sigma << endl;
 			//cout << rd << "\t" << rp << endl;
@@ -791,7 +821,7 @@ void admm_basic::run_dense() {
 		y = y.cwiseMin(0.0);
 
 
-		z = prox_p(x + v / sigma, sigma);
+		z = prox_p(x + v / sigma, sigma,w);
 
 		rhs = A.transpose() * (y + vb - vu / sigma) + z - v / sigma;
 
@@ -800,7 +830,7 @@ void admm_basic::run_dense() {
 		y = y.cwiseMin(0.0);
 
 		vu += sigma * (A * x - y - vb);
-		z = prox_p(x + v / sigma, sigma);
+		z = prox_p(x + v / sigma, sigma,w);
 		v += sigma * (x - z);
 
 

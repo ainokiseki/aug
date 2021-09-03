@@ -11,7 +11,7 @@ public:
 	double time();
 	double blink = 0;
 private:
-	std::chrono::steady_clock::time_point start,end;
+	std::chrono::high_resolution_clock::time_point start,end;
 	double tm=0;
 
 };

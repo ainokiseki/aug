@@ -69,18 +69,19 @@ int main() {
 	//s.run_test(1e-2);
 	// 
 	// 
-	vector<string>target = {"graph100.txt"};
+	vector<string>target = {"graph1k.txt"};
 	vector<ppdd>res;
 	timer tm;
 	for (auto i : target) {
-		dk s1(i);
-		admm_basic s2(i);
+		dk s1(i,1);
+		//admm_basic s2(i);
 
 		double a1, a2, a3;
 		for (int j = 0; j < s1.n * (s1.n - 1) / 2; j++) {
 			s1.w[j]  = 1;
 		}
 
+		cout << s1.w.size() << endl;
 		tm.tic();
 		a1=s1.run_test(1e-3);
 		tm.toc();

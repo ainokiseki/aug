@@ -1,10 +1,7 @@
 #include"dk.h"
 #include<iomanip>
-dk::dk(string graph_name) :metric(graph_name)
-{
-	gam =10;
-}
-dk::dk(string graph_name,double g) : metric(graph_name)
+
+dk::dk(string graph_name,int type,double g) : metric(graph_name,type)
 {
 	gam = g;
 }
@@ -12,7 +9,7 @@ dk::~dk()
 {
 }
 
-void dk::triloop(std::map<int64_t,double>*correction, std::map<int64_t, double>* next_correction)
+void dk::triloop(std::unordered_map<int64_t,double>*correction, std::unordered_map<int64_t, double>* next_correction)
 {
 
 	for (int i = 0; i < n; i++) {
@@ -101,8 +98,8 @@ void dk::biloop()
 		}
 	}
 }
-void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction,int te) {
-	int pnum = 32;
+void dk::multi_triloop(std::unordered_map<int64_t, double>* correction, std::unordered_map<int64_t, double>* next_correction,int te) {
+	int pnum = 1;
 
 	dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b, correction, next_correction);
 	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
@@ -117,7 +114,7 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 		v[i].join();
 	}
 }
-void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction, std::vector<int64_t>* cons) {
+void dk::multi_triloop(std::unordered_map<int64_t, double>* correction, std::unordered_map<int64_t, double>* next_correction, std::vector<int64_t>* cons) {
 	int pnum = 32;
 
 	dk_mutex_cg dkloop(n, &y, &m, &inv_w, &mat_b, correction, next_correction,cons);
@@ -139,7 +136,7 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 		v[i].join();
 	}
 }
-void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, double>* next_correction) {
+void dk::multi_triloop(std::unordered_map<int64_t, double>* correction, std::unordered_map<int64_t, double>* next_correction) {
 	int threadnum = 24;
 	int block = 10;
 	int blocknum = (n-1) / block+1;
@@ -192,7 +189,7 @@ void dk::multi_triloop(std::map<int64_t, double>* correction, std::map<int64_t, 
 
 	}
 }
-void get_kkt_cg(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, double* kkt_1, double* kkt_2, dk* th,std::vector<int64_t>*cons, int start = 0, int end = -1) {
+void get_kkt_cg(std::unordered_map<int64_t, double>* c1, std::unordered_map<int64_t, double>* c2, double* kkt_1, double* kkt_2, dk* th,std::vector<int64_t>*cons, int start = 0, int end = -1) {
 	if (end < 0)end = cons->size();
 	int n = th->n;
 	for (int ist = start; ist < end; ist++) {
@@ -253,7 +250,7 @@ void get_kkt_cg(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, do
 	
 
 }
-void get_kkt(std::map<int64_t, double>* c1, std::map<int64_t, double>* c2, double* kkt_1,double* kkt_2, dk* th ,int start = 0,int end=-1) {
+void get_kkt(std::unordered_map<int64_t, double>* c1, std::unordered_map<int64_t, double>* c2, double* kkt_1,double* kkt_2, dk* th ,int start = 0,int end=-1) {
 	if (end < 0)end = th->n;
 	for (int ii = start; ii < end; ii++) {
 		for (int jj = ii + 1; jj < th->n; jj++) {
@@ -319,10 +316,10 @@ int dk::run_cg(double threshod = 1e-3)
 	auto i_start = std::chrono::high_resolution_clock::now();
 	double pobj = 0.0;
 	double lastobj = 0.0;
-	std::map<int64_t, double>correction;
-	std::map<int64_t, double>next_correction;
-	std::map<int64_t, double>* c1;
-	std::map<int64_t, double>* c2;
+	std::unordered_map<int64_t, double>correction;
+	std::unordered_map<int64_t, double>next_correction;
+	std::unordered_map<int64_t, double>* c1;
+	std::unordered_map<int64_t, double>* c2;
 	c1 = &correction;
 	c2 = &next_correction;
 	kkt_1 = kkt_2 = 0.0;
@@ -567,10 +564,10 @@ double dk::run_test(double threshod=1e-3)
 	auto i_start = std::chrono::high_resolution_clock::now();
 	double pobj = 0.0;
 	double lastobj = 0.0;
-	std::map<int64_t, double>correction;
-	std::map<int64_t, double>next_correction;
-	std::map<int64_t, double>* c1;
-	std::map<int64_t, double>* c2;
+	std::unordered_map<int64_t, double>correction;
+	std::unordered_map<int64_t, double>next_correction;
+	std::unordered_map<int64_t, double>* c1;
+	std::unordered_map<int64_t, double>* c2;
 	c1 = &correction;
 	c2 = &next_correction;
 	kkt_1 = kkt_2 = 0.0;
@@ -590,7 +587,8 @@ double dk::run_test(double threshod=1e-3)
 
 		kkt_1 = kkt_2 = 0.0;
 		double kkt_3 = 0;
-		if (k % 50 == 0) {
+		if (k % 10 == 0) {
+			cout << "=============================\n";
 			pobj = Eigen::MatrixXd(m.cwiseProduct(inv_w.transpose()).triangularView<Eigen::StrictlyUpper>()).sum();
 			double wnorm= Eigen::MatrixXd(y.cwiseProduct(y.cwiseProduct(inv_w.transpose())).triangularView<Eigen::StrictlyUpper>()).sum();
 			wnorm += Eigen::MatrixXd(m.cwiseProduct(m.cwiseProduct(inv_w.transpose())).triangularView<Eigen::StrictlyUpper>()).sum();
@@ -598,7 +596,7 @@ double dk::run_test(double threshod=1e-3)
 			double kkt_1 = 0;
 			double kkt_2 = 0;
 			vector<thread>v;
-			int pnum = 32;
+			int pnum = 1;
 
 
 			double* mphi = new double[pnum];
@@ -727,12 +725,16 @@ double dk::run_test(double threshod=1e-3)
 				i = j / n;
 				j = j % n;
 				double fm = inv_w(i, j) + inv_w(i, k) + inv_w(j, k);
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
 
-				dobj += iter->second * (mat_b(i, j) - mat_b(i, k) - mat_b(j, k))/fm;
+				dobj += iter->second * (b[idx[0]]-b[idx[1]]-b[idx[2]])/fm;
 			}
 			dobj /= gam;
 
-			std::cout << k << " " << std::setprecision(8) << pobj << "\tkkt_3:" << kkt_3 <<"\tdobj:"<<dobj <<"\twnorm:"<<wnorm<< std::endl;
+			std::cout << k << " " << std::setprecision(8) << pobj+wnorm/(2*gam) << "\tkkt_3:" << kkt_3 <<"\tdobj:"<<dobj- wnorm / (2 * gam) <<"\twnorm:"<<wnorm<< std::endl;
 			if (std::fabs(kkt_3) < threshod)break;
 		}
 
@@ -747,7 +749,7 @@ double dk::run_test(double threshod=1e-3)
 
 		}
 	}
-
+	
 	int ct = 0;
 	for (int i = 0; i < n; i++) {
 		for (int j = i + 1; j < n; j++) {
@@ -770,10 +772,10 @@ void dk::run()
 	init();
 	double pobj = 0.0;
 	double lastobj = 0.0;
-	std::map<int64_t, double>correction;
-	std::map<int64_t, double>next_correction;
-	std::map<int64_t, double>* c1;
-	std::map<int64_t, double>* c2;
+	std::unordered_map<int64_t, double>correction;
+	std::unordered_map<int64_t, double>next_correction;
+	std::unordered_map<int64_t, double>* c1;
+	std::unordered_map<int64_t, double>* c2;
 	c1 = &correction;
 	c2 = &next_correction;
 	kkt_1 = kkt_2 = 0.0;
@@ -935,7 +937,7 @@ void dk::init()
 }
 
 
-dk_triloop::dk_triloop(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::map<int64_t, double>* c1, std::map<int64_t, double>* c2) :
+dk_triloop::dk_triloop(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::unordered_map<int64_t, double>* c1, std::unordered_map<int64_t, double>* c2) :
 	n(n), y(y), m(m), inv_w(inv_w), mat_b(mat_b), correction(c1), next_correction(c2)
 {
 
@@ -1028,7 +1030,7 @@ void dk_triloop::operator()(int istart, int iend, int kstart, int blocksize)
 	}
 }
 
-dk_mutex::dk_mutex(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::map<int64_t, double>* c1, std::map<int64_t, double>* c2):dk_triloop(n,y,m,inv_w,mat_b,c1,c2)
+dk_mutex::dk_mutex(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::unordered_map<int64_t, double>* c1, std::unordered_map<int64_t, double>* c2):dk_triloop(n,y,m,inv_w,mat_b,c1,c2)
 {
 	mute = new std::mutex[n*n];
 }
@@ -1054,11 +1056,9 @@ void dk_mutex::operator()(int istart, int iend)
 					ijk = static_cast<int64_t>(i) * n * n + j * n + k;
 					
 
-					std::map<int64_t,double>::iterator flg = correction->find(ijk);
+					std::unordered_map<int64_t,double>::iterator flg = correction->find(ijk);
 
-					mute[i * n + j].lock();
-					mute[i * n + k].lock();
-					mute[j * n + k].lock();
+
 					if (flg!=correction->end()) {
 						(*y)(i, j) += flg->second * (*inv_w)(i, j) / fm;
 						(*y)(i, k) -= flg->second * (*inv_w)(i, k) / fm;
@@ -1111,21 +1111,19 @@ void dk_mutex::operator()(int istart, int iend)
 
 
 					}
-					mute[i * n + j].unlock();
-					mute[i * n + k].unlock();
-					mute[j * n + k].unlock();
+
 				}
 
-				mut.lock();
+
 				for (int index = 0; index < tv.size(); index++) {
 					next_correction->insert(tv[index]);
 				}
-				mut.unlock();
+
 			}
 		}
 	
 }
-dk_mutex_cg::dk_mutex_cg(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::map<int64_t, double>* c1, std::map<int64_t, double>* c2,std::vector<int64_t>*con) :dk_mutex(n, y, m, inv_w, mat_b, c1, c2)
+dk_mutex_cg::dk_mutex_cg(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::unordered_map<int64_t, double>* c1, std::unordered_map<int64_t, double>* c2,std::vector<int64_t>*con) :dk_mutex(n, y, m, inv_w, mat_b, c1, c2)
 {
 	cons = con;
 }
@@ -1157,7 +1155,7 @@ void dk_mutex_cg::operator()(int istart, int iend)
 		ijk = static_cast<int64_t>(i) * n * n + j * n + k;
 
 
-		std::map<int64_t, double>::iterator flg = correction->find(ijk);
+		std::unordered_map<int64_t, double>::iterator flg = correction->find(ijk);
 
 		mute[i * n + j].lock();
 		mute[i * n + k].lock();

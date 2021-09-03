@@ -183,6 +183,7 @@
   <ItemGroup>
     <ClCompile Include="admm_class.cpp" />
     <ClCompile Include="dk.cpp" />
+    <ClCompile Include="dknew.cpp" />
     <ClCompile Include="e.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
