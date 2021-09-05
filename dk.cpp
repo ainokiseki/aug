@@ -1,6 +1,6 @@
 #include"dk.h"
 #include<iomanip>
-
+typedef std::pair<int64_t, double> pid;
 dk::dk(string graph_name,int type,double g) : metric(graph_name,type)
 {
 	gam = g;
@@ -96,6 +96,23 @@ void dk::biloop()
 
 
 		}
+	}
+}
+
+void dk::multi_triloop(std::vector<pid>* correction, std::vector<pid>* next_correction, int te,int wtf) {
+	int pnum = 1;
+
+	dk_mutex_test dkloop(n, &y, &m, &inv_w, &mat_b, correction, next_correction);
+	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
+	vector<thread>v;
+	for (int i = 0; i < pnum; i++) {
+
+		v.push_back(thread(std::ref(dkloop), n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
+
+
+	}
+	for (int i = 0; i < pnum; i++) {
+		v[i].join();
 	}
 }
 void dk::multi_triloop(std::unordered_map<int64_t, double>* correction, std::unordered_map<int64_t, double>* next_correction,int te) {
@@ -570,15 +587,21 @@ double dk::run_test(double threshod=1e-3)
 	std::unordered_map<int64_t, double>* c2;
 	c1 = &correction;
 	c2 = &next_correction;
+
+	std::vector<pid>vc;
+	std::vector<pid>vnc;
+	std::vector<pid>* c3=&vc;
+	std::vector<pid>* c4=&vnc;
+
 	kkt_1 = kkt_2 = 0.0;
 	int k;
 	for (k = 0; k < 10000; k++) {
 		kkt_2 = kkt_1 = 0.0;
 		//triloop(c1,c2);
-		multi_triloop(c1, c2,0);
+		multi_triloop(c3, c4,0,0);
 		biloop();
-		c1->clear();
-		std::swap(c1, c2);
+		c3->clear();
+		std::swap(c3, c4);
 		pobj = 0.0;
 		int index = 0;
 
@@ -587,7 +610,8 @@ double dk::run_test(double threshod=1e-3)
 
 		kkt_1 = kkt_2 = 0.0;
 		double kkt_3 = 0;
-		if (k % 10 == 0) {
+		if ((k+1) % 10 == 0) {
+			return 0.1;
 			cout << "=============================\n";
 			pobj = Eigen::MatrixXd(m.cwiseProduct(inv_w.transpose()).triangularView<Eigen::StrictlyUpper>()).sum();
 			double wnorm= Eigen::MatrixXd(y.cwiseProduct(y.cwiseProduct(inv_w.transpose())).triangularView<Eigen::StrictlyUpper>()).sum();
@@ -1224,5 +1248,111 @@ void dk_mutex_cg::operator()(int istart, int iend)
 		mut.unlock();
 	}
 	
+
+}
+
+dk_mutex_test::dk_mutex_test(int n, Eigen::MatrixXd* y, Eigen::MatrixXd* m, Eigen::MatrixXd* inv_w, Eigen::MatrixXd* mat_b, std::vector<pid>* c1, std::vector<pid>* c2) :
+	n(n), y(y), m(m), inv_w(inv_w), mat_b(mat_b), correction(c1), next_correction(c2)
+{
+	mute = new std::mutex[n * n];
+}
+
+dk_mutex_test::~dk_mutex_test()
+{
+	delete[] mute;
+}
+
+void dk_mutex_test::operator()(int istart, int iend)
+{
+	int locate = 0;
+
+	for (int i = istart; i < iend; i++) {
+
+
+		for (int j = i + 1; j < n; j++) {
+			std::vector<std::pair<int64_t, double>>tv;
+			for (int k = j + 1; k < n; k++) {
+
+				double fm = (*inv_w)(i, j) + (*inv_w)(i, k) + (*inv_w)(j, k);
+				double mu;
+				int64_t ijk;
+				ijk = static_cast<int64_t>(i) * n * n + j * n + k;
+
+				double wij, wik, wjk;
+				double bij, bik, bjk;
+				wij = (*inv_w)(i, j);
+				wik = (*inv_w)(i, k);
+				wjk = (*inv_w)(j, k);
+
+				bij = (*mat_b)(i, j);
+				bik = (*mat_b)(i, k);
+				bjk = (*mat_b)(j, k);
+
+
+				if (locate<correction->size()&&(*correction)[locate].first==ijk) {
+					double tst = (*correction)[locate].second;
+					(*y)(i, j) += tst * wij / fm;
+					(*y)(i, k) -= tst * wik / fm;
+					(*y)(j, k) -= tst * wjk / fm;
+					locate++;
+				}
+				mu = (*y)(i, j) + bij - ((*y)(i, k) + bik) - ((*y)(j, k) +bjk);
+				if (mu > 0) {
+					(*y)(i, j) -= mu * wij / fm;
+					(*y)(i, k) += mu * wik / fm;
+					(*y)(j, k) += mu * wjk / fm;
+					next_correction->push_back(std::pair<int64_t, double>(ijk, mu));
+
+				}
+
+
+
+				ijk = static_cast<int64_t>(i) * n * n + k * n + j;
+
+				
+
+				if (locate < correction->size() && (*correction)[locate].first == ijk) {
+					double tst = (*correction)[locate].second;
+					(*y)(i, k) += tst * wik / fm;
+					(*y)(i, j) -= tst *wij / fm;
+					(*y)(j, k) -= tst * wjk/ fm;
+					locate++;
+				}
+				mu = (*y)(i, k) + bik - ((*y)(i, j) + bij) - ((*y)(j, k) + bjk);
+				if (mu > 0) {
+					(*y)(i, k) -= mu * wik / fm;
+					(*y)(i, j) += mu * wij / fm;
+					(*y)(j, k) += mu * wjk / fm;
+					next_correction->push_back(std::pair<int64_t, double>(ijk, mu));
+
+
+				}
+				ijk = static_cast<int64_t>(j) * n * n + k * n + i;
+
+				
+
+				if (locate < correction->size() && (*correction)[locate].first == ijk) {
+					double tst = (*correction)[locate].second;
+					(*y)(j, k) += tst * wjk/ fm;
+					(*y)(i, k) -= tst * wik / fm;
+					(*y)(i, j) -= tst * wij / fm;
+					locate++;
+				}
+				mu = (*y)(j, k) + bjk - ((*y)(i, k) +bik) - ((*y)(i, j) + bij);
+				if (mu > 0) {
+					(*y)(j, k) -= mu * wjk / fm;
+					(*y)(i, k) += mu * wik/ fm;
+					(*y)(i, j) += mu * wij / fm;
+					next_correction->push_back(std::pair<int64_t, double>(ijk, mu));
+
+				}
+
+			}
+
+
+
+
+		}
+	}
 
 }
