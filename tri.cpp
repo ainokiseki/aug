@@ -1,8 +1,8 @@
 #include "tri.h"
 
-int64_t ij(int64_t x, int64_t y, int64_t n) {
+inline int ij(int x, int y, int n) {
     if (x > y)std::swap(x, y);
-	int64_t res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
+	int res = n * (n - 1) / 2 - n - (n - x - 1) * (n - 2 - x) / 2 + y;
 
 	return res;
 }

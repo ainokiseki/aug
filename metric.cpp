@@ -1,6 +1,6 @@
 #include"metric.h"
 
-extern int64_t ij(int64_t x, int64_t y, int64_t n);
+extern inline int ij(int x, int y, int n);
 
 metric::metric(std::string graph_name,int type) :graph_name(graph_name)
 {

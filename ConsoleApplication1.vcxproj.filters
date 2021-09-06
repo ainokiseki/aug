@@ -76,9 +76,6 @@
     <ClCompile Include="tri.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="dk.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="mytime.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

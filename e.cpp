@@ -73,7 +73,7 @@ int main() {
 	vector<ppdd>res;
 	timer tm;
 	for (auto i : target) {
-		dk s1(i,1);
+		jk s1(i,1);
 		//admm_basic s2(i);
 
 		double a1, a2, a3;
@@ -83,7 +83,7 @@ int main() {
 
 		cout << s1.w.size() << endl;
 		tm.tic();
-		a1=s1.run_test(1e-3);
+		a1=s1.run(1e-3);
 		tm.toc();
 		auto c1 = pdd(a1, tm.blink);
 		auto b1=ppdd(c1,test(s1.x+s1.b,s1.n));
