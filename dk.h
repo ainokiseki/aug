@@ -28,9 +28,12 @@ public:
 
 	jk(string graph_name, int type = 0, double g = 10);
 	~jk();
+	void multi_triloop2(int threadnum, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction);
 	void multi_triloop(int threadnum, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction);
 
-	void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, atomic_int& home, mutex& mut, vector<queue<pid>>& vc, vector<queue<pid>>& vnc);
+	void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, mutex& mut, vector<queue<pid>>& vc, vector<queue<pid>>& vnc);
+
+	//void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, atomic_int& home, mutex& mut, vector<queue<pid>>& vc, vector<queue<pid>>& vnc);
 
 	//void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, atomic_int& home, mutex& mut);
 	//void generator(int threadnum, queue<looplist> q, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction, std::mutex& mut, std::condition_variable& cond);

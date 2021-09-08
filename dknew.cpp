@@ -11,17 +11,17 @@ jk::jk(string graph_name, int type, double g) : metric(graph_name, type)
 	gam = g;
 
 	y = Eigen::VectorXd::Zero(var_num);
-	m = -gam*Eigen::VectorXd::Ones(var_num);
+	m = -gam * Eigen::VectorXd::Ones(var_num);
 	p = Eigen::VectorXd::Zero(n * n);
 
-	mthread = 32;
+	mthread = 30;
 
 }
 jk::~jk()
 {
 
 }
-void jk::multi_triloop(int threadnum,vector<queue<pid> >&correction, vector<queue<pid> >& next_correction) {
+void jk::multi_triloop2(int threadnum, vector<queue<pid> >& correction, vector<queue<pid> >& next_correction) {
 
 	queue<looplist>q;
 
@@ -30,10 +30,90 @@ void jk::multi_triloop(int threadnum,vector<queue<pid> >&correction, vector<queu
 	int sz = correction.size();
 	mutex mut;
 	condition_variable cond;
-	atomic_int ant(0),home(0);
+	atomic_int ant(0);
 	vector<thread>v;
 	for (int i = 0; i < threadnum; i++) {
-		v.push_back(thread(&jk::worker, this,ref(q), ref(cond), ref(ant), ref(home), ref(mut),ref(correction),ref(next_correction)));
+		v.push_back(thread(&jk::worker, this, ref(q), ref(cond), ref(ant), ref(mut), ref(correction), ref(next_correction)));
+	}
+
+	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
+	vector<std::pair<vector<std::pair<int,int>>,vector<bool>> >ts;
+	ts.push_back(std::pair<vector<std::pair<int, int>>, vector<bool>> (vector<std::pair<int,int>>(0),vector<bool>(blocknum,false)));
+
+
+	for (int i = 0; i < blocknum; i++) {
+		for (int j = blocknum - 1; j > i;j--) {
+
+			bool flg = false;
+			for (auto & co : ts) {
+				if (co.second[i] || co.second[j])
+					continue;
+				co.second[i] = co.second[j] = true;
+				co.first.push_back(std::pair<int, int>(i, j));
+				flg = true;
+					break;
+			}
+
+			if (!flg) {
+				ts.push_back(std::pair<vector<std::pair<int, int>>, vector<bool>>(vector<std::pair<int, int>>(0), vector<bool>(blocknum, false)));
+				ts[ts.size()-1].first.push_back(std::pair<int, int>(i, j));
+				ts[ts.size() - 1].second[i]= ts[ts.size() - 1].second[j]=true;
+			}
+
+		}
+	}
+	
+
+
+
+	for (auto co : ts) {
+		int tnum = 0;
+		ant = 0;
+		for (auto target : co.first) {
+			//cout << target.first << " " << target.second << endl;
+			int kend= std::fmin((target.second + 1) * block, n);
+			std::unique_lock<std::mutex> lk(mut);
+			q.push(looplist(target.first * block, (target.first + 1) * block, target.second * block, kend,tnum%sz ));
+			lk.unlock();
+			cond.notify_one();
+			tnum++;
+		}
+		while (ant != tnum) {}
+		//cout << "==========\n";
+	}
+	//return;
+	//cout << "wtf\n";
+	//return;
+
+
+	//cout << "wtf\n";
+	{
+
+		std::unique_lock<std::mutex> lk(mut);
+		q.push(looplist(-1, -1, -1, -1, -1));
+		lk.unlock();
+		cond.notify_one();
+		
+	}
+
+
+	for (int i = 0; i < threadnum; i++) {
+		v[i].join();
+	}
+}
+void jk::multi_triloop(int threadnum, vector<queue<pid> >& correction, vector<queue<pid> >& next_correction) {
+
+	queue<looplist>q;
+
+	int block = 10;
+	int blocknum = (n - 1) / block + 1;
+	int sz = correction.size();
+	mutex mut;
+	condition_variable cond;
+	atomic_int ant(0);
+	vector<thread>v;
+	for (int i = 0; i < threadnum; i++) {
+		v.push_back(thread(&jk::worker, this, ref(q), ref(cond), ref(ant),  ref(mut), ref(correction), ref(next_correction)));
 	}
 
 	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
@@ -41,13 +121,13 @@ void jk::multi_triloop(int threadnum,vector<queue<pid> >&correction, vector<queu
 		ant = 0;
 		int istart, iend, kstart, kend;
 		istart = i;
-		while (istart < (i + blocknum) / 2) {
-			
-			kstart = blocknum - 1 - istart;
+		while (istart < (i + blocknum + 1) / 2) {
+
+			kstart = blocknum + i - 1 - istart;
 			kend = std::fmin((kstart + 1) * block, n);
 			std::unique_lock<std::mutex> lk(mut);
 			q.push(looplist(istart * block, (istart + 1) * block, kstart * block, kend, istart % sz));
-			//cout << (istart - i) * block << "\t" << (istart - i + 1) * block << "\t" << (kstart - i) * block << "\t" << kend << "\t" << istart % sz << endl;
+			//cout << istart * block << "\t" << (istart + 1) * block << "\t" << kstart  * block << "\t" << kend << "\t" << istart % sz << endl;
 			lk.unlock();
 			cond.notify_one();
 			istart++;
@@ -55,39 +135,44 @@ void jk::multi_triloop(int threadnum,vector<queue<pid> >&correction, vector<queu
 
 		//cout << "ist:"<<istart <<"i:"<<i<< endl;
 		while (ant != istart - i && istart != i) {}
-		
-	} 
-	cout << "wtf\n";
+
+	}
+	//cout << "wtf\n";
 	for (int i = 1; i < blocknum; i++) {
 		ant = 0;
 		int istart, iend, kstart, kend;
 		istart = i;
-		while (istart < (i + blocknum) / 2) {
+		while (istart < (i + blocknum + 1) / 2) {
 
-			kstart = blocknum - 1 - istart;
-			kend = std::fmin((kstart -i+1) * block, n);
+			kstart = blocknum + i - 1 - istart;
+			kend = std::fmin((kstart - i + 1) * block, n);
 			std::unique_lock<std::mutex> lk(mut);
-			q.push(looplist((istart-i) * block, (istart-i + 1) * block, (kstart-i) * block, kend, istart % sz));
+			q.push(looplist((istart - i) * block, (istart - i + 1) * block, (kstart - i) * block, kend, istart % sz));
 			//cout << (istart - i) * block << "\t" << (istart - i + 1) * block << "\t" << (kstart - i) * block << "\t" << kend << "\t" << istart % sz << endl;
 			lk.unlock();
 			cond.notify_one();
-			
+
 			istart++;
 		}
 		//cout << "ist:" << istart << "i:" << i << endl;
 		while (ant != istart - i && istart != i) {}
-		
+
 	}
 
-	home = 1;
-	cout << "wtf\n";
-	q.push(looplist(0, 0,0, 0,0));
-	cond.notify_all();
+
+	//cout << "wtf\n";
+	{
+
+		std::unique_lock<std::mutex> lk(mut);
+		q.push(looplist(-1, -1, -1, -1, -1));
+		cond.notify_one();
+		lk.unlock();
+	}
 	for (int i = 0; i < threadnum; i++) {
 		v[i].join();
 	}
 }
-void jk::worker(std::queue<looplist>&q,condition_variable& cond, atomic_int&ant,atomic_int&home,mutex&mut, vector<queue<pid> >& vc, vector<queue<pid> >& vnc)
+void jk::worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, mutex& mut, vector<queue<pid> >& vc, vector<queue<pid> >& vnc)
 {
 	while (true) {
 
@@ -95,17 +180,17 @@ void jk::worker(std::queue<looplist>&q,condition_variable& cond, atomic_int&ant,
 
 		std::unique_lock<std::mutex> lk(mut);
 		cond.wait(lk, [&] {return !q.empty(); });
-
-		if (home == 1) {
-
-			//cout << "gohome\n";
+		auto x = q.front();
+		if (x.cnum == -1) {
+			lk.unlock();
+			cond.notify_one();
 			return;
 		}
-
-		auto x = q.front();
 		q.pop();
 		lk.unlock();
-		
+
+
+
 		int istart, iend;
 		istart = x.istart;
 		iend = x.iend;
@@ -117,6 +202,7 @@ void jk::worker(std::queue<looplist>&q,condition_variable& cond, atomic_int&ant,
 		queue<pid>& next_correction = vnc[x.cnum];
 
 
+
 		int idx[3];
 		int uindex = 0;
 		for (int i = istart; i < iend; i++) {
@@ -124,6 +210,10 @@ void jk::worker(std::queue<looplist>&q,condition_variable& cond, atomic_int&ant,
 
 			for (int k = kstart; k < kend; k++) {
 				for (int j = i + 1; j < k; j++) {
+
+
+					//int64_t ijk = static_cast<int64_t>(i) * n * n + j * n + k;
+					//next_correction.push(pid(ijk, 0));
 					int64_t ijk1 = static_cast<int64_t>(i) * n * n;
 					idx[0] = ij(i, j, n);
 					int64_t ijk2, ijk3, ijk4;
@@ -247,7 +337,7 @@ void jk::triloop(int threadnum, std::queue<pid>& correction, std::queue<pid>& ne
 		int64_t ijk1 = static_cast<int64_t>(i) * n * n;
 		for (int j = i + 1; j < n; j++) {
 			idx[0] = ij(i, j, n);
-			int64_t ijk2, ijk3,ijk4;
+			int64_t ijk2, ijk3, ijk4;
 			ijk2 = ijk1 + j * n;
 			ijk3 = static_cast<int64_t>(j) * n * n + i;
 			ijk4 = ijk1 + j;
@@ -285,30 +375,30 @@ void jk::triloop(int threadnum, std::queue<pid>& correction, std::queue<pid>& ne
 
 					y[idx[0]] += theta * wij / fm;
 					y[idx[1]] -= theta * wik / fm;
-					y[idx[2]] -= theta *wjk / fm;
+					y[idx[2]] -= theta * wjk / fm;
 				}
 				mu = y[idx[0]] + bij - (y[idx[1]] + bik) - (y[idx[2]] + bjk);
 				if (mu > 0) {
-					y[idx[0]] -= mu *wij / fm;
+					y[idx[0]] -= mu * wij / fm;
 					y[idx[1]] += mu * wik / fm;
-					y[idx[2]] += mu * wjk/ fm;
+					y[idx[2]] += mu * wjk / fm;
 					next_correction.push(std::pair<int64_t, double>(ijk, mu));
 
 				}
 
 
-				
 
 
 
-				ijk = ijk4+k*n;
+
+				ijk = ijk4 + k * n;
 
 
 
 				if (!correction.empty() && correction.front().first == ijk) {
 					theta = correction.front().second;
 					correction.pop();
-					y[idx[1]] += theta * wik/ fm;
+					y[idx[1]] += theta * wik / fm;
 					y[idx[0]] -= theta * wij / fm;
 					y[idx[2]] -= theta * wjk / fm;
 				}
@@ -331,20 +421,20 @@ void jk::triloop(int threadnum, std::queue<pid>& correction, std::queue<pid>& ne
 					correction.pop();
 					y[idx[2]] += theta * wjk / fm;
 					y[idx[1]] -= theta * wik / fm;
-					y[idx[0]] -= theta * wij/ fm;
+					y[idx[0]] -= theta * wij / fm;
 				}
 				mu = y[idx[2]] + bjk - (y[idx[1]] + bik) - (y[idx[0]] + bij);
 				if (mu > 0) {
 					y[idx[2]] -= mu * wjk / fm;
 					y[idx[1]] += mu * wik / fm;
-					y[idx[0]] += mu *wij / fm;
+					y[idx[0]] += mu * wij / fm;
 					next_correction.push(std::pair<int64_t, double>(ijk, mu));
 
 
 				}
 
-				
-				
+
+
 				mut[j * n + k].unlock();
 
 				mut[i * n + k].unlock();
@@ -422,7 +512,7 @@ void jk::multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<st
 	}
 	delete[]mut;
 }
-void jk::multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<std::queue<pid> >& next_correction,int te) {
+void jk::multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<std::queue<pid> >& next_correction, int te) {
 	int threadnum = mthread;
 	int block = 10;
 	int blocknum = (n - 1) / block + 1;
@@ -465,7 +555,7 @@ void jk::multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<st
 				}
 
 				if (iend <= istart)continue;
-				cout << istart+t << " " << iend+t << " " << kstart+t << endl;
+				cout << istart + t << " " << iend + t << " " << kstart + t << endl;
 				//v.push_back(std::thread(&jk::triloop2,this, istart + t, iend + t, kstart + t, block, std::ref(correction[th]), std::ref(next_correction[th])));
 			}
 
@@ -483,32 +573,85 @@ double jk::run(double tol)
 
 	std::vector<std::queue<pid> >correction(100);
 	std::vector<std::queue<pid> >next_correction(100);
-	auto & c1 = correction;
-	auto & c2 = next_correction;
+	auto& c1 = correction;
+	auto& c2 = next_correction;
 
 	kkt_1 = kkt_2 = 0.0;
-	int k;
-	for (k = 0; k < 10000; k++) {
+	int iter_I;
+	for (iter_I = 0; iter_I < 10000; iter_I++) {
 		kkt_2 = kkt_1 = 0.0;
 		//triloop(c1,c2);
-		
 
 
 
 
-		multi_triloop(mthread, c1, c2);
+
+		multi_triloop2(mthread, c1, c2);
+		//return 0;
 		//triloop(0, c1[0], c2[0], NULL);
+		//return 0;
+		/*std::map<int64_t, int>tst;
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				for (int k = j + 1; k < n; k++) {
+					tst[i * n * n + j * n + k] = 0;
+					
+				}
+			}
+		}
+
+
+		for (int co = 0; co < c2.size(); co++) {
+			while (!c2[co].empty()) {
+
+				int64_t longindex = c2[co].front().first;
+				
+				c2[co].pop();
+				tst[longindex]++;
+				
+			}
+		}
+		for (auto iter : tst) {
+			if (iter.second != 1) {
+
+				int64_t longindex = iter.first;
+				int i, j, k;
+				k = longindex % n;
+				j = longindex / n;
+				i = j / n;
+				j = j % n;
+				cout << "i:" << i << " j:" << j << " k:" << k << " num:" << iter.second << endl;
+
+			}
+		}*/
+		//
+
+
+
+		//return 0.0;
 		biloop();
+
+		int tst = 0;
+		int ttt = 0;
+		for (auto i : c1) {
+			tst += i.size();
+		}
+		for (auto i : c2) {
+			ttt += i.size();
+		}
+		cout << tst << "," << ttt << endl;
+
+
 
 		std::swap(c1, c2);
 		pobj = 0.0;
 		int index = 0;
 
 
-		cout << "====" << endl;
+		//cout << "====" << endl;
 
 
-		if ((k + 1) % 10 == 0) {
+		if ((iter_I + 1) % 10 == 0) {
 
 			cout << "=============================\n";
 			pobj = m.cwiseProduct(w).sum();
@@ -518,31 +661,32 @@ double jk::run(double tol)
 
 			double dobj = 0;
 #pragma omp parallel for reduction(+:dobj)
-			
-			for (int co = 0; co < correction.size();co++) {
-					while(!correction[co].empty()) {
 
-						int64_t longindex = correction[co].front().first;
-						double mu = correction[co].front().second;
-						correction[co].pop();
-						int i, j, k;
-						k = longindex % n;
-						j = longindex / n;
-						i = j / n;
-						j = j % n;
-						int idx[3];
-						idx[0] = ij(i, j, n);
-						idx[1] = ij(i, k, n);
-						idx[2] = ij(j, k, n);
-						double fm = inv_w[idx[0]] + inv_w[idx[1]] + inv_w[idx[2]];
-						dobj += mu * (b[idx[0]] - b[idx[1]] - b[idx[2]]) / fm;
-					}
+			for (int co = 0; co < c1.size(); co++) {
+				while (!c1[co].empty()) {
+
+					int64_t longindex = c1[co].front().first;
+					double mu = c1[co].front().second;
+					c2[co].push(c1[co].front());
+					c1[co].pop();
+					int i, j, k;
+					k = longindex % n;
+					j = longindex / n;
+					i = j / n;
+					j = j % n;
+					int idx[3];
+					idx[0] = ij(i, j, n);
+					idx[1] = ij(i, k, n);
+					idx[2] = ij(j, k, n);
+					double fm = inv_w[idx[0]] + inv_w[idx[1]] + inv_w[idx[2]];
+					dobj += mu * (b[idx[0]] - b[idx[1]] - b[idx[2]]) / fm;
 				}
-			
+			}
+			std::swap(c1, c2);
 			dobj /= gam;
 			dobj -= wnorm / (2 * gam);
 			pobj += wnorm / (2 * gam);
-			std::cout << k << " " << std::setprecision(8) << pobj  << "\tdobj:" << dobj<< "\twnorm:" << wnorm << std::endl;
+			std::cout << iter_I << " " << std::setprecision(8) << pobj << "\tdobj:" << dobj << "\twnorm:" << wnorm << std::endl;
 			if (std::fabs((pobj - dobj) / dobj) < tol)break;
 		}
 
