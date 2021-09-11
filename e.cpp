@@ -69,21 +69,21 @@ int main() {
 	//s.run_test(1e-2);
 	// 
 	// 
-	vector<string>target = {"graph1k.txt"};
+	vector<string>target = {"graph200.txt"};
 	vector<ppdd>res;
 	timer tm;
 	for (auto i : target) {
-		jk s1(i,1);
+		admm_basic s1(i,0);   
 		//admm_basic s2(i);
 
 		double a1, a2, a3;
-		for (int j = 0; j < s1.n * (s1.n - 1) / 2; j++) {
-			s1.w[j]  = 1;
-		}
+		//for (int j = 0; j < s1.n * (s1.n - 1) / 2; j++) {
+		//	s1.w[j]  = 1;
+		//}
 
 		cout << s1.w.size() << endl;
 		tm.tic();
-		a1=s1.run(1e-3);
+		a1=s1.run();
 		tm.toc();
 		auto c1 = pdd(a1, tm.blink);
 		auto b1=ppdd(c1,test(s1.x+s1.b,s1.n));
@@ -93,6 +93,10 @@ int main() {
 		res.push_back(b1);		//res.push_back(b2);		
 
 	}
+	//metric m(string("graph14.txt"));
+	//for (int i = 0; i < 7 * 13; i++) {
+	//	cout << m.w[i] << " " << m.b[i] << endl;
+	//}
 	//vector<double>tau = { 1.618,1.9 };
 	//vector<double>sigma = { 1,0.1,0.001 };
 	//vector<double>scale_c = { 1,9 };

@@ -1,5 +1,13 @@
 #include"admm_class.h"
+#include"mytime.h"
+#include <Eigen/PardisoSupport>
+admm::admm(string graph_name, int type) :metric(graph_name, type)
+{
+}
 
+admm::~admm()
+{
+}
 int itertime(int x) {
 	if (x > 500) {
 		if (x > 3000)
@@ -23,11 +31,12 @@ int itertime(int x) {
 	}
 
 }
-void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>colidx, double tau = 1.0, double scale_a = 1.0, int start = 0, int end = -1) {
+void all_in_all(mutex* mu, int n, vector<pair<int64_t, double>>&u , vector<pair<int64_t, double>>& unew, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, vector<int>&colidx, double tau = 1.0, double scale_a = 1.0, int start = 0, int end = -1) {
 	auto square = [](double x) {return x * x; };
 	std::vector<std::pair<int64_t, double> >ins;
 	std::vector<std::map<int64_t, double>::iterator>del;
 	if (end == -1)end = n;
+	int uidx = 0;
 	for (int istart = start; istart < end; istart++) {
 
 		int64_t lindex = cons[istart];
@@ -51,9 +60,10 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 
 		{
 			double u_value = 0;
-			auto t = u.find(longindex[0]);
-			if (t != u.end()) {
-				u_value = t->second;
+			
+			if (uidx<u.size()&&longindex[0]==u[uidx].first) {
+				u_value = u[uidx].second;
+				uidx++;
 			}
 
 			double axb, axbu;
@@ -71,19 +81,9 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 			axby += square(axb);
 			double u_new = axb * tau * sigma + u_value;
 
-			if (u_new == 0) {
-				if (t != u.end()) {
-					del.push_back(t);
-				}
-			}
-			else if (t != u.end()) {
-				//mu->lock();
-
-				u[longindex[0]] = u_new;
-				//mu->unlock();
-			}
-			else {
-				ins.push_back(std::pair<int64_t, double>(longindex[0], u_new));
+			if (u_new!= 0) {
+				
+				unew.push_back(std::pair<int64_t, double>(longindex[0], u_new));
 			}
 
 			atu[idx[0]] += u_new / scale_a;
@@ -94,9 +94,9 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 
 		{
 			double u_value = 0;
-			auto t = u.find(longindex[1]);
-			if (t != u.end()) {
-				u_value = t->second;
+			if (uidx < u.size() && longindex[1] == u[uidx].first) {
+				u_value = u[uidx].second;
+				uidx++;
 			}
 
 			double axb, axbu;
@@ -118,19 +118,9 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 			double u_new = axb * tau * sigma + u_value;
 
 
-			if (u_new == 0) {
-				if (t != u.end()) {
-					del.push_back(t);
-				}
-			}
-			else if (t != u.end()) {
-				//mu->lock();
+			if (u_new != 0) {
 
-				u[longindex[1]] = u_new;
-				//mu->unlock();
-			}
-			else {
-				ins.push_back(std::pair<int64_t, double>(longindex[1], u_new));
+				unew.push_back(std::pair<int64_t, double>(longindex[1], u_new));
 			}
 			atu[idx[1]] += u_new / scale_a;
 			atu[idx[0]] -= u_new / scale_a;
@@ -140,9 +130,9 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 
 		{
 			double u_value = 0;
-			auto t = u.find(longindex[2]);
-			if (t != u.end()) {
-				u_value = t->second;
+			if (uidx < u.size() && longindex[2] == u[uidx].first) {
+				u_value = u[uidx].second;
+				uidx++;
 			}
 
 			double axb, axbu;
@@ -162,19 +152,9 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 			axby += square(axb);
 			double u_new = axb * tau * sigma + u_value;
 
-			if (u_new == 0) {
-				if (t != u.end()) {
-					del.push_back(t);
-				}
-			}
-			else if (t != u.end()) {
-				//mu->lock();
+			if (u_new != 0) {
 
-				u[longindex[2]] = u_new;
-				//mu->unlock();
-			}
-			else {
-				ins.push_back(std::pair<int64_t, double>(longindex[2], u_new));
+				unew.push_back(std::pair<int64_t, double>(longindex[2], u_new));
 			}
 			atu[idx[2]] += u_new / scale_a;
 			atu[idx[1]] -= u_new / scale_a;
@@ -185,16 +165,10 @@ void all_in_all(mutex* mu, int n, std::map<int64_t, double>& u, Eigen::VectorXd&
 
 
 	}
-	mu->lock();
-	for (auto i : ins) {
-		u.insert(i);
-	}
-	for (auto i : del) {
-		u.erase(i);
-	}
-	mu->unlock();
+	u.clear();
 }
-void m_all_in_all(int pnum, int n, std::map<int64_t, double>& u, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>&colidx, double tau = 1.0, double scale_a = 1.0) {
+void admm::m_all_in_all( int n, vector<vector<pair<int64_t, double>>>& u, vector<vector<pair<int64_t, double>>>& u_new, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, vector<int>&colidx, double tau = 1.0, double scale_a = 1.0) {
+	int pnum = mthread;
 	std::vector<std::thread>v;
 	std::vector<Eigen::VectorXd>vatu;
 	std::vector<double>vaxby(pnum), vy_norm(pnum);
@@ -219,7 +193,7 @@ void m_all_in_all(int pnum, int n, std::map<int64_t, double>& u, Eigen::VectorXd
 
 
 
-		v.push_back(std::thread(all_in_all, &mu, n, ref(u), ref(x), ref(b), ref(vatu[i]), ref(old_x), ref(vaxby[i]), ref(vy_norm[i]), sigma, ref(cons),ref(colidx), tau, scale_a, va, vb));
+		v.push_back(std::thread(all_in_all, &mu, n, ref(u[i]),ref(u_new[i]), ref(x), ref(b), ref(vatu[i]), ref(old_x), ref(vaxby[i]), ref(vy_norm[i]), sigma, ref(cons),ref(colidx), tau, scale_a, va, vb));
 	}
 	for (int i = 0; i < pnum; i++) {
 		v[i].join();
@@ -364,9 +338,10 @@ void m_atax(int pnum, int n, Eigen::VectorXd& x, Eigen::VectorXd& res, std::vect
 		res += vatu[i];
 	}
 }
-void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, double>* u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>&colidx,double scale_a = 1, int start = 0, int end = -1) {
+void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, vector<pair<int64_t, double>>& u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, vector<int>&colidx,double scale_a = 1, int start = 0, int end = -1) {
 
 	if (end < 0)end = cons.size();
+	int uidx = 0;
 	for (int istart = start; istart < end; istart++) {
 		int64_t lindex = cons[istart];
 		int i, j, k;
@@ -382,7 +357,7 @@ void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, doubl
 
 		double axbu;
 
-		bool flag;
+		double flag;
 		double tem;
 		int64_t longindex[3];
 		longindex[0] = static_cast<int64_t>(i) * n * n + static_cast<int64_t>(j) * n + k;
@@ -390,17 +365,28 @@ void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, doubl
 		longindex[2] = static_cast<int64_t>(j) * n * n + static_cast<int64_t>(k) * n + i;
 
 		axbu = (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]]) / scale_a;
-		flag = (u->find(longindex[0]) != u->end());
-		if (flag)
-			axbu += (*u)[longindex[0]] / sigma;
+		if (uidx<u.size()&&u[uidx].first == longindex[0]) {
+			flag = u[uidx].second;
+			uidx++;
+		}
+		else {
+			flag = 0;
+		}
+
+		
+
+
+			axbu += flag / sigma;
+			
+		
 
 		if (axbu > 0) {
 			axbu = 0;
 		}
 		tem = axbu - (b[idx[0]] - b[idx[1]] - b[idx[2]]) / scale_a;
-		if (flag) {
-			tem -= (*u)[longindex[0]] / sigma;
-		}
+
+			tem -= flag / sigma;
+
 
 		res[idx[0]] += tem / scale_a;
 		res[idx[1]] -= tem / scale_a;
@@ -408,43 +394,52 @@ void atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, doubl
 
 		//second scene
 		axbu = (x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]]) / scale_a;
-		flag = (u->find(longindex[1]) != u->end());
-
-		if (flag)
-			axbu += (*u)[longindex[1]] / sigma;
+		if (uidx < u.size() && u[uidx].first == longindex[1]) {
+			flag = u[uidx].second;
+			uidx++;
+		}
+		else {
+			flag = 0;
+		}
+			axbu += flag/ sigma;
 
 		if (axbu > 0) {
 			axbu = 0;
 		}
 		tem = axbu - (b[idx[1]] - b[idx[0]] - b[idx[2]]) / scale_a;
-		if (flag) {
-			tem -= (*u)[longindex[1]] / sigma;
-		}
+		
+			tem -= flag/ sigma;
+		
 
 		res[idx[1]] += tem / scale_a;
 		res[idx[0]] -= tem / scale_a;
 		res[idx[2]] -= tem / scale_a;
 		//third scene
 		axbu = (x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]]) / scale_a;
-		flag = (u->find(longindex[2]) != u->end());
-
-		if (flag)
-			axbu += (*u)[longindex[2]] / sigma;
+		if (uidx < u.size() && u[uidx].first == longindex[2]) {
+			flag = u[uidx].second;
+			uidx++;
+		}
+		else {
+			flag = 0;
+		}
+			axbu += flag/ sigma;
 
 		if (axbu > 0) {
 			axbu = 0;
 		}
 		tem = axbu - (b[idx[2]] - b[idx[1]] - b[idx[0]]) / scale_a;
-		if (flag) {
-			tem -= (*u)[longindex[2]] / sigma;
-		}
+		
+			tem -= flag/ sigma;
+		
 
 		res[idx[2]] += tem / scale_a;
 		res[idx[1]] -= tem / scale_a;
 		res[idx[0]] -= tem / scale_a;
 	}
 }
-void m_atyu(int pnum, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<int64_t, double>* u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>&colidx, double scale_a = 1) {
+void admm::m_atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, vector<vector<pair<int64_t, double>>>&u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons,vector<int>&colidx, double scale_a = 1) {
+	int pnum = mthread;
 	std::vector<std::thread>v;
 	std::vector<Eigen::VectorXd>vatu;
 	for (int i = 0; i < pnum; i++) {
@@ -459,17 +454,16 @@ void m_atyu(int pnum, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::map<in
 		else {
 			vb = cons.size();
 		}
-		v.push_back(std::thread(atyu, n, ref(x), ref(b), u, ref(vatu[i]), sigma, ref(cons),ref(colidx), scale_a, va, vb));
+		v.push_back(std::thread(atyu, n, ref(x), ref(b), ref(u[i]), ref(vatu[i]), sigma, ref(cons),ref(colidx), scale_a, va, vb));
 	}
 	for (int i = 0; i < pnum; i++) {
 		v[i].join();
 		res += vatu[i];
-
 	}
 
 
 }
-admm_basic::admm_basic(string graph_name) :metric(graph_name)
+admm_basic::admm_basic(string graph_name,int type) :admm(graph_name,type)
 {
 
 
@@ -480,7 +474,7 @@ admm_basic::~admm_basic()
 {
 
 }
-inline double admm_basic::func_p(Eigen::VectorXd x) {
+ double admm_basic::func_p(Eigen::VectorXd x,Eigen::VectorXd w) {
 	return w.cwiseProduct(x.cwiseAbs()).sum();
 }
 inline Eigen::VectorXd admm_basic::prox_p(Eigen::VectorXd x, double sigma,Eigen::VectorXd w) {
@@ -493,8 +487,66 @@ double admm_basic::get_kkt(double sigma) {
 	//cout << "v_norm:" << v.norm() << "y_norm" << y_norm <<"x_norm"<<x.norm()<< endl;
 }
 
-double admm_basic::run(double tau, double sigma, double scale_b, double scale_c) {
+void admm::constrain_generate(int istart,int iend,mutex&mut,vector<int>&colidx,int&colidx_num, std::vector<Eigen::Triplet<double> >&acons, std::vector<int64_t>&cons,std::set<int64_t>&viscons){
 
+	for (int i = istart; i < iend; i++) {
+		int64_t index;
+		for (int j = i + 1; j < n; j++) {
+			for (int k = j + 1; k < n; k++) {
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
+				index = static_cast<int64_t>(i) * n * n + j * n + k;
+
+				if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 3e-2 ||
+					x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 3e-2 ||
+					x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 3e-2) {
+
+					if (viscons.find(index) == viscons.end()) {
+						mut.lock();
+						for (int tp = 0; tp < 3; tp++) {
+							if (colidx[idx[tp]] == -1) {
+
+								colidx[idx[tp]] = colidx_num;
+								colidx_num++;
+
+							}
+						}
+						cons.push_back(index);
+
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[0]], 1));
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[1]], -1));
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[2]], -1));
+
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[0]], -1));
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[1]], 1));
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[2]], -1));
+
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[0]], -1));
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[1]], -1));
+						acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[2]], 1));
+
+
+
+						viscons.insert(index);
+						mut.unlock();
+					}
+				}
+			}
+		}
+	}
+
+
+}
+
+
+
+
+double admm_basic::run(double tau, double sigma, double scale_b, double scale_c) {
+	vector<vector<pair<int64_t, double>>>u1(mthread),u2(mthread);
+	vector<vector<pair<int64_t, double>>>&u = u1;
+	vector<vector<pair<int64_t, double>>>&u_new = u2;
 	double scale_a;
 	//scale_a = 3;
 	//scale_b = b.norm();
@@ -503,7 +555,8 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 	//scale_b = b.norm();
 	//scale_c = 3;
 
-	std::unordered_map<int, int>colidx;
+	std::vector<int> colidx(var_num,-1);
+	int colidx_num=0;
 	// = b / b.norm();
 	scale_a = 3;
 	b = b * 3 / scale_b;
@@ -517,104 +570,140 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 	int old_size = viscons.size();
 	std::vector<Eigen::Triplet<double> >acons;
 
-
+	timer madoka,homula;
 	double finalres;
-
+	int loopflag = 0;
 	while (true) {
 
+		
+		if (true) {
 
 
-		for (int i = 0; i < n; i++) {
-			int64_t index;
-			for (int j = i + 1; j < n; j++) {
-				for (int k = j + 1; k < n; k++) {
-					int idx[3];
-					idx[0] = ij(i, j, n);
-					idx[1] = ij(i, k, n);
-					idx[2] = ij(j, k, n);
-					index = static_cast<int64_t>(i) * n * n + j * n + k;
+			for (int i = 0; i < n; i++) {
+				int64_t index;
+				for (int j = i + 1; j < n; j++) {
+					for (int k = j + 1; k < n; k++) {
+						int idx[3];
+						idx[0] = ij(i, j, n);
+						idx[1] = ij(i, k, n);
+						idx[2] = ij(j, k, n);
+						index = static_cast<int64_t>(i) * n * n + j * n + k;
 
-					if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 3e-2 ||
-						x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 3e-2 ||
-						x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 3e-2) {
+						if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 3e-2 ||
+							x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 3e-2 ||
+							x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 3e-2) {
 
-						if (viscons.find(index) == viscons.end()) {
-							for (int tp = 0; tp < 3; tp++) {
-								if (colidx.find(idx[tp]) == colidx.end()) {
-									int tmmp = colidx.size();
-									colidx[idx[tp]] = tmmp;
+							if (viscons.find(index) == viscons.end()) {
+								for (int tp = 0; tp < 3; tp++) {
+									if (colidx[idx[tp]] == -1) {
+
+										colidx[idx[tp]] = colidx_num;
+										colidx_num++;
+
+									}
 								}
+								cons.push_back(index);
+
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[0]], 1));
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[1]], -1));
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[2]], -1));
+
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[0]], -1));
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[1]], 1));
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[2]], -1));
+
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[0]], -1));
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[1]], -1));
+								acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[2]], 1));
+
+
+
+								viscons.insert(index);
 							}
-							cons.push_back(index);
-
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[0]], 1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[1]], -1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3, colidx[idx[2]], -1));
-
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[0]], -1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[1]], 1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 1, colidx[idx[2]], -1));
-
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[0]], -1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[1]], -1));
-							acons.push_back(Eigen::Triplet<double>(viscons.size() * 3 + 2, colidx[idx[2]], 1));
-
-
-
-							viscons.insert(index);
 						}
 					}
 				}
 			}
 		}
+		else {
+			vector<thread>vt;
+			mutex mut;
+			for (int i = 0; i < mthread; i++) {
+
+				int ta, tb;
+				ta = n - (int)(cbrt((i + 1) * 1.0 / mthread) * n);
+				tb = n - (int)(cbrt(i * 1.0 / mthread) * 1.0 * n);
+				vt.push_back(thread(&admm::constrain_generate, this,ta,tb, ref(mut), ref(colidx), ref(colidx_num), ref(acons), ref(cons), ref(viscons)));
+			}
+			for (int i = 0; i < mthread; i++) {
+				vt[i].join();
+			}
+		}
 		cout << "cons:" << viscons.size() << endl;
 
-		if (old_size == viscons.size()) {
+		if (loopflag==2&&old_size == viscons.size()) {
 
 
-
+			cout << "timeis:" << madoka.time() << " homulais:" << homula.time() << endl;
 
 			x = x / scale_a * scale_b;
 			b = b / 3;
 			return finalres;
 		}
+		else if (loopflag == 2||old_size == viscons.size()) {
+			loopflag=1;
+		}
+
 		old_size = viscons.size();
-		Eigen::SparseMatrix<double> hst(viscons.size() * 3, colidx.size());
-		Eigen::SparseMatrix<double> hs(colidx.size(), colidx.size());
+		Eigen::SparseMatrix<double> hst(viscons.size() * 3, colidx_num);
+		Eigen::SparseMatrix<double> hs(colidx_num, colidx_num);
 		hst.setFromTriplets(acons.begin(), acons.end());
+		acons.clear();
+
 		hs = hst.transpose() * hst / (scale_a * scale_a);
 
-		hs += Eigen::VectorXd::Ones(colidx.size()).asDiagonal();
+		hs += Eigen::VectorXd::Ones(colidx_num).asDiagonal();
 		Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
-
+		//Eigen::PardisoLDLT<SparseMatrix<double>> cg;
 		cg.compute(hs);
 
-		sub_x = Eigen::VectorXd::Zero(colidx.size());
-		sub_b = Eigen::VectorXd::Zero(colidx.size());
-		sub_w = Eigen::VectorXd::Zero(colidx.size());
-		sub_v = Eigen::VectorXd::Zero(colidx.size());
+		sub_x = Eigen::VectorXd::Zero(colidx_num);
+		sub_b = Eigen::VectorXd::Zero(colidx_num);
+		sub_w = Eigen::VectorXd::Zero(colidx_num);
+		sub_v = Eigen::VectorXd::Zero(colidx_num);
 
 
 
-		for (auto i = colidx.begin(); i != colidx.end(); i++) {
+		for (int i = 0; i < var_num;i++) {
+			if (colidx[i] != -1) {
 
-			sub_x[i->second] = x[i->first];
-			sub_b[i->second] = b[i->first];
-			sub_w[i->second] = w[i->first];
-			sub_v[i->second] = v[i->first];
-		}
-		int sub_var = colidx.size();
 
-		for (int k = 0;; k++)
+				sub_x[colidx[i]] = x[i];
+				sub_b[colidx[i]] = b[i];
+				sub_w[colidx[i]] = w[i];
+				sub_v[colidx[i]] = v[i];
+			}
+		} 
+
+		cout << sub_x.sum() << " " << sub_b.sum() << " " << sub_v.sum() << endl;
+		cout << "col:" << colidx_num << endl;
+		int sub_var = colidx_num;
+
+		for (int iter_I = 0;; iter_I++)
 		{
+
+			
+
+			madoka.tic();
 			Eigen::VectorXd old_x = sub_x;
 			rhs = Eigen::VectorXd::Zero(sub_var);
 			//atyu(n, x, b, &u, rhs, sigma,scale_a);
-			m_atyu(32, n, sub_x, sub_b, &u, rhs, sigma, cons, colidx, scale_a);
+			//cout << u.size() << endl;
+			m_atyu( n, sub_x, sub_b, u, rhs, sigma, cons, colidx, scale_a);
 			rhs += prox_p(sub_x + sub_v / sigma, sigma,sub_w) - sub_v / sigma;
 			//cg
 			//cout << "atyu\n";
-
+			madoka.toc();
 			double tol = 1e-10;
 			Eigen::VectorXd r = rhs;
 			Eigen::VectorXd p(sub_var);
@@ -660,14 +749,19 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 
 			//double ita = std::fmin(0.5, 0.1 * rhs.norm());
 			//cg.setTolerance(ita / rhs.norm());
-
+			homula.tic();
 			sub_x = cg.solve(rhs);
-
+			homula.toc();
 
 			double y_norm, kkt_u;
 			y_norm = kkt_u = 0;
 			Eigen::VectorXd atu = Eigen::VectorXd::Zero(sub_var);
-			m_all_in_all(32, n, u, sub_x, sub_b, atu, old_x, kkt_u, y_norm, sigma, cons, colidx, tau, scale_a);
+
+
+
+			m_all_in_all( n, u,u_new, sub_x, sub_b, atu, old_x, kkt_u, y_norm, sigma, cons, colidx, tau, scale_a);
+			std::swap(u, u_new);
+
 			Eigen::VectorXd z = prox_p(sub_x + sub_v / sigma, sigma,sub_w);
 			sub_v += sigma * tau * (sub_x - z);
 
@@ -683,7 +777,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 			else {
 				prim_win++;
 			}
-			if ((k + 1) % itertime(k) == 0) {
+			if ((iter_I + 1) % itertime(iter_I) == 0) {
 				if (prim_win > dual_win * 1.2 && prim_win > 1) {
 					prim_win = 0;
 					sigma /= 3;
@@ -701,59 +795,95 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 			double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
 			maxsize = fmax(maxsize, u.size());
 
-			cout << k << "\t" << kkt << "\t" << func_p(sub_x) * scale_b*scale_c / 3 << "\t" << sigma << "\t" << u.size() << endl;
-			if (kkt < 1e-2) {
-				bool flg = true;
-				for (auto iter : cons) {
-					int64_t longindex = iter;
-					int i, j, k;
-					k = longindex % n;
-					j = longindex / n;
-					i = j / n;
-					j = j % n;
-					int idx[3];
-					idx[0] = colidx[ij(i, j, n)];
-					idx[1] = colidx[ij(i, k, n)];
-					idx[2] = colidx[ij(j, k, n)];
-					if (sub_x[idx[0]] + sub_b[idx[0]] - sub_x[idx[1]] - sub_b[idx[1]] - sub_x[idx[2]] - sub_b[idx[2]] > 3e-2 ||
-						sub_x[idx[1]] + sub_b[idx[1]] - sub_x[idx[0]] - sub_b[idx[0]] - sub_x[idx[2]] - sub_b[idx[2]] > 3e-2 ||
-						sub_x[idx[2]] + sub_b[idx[2]] - sub_x[idx[1]] - sub_b[idx[1]] - sub_x[idx[0]] - sub_b[idx[0]] > 3e-2) {
-						flg = false;
-						break;
-					}
-				}
-				if (!flg) {
-					continue;
-				}
-				double pobj = func_p(sub_x) * scale_b / 3;
+			cout << iter_I << "\t" << kkt << "\t" << func_p(sub_x,sub_w) * scale_b*scale_c / 3 << "\t" << sigma << "\t" << u.size() << endl;
+			if (kkt < 1e-3) {
+				
+
+				double pobj = func_p(sub_x,sub_w) * scale_b / 3;
 				double dobj = 0;
-				for (auto id : u) {
-					int64_t longindex = id.first;
-					int i, j, k;
-					k = longindex % n;
-					j = longindex / n;
-					i = j / n;
-					j = j % n;
-					int idx[3];
-					idx[0] = colidx[ij(i, j, n)];
-					idx[1] = colidx[ij(i, k, n)];
-					idx[2] = colidx[ij(j, k, n)];
-					dobj += id.second * (sub_b[idx[0]] - sub_b[idx[1]] - sub_b[idx[2]]);
+#pragma omp parallel for reduction(+:dobj)
+				for (int i = 0; i < u.size(); i++) {
+
+
+					for (auto id : u[i]) {
+						int64_t longindex = id.first;
+						int i, j, k;
+						k = longindex % n;
+						j = longindex / n;
+						i = j / n;
+						j = j % n;
+						int idx[3];
+						idx[0] = colidx[ij(i, j, n)];
+						idx[1] = colidx[ij(i, k, n)];
+						idx[2] = colidx[ij(j, k, n)];
+						dobj += id.second * (sub_b[idx[0]] - sub_b[idx[1]] - sub_b[idx[2]]);
+					}
 				}
 				dobj /= scale_a * scale_a;
 				dobj *= scale_b * scale_c;
-				cout << "dobj:" << dobj << endl;
-				if (fabs(pobj - dobj) / dobj < 1e-3) {
+				cout <<"pobj:"<<pobj<< " dobj:" << dobj << endl;
+				if (fabs(pobj - dobj) / dobj < 1e-2) {
+
+					if (loopflag == 0) {
+
+						for (int i = 0; i < var_num; i++) {
+							if (colidx[i] != -1) {
 
 
-					for (auto i = colidx.begin(); i != colidx.end(); i++) {
-						x[i->first] = sub_x[i->second];
-						b[i->first] = sub_b[i->second];
-						w[i->first] = sub_w[i->second];
-						v[i->first] = sub_v[i->second];
+								 x[i]= sub_x[colidx[i]];
+								 b[i]=sub_b[colidx[i]];
+								 w[i]=sub_w[colidx[i]];
+								 v[i]=sub_v[colidx[i]];
+							}
+						}
+						cout << sub_x.sum() << " " << sub_b.sum() << " " << sub_v.sum() << endl;
+						//for (auto i = colidx.begin(); i != colidx.end(); i++) {
+						//	x[i->first] = sub_x[i->second];
+						//	b[i->first] = sub_b[i->second];
+						//	w[i->first] = sub_w[i->second];
+						//	v[i->first] = sub_v[i->second];
+						//}
+						finalres = func_p(sub_x, sub_w) * scale_b * scale_c / scale_a;
+						break;
 					}
-					finalres = func_p(sub_x) * scale_b * scale_c / scale_a;
-					break;
+					else {
+						bool flg = true;
+						for (auto iter : cons) {
+							int64_t longindex = iter;
+							int i, j, k;
+							k = longindex % n;
+							j = longindex / n;
+							i = j / n;
+							j = j % n;
+							int idx[3];
+							idx[0] = colidx[ij(i, j, n)];
+							idx[1] = colidx[ij(i, k, n)];
+							idx[2] = colidx[ij(j, k, n)];
+							if (sub_x[idx[0]] + sub_b[idx[0]] - sub_x[idx[1]] - sub_b[idx[1]] - sub_x[idx[2]] - sub_b[idx[2]] > 3e-2 ||
+								sub_x[idx[1]] + sub_b[idx[1]] - sub_x[idx[0]] - sub_b[idx[0]] - sub_x[idx[2]] - sub_b[idx[2]] > 3e-2 ||
+								sub_x[idx[2]] + sub_b[idx[2]] - sub_x[idx[1]] - sub_b[idx[1]] - sub_x[idx[0]] - sub_b[idx[0]] > 3e-2) {
+								flg = false;
+								break;
+							}
+						}
+						if (flg) {
+							loopflag = 2;
+
+							for (int i = 0; i < var_num; i++) {
+								if (colidx[i] != -1) {
+
+
+									x[i] = sub_x[colidx[i]];
+									b[i] = sub_b[colidx[i]];
+									w[i] = sub_w[colidx[i]];
+									v[i] = sub_v[colidx[i]];
+								}
+							}
+							finalres = func_p(sub_x, sub_w) * scale_b * scale_c / scale_a;
+							break;
+						}
+
+					}
 				}
 			}
 			//cout << "sig:"<<sigma << endl;

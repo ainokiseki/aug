@@ -6,25 +6,62 @@
 #include<mutex>
 #include<Eigen/Sparse>
 #include<Eigen/SparseCholesky>
+#include<queue>
 using namespace std;
 
-class admm_basic :public metric
+class admm:public metric
 {
 public:
-	admm_basic(string graph_name);
+	admm(string graph_name, int type = 0);
+	~admm();
+
+	void m_all_in_all(int n, vector<vector<pair<int64_t, double>>>& u, vector<vector<pair<int64_t, double>>>& u_new, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, vector<int>& colidx, double tau, double scale_a);
+
+	void m_atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, vector<vector<pair<int64_t, double>>>& u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, vector<int>& colidx, double scale_a);
+
+	void constrain_generate(int istart, int iend, mutex& mut, vector<int>& colidx, int& colidx_num, std::vector<Eigen::Triplet<double>>& acons, std::vector<int64_t>& cons, std::set<int64_t>& viscons);
+
+	//void constrain_generate(mutex& mut, vector<int>& colidx, int& colidx_num, std::vector<Eigen::Triplet<double>>& acons, std::vector<int64_t>& cons, std::set<int64_t>& viscons);
+
+	//void constrain_generate(mutex& mut, vector<int>& colidx, int& colidx_num, std::vector<int64_t>& acons, std::vector<int64_t>& cons, std::set<int64_t>& viscons);
+
+
+	//void m_atyu(int pnum, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, vector<queue<pair<int64_t, double>>>& u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>& colidx, double scale_a);
+
+	//void m_all_in_all(int n, vector<vector<pair<int64_t, double>>>& u, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>& colidx, double tau, double scale_a);
+
+	//void m_all_in_all(int n, vector<vector<pair<int64_t, double>>>& u, vector<vector<pair<int64_t, double>>>& u_new, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>& colidx, double tau, double scale_a);
+
+	//void m_atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, vector<vector<pair<int64_t, double>>>& u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, std::unordered_map<int, int>& colidx, double scale_a);
+
+};
+
+
+
+
+
+
+class admm_basic :public admm
+{
+public:
+	admm_basic(string graph_name,int type=0);
 	~admm_basic();
 
-	double func_p(Eigen::VectorXd x);
+	double func_p(Eigen::VectorXd x, Eigen::VectorXd w);
+
+	//double func_p(Eigen::VectorXd x);
 
 	Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma, Eigen::VectorXd w);
 
 	
 
+
+
 	double get_kkt(double sigma);
 	double run(double tau = 1.618, double sigma = 1, double scale_b = 1, double scale_c = 1);
 
 	std::pair<int, int> run_store(double tau, double sigma, double scale_b, double scale_c);
-	int mthread = 32;
+
 
 	void run_dense();
 
@@ -33,7 +70,7 @@ public:
 	Eigen::VectorXd sub_b;
 	Eigen::VectorXd sub_w;
 	Eigen::VectorXd sub_v;
-	map<int64_t, double>u;
+
 	axbu_eigen* axbu;
 };
 

@@ -42,7 +42,7 @@ void jk::multi_triloop2(int threadnum, vector<queue<pid> >& correction, vector<q
 
 
 	for (int i = 0; i < blocknum; i++) {
-		for (int j = blocknum - 1; j > i;j--) {
+		for (int j = blocknum - 1; j >= i;j--) {
 
 			bool flg = false;
 			for (auto & co : ts) {
@@ -213,13 +213,15 @@ void jk::worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& a
 
 
 					//int64_t ijk = static_cast<int64_t>(i) * n * n + j * n + k;
+					//int64_t ijk2 = static_cast<int64_t>(i) * n * n + k * n + j;
+					//int64_t ijk3 = static_cast<int64_t>(j) * n * n + k * n + i;
+
 					//next_correction.push(pid(ijk, 0));
-					int64_t ijk1 = static_cast<int64_t>(i) * n * n;
+					//next_correction.push(pid(ijk2, 0));
+					//next_correction.push(pid(ijk3, 0));
 					idx[0] = ij(i, j, n);
-					int64_t ijk2, ijk3, ijk4;
-					ijk2 = ijk1 + j * n;
-					ijk3 = static_cast<int64_t>(j) * n * n + i;
-					ijk4 = ijk1 + j;
+
+
 					double wij, wik, wjk;
 					double bij, bik, bjk;
 					wij = inv_w[idx[0]];
@@ -234,7 +236,7 @@ void jk::worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& a
 					double fm = wij + wik + wjk;
 					double mu;
 					int64_t ijk;
-					ijk = ijk2 + k;
+					ijk = static_cast<int64_t>(i)*n*n+j*n+k;
 					double theta;
 
 
@@ -264,7 +266,7 @@ void jk::worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& a
 
 
 
-					ijk = ijk4 + k * n;
+					ijk = static_cast<int64_t>(i) * n * n + k * n + j;
 
 
 
@@ -285,7 +287,7 @@ void jk::worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& a
 
 					}
 
-					ijk = ijk3 + k * n;
+					ijk = static_cast<int64_t>(j) * n * n + k * n + i;
 
 
 
@@ -563,6 +565,53 @@ void jk::multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<st
 
 	}
 }
+bool jk::mconstrain_check(double tol)
+{
+	atomic_int ant(0);
+
+	int pnum = mthread;
+	vector<thread>v;
+	for (int i = 0; i < pnum; i++) {
+		
+		v.push_back(thread(&jk::constrain_check,this, tol,ref(ant),n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
+	}
+
+	for (int i = 0; i < pnum; i++) {
+		v[i].join();
+	}
+	if (ant > 0)return false;
+	return true;
+}
+void jk::constrain_check(double tol,atomic_int& ant,int istart,int iend) {
+	for (int i = istart; i < iend; i++) {
+
+		for (int j = i + 1; j < n; j++) {
+			for (int k = j + 1; k < n; k++) {
+				if (ant > 0)return;
+
+				int idx[3];
+				idx[0] = ij(i, j, n);
+				idx[1] = ij(i, k, n);
+				idx[2] = ij(j, k, n);
+				if (y[idx[0]] + b[idx[0]] - (y[idx[1]] + b[idx[1]]) - (y[idx[2]] + b[idx[2]]) > tol ||
+					y[idx[1]] + b[idx[1]] - (y[idx[0]] + b[idx[0]]) - (y[idx[2]] + b[idx[2]]) > tol ||
+					y[idx[2]] + b[idx[2]] - (y[idx[1]] + b[idx[1]]) - (y[idx[0]] + b[idx[0]]) > tol
+					) {
+					ant++;
+					return;
+				}
+			}
+		}
+
+
+	}
+
+
+
+}
+
+
+
 double jk::run(double tol)
 {
 	inv_w = Eigen::VectorXd::Ones(var_num).cwiseQuotient(w);
@@ -587,45 +636,50 @@ double jk::run(double tol)
 
 
 		multi_triloop2(mthread, c1, c2);
+
+
+
+
 		//return 0;
 		//triloop(0, c1[0], c2[0], NULL);
 		//return 0;
-		/*std::map<int64_t, int>tst;
-		for (int i = 0; i < n; i++) {
-			for (int j = i + 1; j < n; j++) {
-				for (int k = j + 1; k < n; k++) {
-					tst[i * n * n + j * n + k] = 0;
-					
-				}
-			}
-		}
+		//std::map<int64_t, int>tst;
+		//for (int i = 0; i < n; i++) {
+		//	for (int j = i + 1; j < n; j++) {
+		//		for (int k = j + 1; k < n; k++) {
+		//			tst[static_cast<int64_t>(i) * n * n + j * n + k] = 0;
+		//			//tst[static_cast<int64_t>(i) * n * n + k* n + j] = 0;
+		//			//tst[static_cast<int64_t>(j) * n * n + k * n + i] = 0;
+		//		}
+		//	}
+		//}
 
 
-		for (int co = 0; co < c2.size(); co++) {
-			while (!c2[co].empty()) {
+		//for (int co = 0; co < c2.size(); co++) {
+		//	while (!c2[co].empty()) {
 
-				int64_t longindex = c2[co].front().first;
-				
-				c2[co].pop();
-				tst[longindex]++;
-				
-			}
-		}
-		for (auto iter : tst) {
-			if (iter.second != 1) {
+		//		int64_t longindex = c2[co].front().first;
+		//		
+		//		c2[co].pop();
+		//		tst[longindex]++;
+		//		
+		//	}
+		//}
+		//for (auto iter : tst) {
+		//	if (iter.second != 1) {
 
-				int64_t longindex = iter.first;
-				int i, j, k;
-				k = longindex % n;
-				j = longindex / n;
-				i = j / n;
-				j = j % n;
-				cout << "i:" << i << " j:" << j << " k:" << k << " num:" << iter.second << endl;
+		//		int64_t longindex = iter.first;
+		//		int i, j, k;
+		//		k = longindex % n;
+		//		j = longindex / n;
+		//		i = j / n;
+		//		j = j % n;
+		//		cout << "i:" << i << " j:" << j << " k:" << k << " num:" << iter.second << endl;
 
-			}
-		}*/
-		//
-
+		//	}
+		//}
+		////
+		//return 0.0;
 
 
 		//return 0.0;
@@ -687,7 +741,7 @@ double jk::run(double tol)
 			dobj -= wnorm / (2 * gam);
 			pobj += wnorm / (2 * gam);
 			std::cout << iter_I << " " << std::setprecision(8) << pobj << "\tdobj:" << dobj << "\twnorm:" << wnorm << std::endl;
-			if (std::fabs((pobj - dobj) / dobj) < tol)break;
+			if (std::fabs((pobj - dobj) / dobj) < 1e-2&&mconstrain_check(1e-2))break;
 		}
 
 	}

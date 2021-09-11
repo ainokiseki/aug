@@ -1,5 +1,7 @@
 #include"metric.h"
 
+
+
 extern inline int ij(int x, int y, int n);
 
 metric::metric(std::string graph_name,int type) :graph_name(graph_name)
@@ -37,13 +39,23 @@ metric::metric(std::string graph_name,int type) :graph_name(graph_name)
 		int t_i = target[i];
 		for (int j = i + 1; j < n; j++, tmp_it++) {
 			//calculate w
+			
 			set<int>tmp1;
 			set<int>tmp2;
 			int t_j = target[j];
 			set_intersection(g[t_i].begin(), g[t_i].end(), g[t_j].begin(), g[t_j].end(), inserter(tmp1, tmp1.begin()));
 			set_union(g[t_i].begin(), g[t_i].end(), g[t_j].begin(), g[t_j].end(), inserter(tmp2, tmp2.begin()));
+			
 			double tmp = 1.0 * tmp1.size() / tmp2.size();
+			if (tmp1.size() == 0) {
+				b[tmp_it] = 1;
+				w[tmp_it] = fabs(log((1-delta)/(1+delta)));
+				continue;
+			}
+
+
 			tmp = log((1 + tmp - delta) / (1 - tmp + delta));
+			
 			if (tmp > 0) {
 				tmp += epsi;
 			}
@@ -143,3 +155,6 @@ void metric::matrix_generate(char type)
 		}
 	}
 }
+
+
+
