@@ -16,9 +16,7 @@ admm_square::~admm_square()
 double admm_square::func_p(Eigen::VectorXd x, Eigen::VectorXd w) {
 	return w.cwiseProduct(x).squaredNorm();
 }
-inline Eigen::VectorXd admm_square::prox_p(Eigen::VectorXd x, double sigma, Eigen::VectorXd w) {
-	return (x.cwiseAbs() - w / sigma).cwiseMax(0.0).cwiseProduct(x.cwiseSign());
-}
+
 
 double admm_square::run(double tau, double sigma, double scale_b, double scale_c) {
 	vector<vector<pair<int64_t, double>>>u1(mthread), u2(mthread);
@@ -31,7 +29,7 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 	//w = w / 9;
 	//scale_b = b.norm();
 	//scale_c = 3;
-
+	w = w.cwiseSqrt();
 	std::vector<int> colidx(var_num, -1);
 	int colidx_num = 0;
 	// = b / b.norm();
@@ -140,10 +138,10 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 
 		hs = hst.transpose() * hst / (scale_a * scale_a);
 
-		hs += Eigen::VectorXd::Ones(colidx_num).asDiagonal();
+		//hs += Eigen::VectorXd::Ones(colidx_num).asDiagonal();
 		Eigen::ConjugateGradient<SparseMatrix<double>, Eigen::Lower | Eigen::Upper, Eigen::DiagonalPreconditioner<double> > cg;
 		//Eigen::PardisoLDLT<SparseMatrix<double>> cg;
-		cg.compute(hs);
+		//cg.compute(hs);
 
 		sub_x = Eigen::VectorXd::Zero(colidx_num);
 		sub_b = Eigen::VectorXd::Zero(colidx_num);
@@ -164,12 +162,19 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 
 
 		int sub_var = colidx_num;
-		bool sigmaflag = false;
+		bool sigmaflag = true;
+		double sigma_old = 1;
+
+		hs += 2 / sigma_old * sub_w.cwiseProduct(sub_w).asDiagonal();
 		for (int iter_I = 0;; iter_I++)
 		{
 			if (sigmaflag) {
 				sigmaflag = false;
 
+				hs-= 2 / sigma_old * sub_w.cwiseProduct(sub_w).asDiagonal();
+				hs += 2 / sigma * sub_w.cwiseProduct(sub_w).asDiagonal();
+				cg.compute(hs);
+				sigma_old = sigma;
 			}
 
 
@@ -240,16 +245,15 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 			m_all_in_all(n, u, u_new, sub_x, sub_b, atu, old_x, kkt_u, y_norm, sigma, cons, colidx, tau, scale_a);
 			std::swap(u, u_new);
 
-			Eigen::VectorXd z = prox_p(sub_x + sub_v / sigma, sigma, sub_w);
-			sub_v += sigma * tau * (sub_x - z);
+			Eigen::VectorXd wtwx = 2 * sub_w.cwiseProduct(sub_w).cwiseProduct(sub_x);
 
-			double kkt_x = (atu + sub_v).norm() / (1 + sub_v.norm());
+			double kkt_x = (atu + wtwx).norm() / (1 + wtwx.norm());
 			double true_ku = scale_b * sqrt(kkt_u) / (1 + scale_b * sqrt(y_norm));
 			kkt_u = sqrt(kkt_u) / (1 + sqrt(y_norm));
-			double kkt_v = (sub_x - z).norm() / (1 + z.norm());
+			
 
 			//cout << "allinall\n";
-			if (std::fmax(kkt_u, kkt_v) > kkt_x) {
+			if (kkt_u > kkt_x) {
 				dual_win++;
 			}
 			else {
@@ -259,18 +263,20 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 				if (prim_win > dual_win * 1.2 && prim_win > 1) {
 					prim_win = 0;
 					sigma /= 3;
+					sigmaflag = true;
 				}
 				else if (dual_win > prim_win * 1.2 && dual_win > 1) {
 					dual_win = 0;
 					sigma *= 3;
+					sigmaflag = true;
 				}
 			}
-			kkt_x = scale_c * (atu + sub_v).norm() / (1 + scale_c * sub_v.norm());
+			kkt_x = scale_c * (atu + wtwx).norm() / (1 + scale_c * wtwx.norm());
 			//double kkt_z=scale_b/scale_a*(z - prox_p(z + sub_v, 1.0, sub_w)).norm() / (1 + scale_b / scale_a * z.norm());
-			kkt_v = scale_b / scale_a * (sub_x - z).norm() / (1 + scale_b / scale_a * z.norm());
+			
 
 			//cout << kkt_x << " " << kkt_v << " " << true_ku <<" !:"<<kkt_z<< endl;
-			double kkt = std::fmax(kkt_x, std::fmax(true_ku, kkt_v));
+			double kkt = std::fmax(kkt_x, true_ku);
 			maxsize = fmax(maxsize, u.size());
 
 			cout << iter_I << "\t" << kkt << "\t" << func_p(sub_x, sub_w) * scale_b * scale_c / 3 << "\t" << sigma << "\t" << u.size() << endl;
@@ -299,19 +305,18 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 				}
 				dobj /= scale_a * scale_a;
 				dobj *= scale_b * scale_c;
-				cout << "pobj:" << pobj << " dobj:" << dobj << endl;
+				double d2 = atu.cwiseQuotient(sub_w).squaredNorm() / 12;
+				dobj -= d2;
+				cout << "pobj:" << pobj << " dobj:" << dobj <<" d2:"<<d2<< endl;
 				if (fabs(pobj - dobj) / dobj < 1e-2) {
 
 					if (loopflag == 0) {
 
 						for (int i = 0; i < var_num; i++) {
 							if (colidx[i] != -1) {
-
-
 								x[i] = sub_x[colidx[i]];
 								b[i] = sub_b[colidx[i]];
 								w[i] = sub_w[colidx[i]];
-								v[i] = sub_v[colidx[i]];
 							}
 						}
 
@@ -354,7 +359,7 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 									x[i] = sub_x[colidx[i]];
 									b[i] = sub_b[colidx[i]];
 									w[i] = sub_w[colidx[i]];
-									v[i] = sub_v[colidx[i]];
+
 								}
 							}
 							finalres = func_p(sub_x, sub_w) * scale_b * scale_c / scale_a;

@@ -75,6 +75,8 @@ public:
 
 	axbu_eigen* axbu;
 };
+
+
 class admm_square :public admm
 {
 public:
@@ -85,25 +87,22 @@ public:
 
 	//double func_p(Eigen::VectorXd x);
 
-	Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma, Eigen::VectorXd w);
 
 
 
 
 
-	double get_kkt(double sigma);
 	double run(double tau = 1.618, double sigma = 1, double scale_b = 1, double scale_c = 1);
 
-	std::pair<int, int> run_store(double tau, double sigma, double scale_b, double scale_c);
 
 
-	void run_dense();
+
 
 	Eigen::SparseMatrix<double>ata;
 	Eigen::VectorXd sub_x;
 	Eigen::VectorXd sub_b;
 	Eigen::VectorXd sub_w;
-	Eigen::VectorXd sub_v;
+
 
 	axbu_eigen* axbu;
 };

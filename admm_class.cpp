@@ -982,7 +982,7 @@ void admm_basic::run_dense() {
 
 
 }
-
+/*
 double admm_base::run(double tau, double sigma, double scale_b, double scale_c) {
 
 
@@ -1184,7 +1184,7 @@ double admm_base::run(double tau, double sigma, double scale_b, double scale_c) 
 	return func_p(w.cwiseProduct(x));
 
 }
-
+*/
 inline double admm_base::func_p(Eigen::VectorXd x) {
 	return x.cwiseAbs().sum();
 }

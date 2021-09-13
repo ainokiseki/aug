@@ -178,7 +178,7 @@ double gurobi::run(int type)
 			answer= n1(viscons, colidx);
 		}
 		else if (type == 2) {
-			answer= n2s(viscons, colidx);
+			answer= n2(viscons, colidx);
 		}
 		
 
