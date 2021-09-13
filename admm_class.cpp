@@ -573,6 +573,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 	timer madoka,homula;
 	double finalres;
 	int loopflag = 0;
+
 	while (true) {
 
 		
@@ -658,7 +659,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 		Eigen::SparseMatrix<double> hst(viscons.size() * 3, colidx_num);
 		Eigen::SparseMatrix<double> hs(colidx_num, colidx_num);
 		hst.setFromTriplets(acons.begin(), acons.end());
-		acons.clear();
+		//acons.clear();
 
 		hs = hst.transpose() * hst / (scale_a * scale_a);
 
@@ -685,13 +686,12 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 			}
 		} 
 
-		cout << sub_x.sum() << " " << sub_b.sum() << " " << sub_v.sum() << endl;
-		cout << "col:" << colidx_num << endl;
+
 		int sub_var = colidx_num;
 
 		for (int iter_I = 0;; iter_I++)
 		{
-
+			
 			
 
 			madoka.tic();
@@ -836,7 +836,7 @@ double admm_basic::run(double tau, double sigma, double scale_b, double scale_c)
 								 v[i]=sub_v[colidx[i]];
 							}
 						}
-						cout << sub_x.sum() << " " << sub_b.sum() << " " << sub_v.sum() << endl;
+
 						//for (auto i = colidx.begin(); i != colidx.end(); i++) {
 						//	x[i->first] = sub_x[i->second];
 						//	b[i->first] = sub_b[i->second];

@@ -69,7 +69,7 @@ int main() {
 	//s.run_test(1e-2);
 	// 
 	// 
-	vector<string>target = {"graph200.txt"};
+	vector<string>target = {"graph4k.txt"};
 	vector<ppdd>res;
 	timer tm;
 	for (auto i : target) {

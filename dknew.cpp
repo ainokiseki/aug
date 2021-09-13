@@ -620,8 +620,8 @@ double jk::run(double tol)
 
 
 
-	std::vector<std::queue<pid> >correction(100);
-	std::vector<std::queue<pid> >next_correction(100);
+	std::vector<std::queue<pid> >correction(500);
+	std::vector<std::queue<pid> >next_correction(500);
 	auto& c1 = correction;
 	auto& c2 = next_correction;
 
