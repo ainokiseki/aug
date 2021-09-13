@@ -88,5 +88,8 @@
     <ClCompile Include="dknew.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="admm_square.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

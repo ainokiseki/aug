@@ -15,6 +15,8 @@ public:
 	admm(string graph_name, int type = 0);
 	~admm();
 
+	int itertime(int x);
+
 	void m_all_in_all(int n, vector<vector<pair<int64_t, double>>>& u, vector<vector<pair<int64_t, double>>>& u_new, Eigen::VectorXd& x, Eigen::VectorXd& b, Eigen::VectorXd& atu, Eigen::VectorXd& old_x, double& axby, double& y_norm, double sigma, std::vector<int64_t>& cons, vector<int>& colidx, double tau, double scale_a);
 
 	void m_atyu(int n, Eigen::VectorXd& x, Eigen::VectorXd& b, vector<vector<pair<int64_t, double>>>& u, Eigen::VectorXd& res, double sigma, std::vector<int64_t>& cons, vector<int>& colidx, double scale_a);
@@ -73,6 +75,40 @@ public:
 
 	axbu_eigen* axbu;
 };
+class admm_square :public admm
+{
+public:
+	admm_square(string graph_name, int type = 0);
+	~admm_square();
+
+	double func_p(Eigen::VectorXd x, Eigen::VectorXd w);
+
+	//double func_p(Eigen::VectorXd x);
+
+	Eigen::VectorXd prox_p(Eigen::VectorXd x, double sigma, Eigen::VectorXd w);
+
+
+
+
+
+	double get_kkt(double sigma);
+	double run(double tau = 1.618, double sigma = 1, double scale_b = 1, double scale_c = 1);
+
+	std::pair<int, int> run_store(double tau, double sigma, double scale_b, double scale_c);
+
+
+	void run_dense();
+
+	Eigen::SparseMatrix<double>ata;
+	Eigen::VectorXd sub_x;
+	Eigen::VectorXd sub_b;
+	Eigen::VectorXd sub_w;
+	Eigen::VectorXd sub_v;
+
+	axbu_eigen* axbu;
+};
+
+
 
 class admm_base :public metric
 {

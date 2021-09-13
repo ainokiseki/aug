@@ -8,7 +8,7 @@ admm::admm(string graph_name, int type) :metric(graph_name, type)
 admm::~admm()
 {
 }
-int itertime(int x) {
+int admm::itertime(int x) {
 	if (x > 500) {
 		if (x > 3000)
 			if (x > 8000)
