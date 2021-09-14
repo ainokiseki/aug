@@ -8,7 +8,7 @@
 #include<vector>
 #include<set>
 #include<algorithm>
-#define EIGEN_USE_MKL_ALL
+#define EIGEN_USE_MKL_ALL   
 #include<Eigen/Core>
 #include<Eigen/Dense>
 #include <iterator> 

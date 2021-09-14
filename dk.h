@@ -22,16 +22,34 @@ public:
 	}
 	~looplist() {}
 };
-class jk :public metric {
+
+class project_method :public metric {
+public:
+	project_method(string graph_name, int type = 0, double g = 10);
+	~project_method();
+	void multi_triloop2(int threadnum, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction);
+	void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, mutex& mut, vector<queue<pid>>& vc, vector<queue<pid>>& vnc);
+
+	double gam;
+	double kkt_2;
+	double kkt_1;
+	Eigen::VectorXd y, m, inv_w, p;
+
+	bool mconstrain_check(double tol = 1e-2);
+
+	void constrain_check(double tol, atomic_int& ant, int istart, int iend);
+};
+
+class jk :public project_method {
 
 public:
 
 	jk(string graph_name, int type = 0, double g = 10);
 	~jk();
-	void multi_triloop2(int threadnum, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction);
+	//void multi_triloop2(int threadnum, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction);
 	void multi_triloop(int threadnum, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction);
 
-	void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, mutex& mut, vector<queue<pid>>& vc, vector<queue<pid>>& vnc);
+	
 
 	//void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, atomic_int& home, mutex& mut, vector<queue<pid>>& vc, vector<queue<pid>>& vnc);
 
@@ -48,19 +66,27 @@ public:
 	void multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<std::queue<pid> >& next_correction, int te);
 
 
-	bool mconstrain_check(double tol = 1e-2);
 
-	void constrain_check(double tol, atomic_int& ant, int istart, int iend);
 
 	//void constrain_check();
 
 	double run(double tol);
 	void init();
-	double gam;
-	double kkt_2;
-	double kkt_1;
-	Eigen::VectorXd y, m, inv_w, p;
 
+
+
+};
+
+class jk_square:public project_method
+{
+public:
+
+	jk_square(string graph_name, int type);
+	~jk_square();
+
+	double run(double tol);
+	const double gam = 0.5;
+private:
 
 };
 

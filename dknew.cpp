@@ -6,7 +6,7 @@
 #include<atomic>
 
 
-jk::jk(string graph_name, int type, double g) : metric(graph_name, type)
+project_method::project_method(string graph_name, int type, double g) : metric(graph_name, type)
 {
 	gam = g;
 
@@ -17,11 +17,13 @@ jk::jk(string graph_name, int type, double g) : metric(graph_name, type)
 	mthread = 30;
 
 }
-jk::~jk()
+
+project_method::~project_method()
 {
 
 }
-void jk::multi_triloop2(int threadnum, vector<queue<pid> >& correction, vector<queue<pid> >& next_correction) {
+
+void project_method::multi_triloop2(int threadnum, vector<queue<pid> >& correction, vector<queue<pid> >& next_correction) {
 
 	queue<looplist>q;
 
@@ -33,7 +35,7 @@ void jk::multi_triloop2(int threadnum, vector<queue<pid> >& correction, vector<q
 	atomic_int ant(0);
 	vector<thread>v;
 	for (int i = 0; i < threadnum; i++) {
-		v.push_back(thread(&jk::worker, this, ref(q), ref(cond), ref(ant), ref(mut), ref(correction), ref(next_correction)));
+		v.push_back(thread(&project_method::worker, this, ref(q), ref(cond), ref(ant), ref(mut), ref(correction), ref(next_correction)));
 	}
 
 	//dk_mutex dkloop(n, &y, &m, &inv_w, &mat_b,correction,next_correction);
@@ -172,7 +174,7 @@ void jk::multi_triloop(int threadnum, vector<queue<pid> >& correction, vector<qu
 		v[i].join();
 	}
 }
-void jk::worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, mutex& mut, vector<queue<pid> >& vc, vector<queue<pid> >& vnc)
+void project_method::worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, mutex& mut, vector<queue<pid> >& vc, vector<queue<pid> >& vnc)
 {
 	while (true) {
 
@@ -323,8 +325,14 @@ void jk::worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& a
 	}
 
 }
+jk::jk(string graph_name, int type, double g) : project_method(graph_name, type,g)
+{
 
+}
+jk::~jk()
+{
 
+}
 void jk::triloop(int threadnum, std::queue<pid>& correction, std::queue<pid>& next_correction, mutex* mut)
 {
 
@@ -565,7 +573,7 @@ void jk::multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<st
 
 	}
 }
-bool jk::mconstrain_check(double tol)
+bool project_method::mconstrain_check(double tol)
 {
 	atomic_int ant(0);
 
@@ -573,7 +581,7 @@ bool jk::mconstrain_check(double tol)
 	vector<thread>v;
 	for (int i = 0; i < pnum; i++) {
 		
-		v.push_back(thread(&jk::constrain_check,this, tol,ref(ant),n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
+		v.push_back(thread(&project_method::constrain_check,this, tol,ref(ant),n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
 	}
 
 	for (int i = 0; i < pnum; i++) {
@@ -582,7 +590,7 @@ bool jk::mconstrain_check(double tol)
 	if (ant > 0)return false;
 	return true;
 }
-void jk::constrain_check(double tol,atomic_int& ant,int istart,int iend) {
+void project_method::constrain_check(double tol,atomic_int& ant,int istart,int iend) {
 	for (int i = istart; i < iend; i++) {
 
 		for (int j = i + 1; j < n; j++) {
@@ -776,7 +784,20 @@ void jk::init()
 {
 }
 
-double jk::run(double tol)
+
+
+
+jk_square::jk_square(string graph_name, int type) : project_method(graph_name, type,0.5)
+{
+	
+
+}
+jk_square::~jk_square()
+{
+
+}
+
+double jk_square::run(double tol)
 {
 	inv_w = Eigen::VectorXd::Ones(var_num).cwiseQuotient(w);
 	double pobj = 0.0;
@@ -847,8 +868,6 @@ double jk::run(double tol)
 
 
 		//return 0.0;
-		biloop();
-
 		int tst = 0;
 		int ttt = 0;
 		for (auto i : c1) {
@@ -872,8 +891,8 @@ double jk::run(double tol)
 		if ((iter_I + 1) % 10 == 0) {
 
 			cout << "=============================\n";
-			pobj = m.cwiseProduct(w).sum();
-			double wnorm = m.cwiseProduct(m).cwiseProduct(w).sum() + y.cwiseProduct(y).cwiseProduct(w).sum();
+			pobj = 0;
+			double wnorm = y.cwiseProduct(y).cwiseProduct(w).sum();
 
 			lastobj = pobj;
 
@@ -915,7 +934,7 @@ double jk::run(double tol)
 	for (int i = 0; i < n; i++) {
 		for (int j = i + 1; j < n; j++, index++) {
 			trueobj += square(y[ij(i, j, n)]) * w[index];
-			trueobj += square(m[ij(i, j, n)]) * w[index];
+
 
 		}
 	}

@@ -1,6 +1,6 @@
 #include"admm_class.h"
 #include"mytime.h"
-
+#include <Eigen/PardisoSupport>
 
 admm_square::admm_square(string graph_name, int type) :admm(graph_name, type)
 {
@@ -52,7 +52,7 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 	while (true) {
 
 
-		if (true) {
+		if (false) {
 
 
 			for (int i = 0; i < n; i++) {
@@ -169,12 +169,16 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 		for (int iter_I = 0;; iter_I++)
 		{
 			if (sigmaflag) {
+				homula.tic();
+
 				sigmaflag = false;
 
 				hs-= 2 / sigma_old * sub_w.cwiseProduct(sub_w).asDiagonal();
 				hs += 2 / sigma * sub_w.cwiseProduct(sub_w).asDiagonal();
 				cg.compute(hs);
 				sigma_old = sigma;
+
+				homula.toc();
 			}
 
 
