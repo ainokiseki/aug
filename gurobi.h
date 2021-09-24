@@ -10,6 +10,7 @@ public:
 	double n1(std::set<int64_t>&viscons , std::unordered_map<int, int>&colidx);
 	double n2(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx);
 	double n2s(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx);
+	double n_inf(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx);
 private:
 
 };

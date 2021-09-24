@@ -92,9 +92,9 @@ double gurobi::run(int type)
 						idx[2] = ij(j, k, n);
 						index = static_cast<int64_t>(i) * n * n + j * n + k;
 
-						if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
-							x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-4 ||
-							x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-4) {
+						if (x[idx[0]] + b[idx[0]] - x[idx[1]] - b[idx[1]] - x[idx[2]] - b[idx[2]] > 1e-2 ||
+							x[idx[1]] + b[idx[1]] - x[idx[0]] - b[idx[0]] - x[idx[2]] - b[idx[2]] > 1e-2 ||
+							x[idx[2]] + b[idx[2]] - x[idx[1]] - b[idx[1]] - x[idx[0]] - b[idx[0]] > 1e-2) {
 
 							if (viscons.find(index) == viscons.end()) {
 								for (int tp = 0; tp < 3; tp++) {
@@ -179,6 +179,9 @@ double gurobi::run(int type)
 		}
 		else if (type == 2) {
 			answer= n2(viscons, colidx);
+		}
+		else if (type == 0) {
+			answer = n_inf(viscons, colidx);
 		}
 		
 
@@ -318,6 +321,59 @@ double gurobi::n2s(std::set<int64_t>& viscons, std::unordered_map<int, int>& col
 			//model.addGenConstrAbs(m[i.second], y[i.second] - b[i.first]);
 			model.addConstr(m[i.second] - y[i.second] + b[i.first] >= 0);
 			model.addConstr(m[i.second] + y[i.second] - b[i.first] >= 0);
+		}
+
+
+		for (auto index : viscons) {
+			int i, j, k;
+			k = index % n;
+			j = index / n;
+			i = j / n;
+			j = j % n;
+			int idx[3];
+			idx[0] = colidx[ij(i, j, n)];
+			idx[1] = colidx[ij(i, k, n)];
+			idx[2] = colidx[ij(j, k, n)];
+			model.addConstr(y[idx[0]] - y[idx[1]] - y[idx[2]] <= 0);
+			model.addConstr(y[idx[1]] - y[idx[0]] - y[idx[2]] <= 0);
+			model.addConstr(y[idx[2]] - y[idx[1]] - y[idx[0]] <= 0);
+		}
+		model.setObjective(obj, GRB_MINIMIZE);
+		model.optimize();
+
+		cout << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+		for (auto i : colidx) {
+			x[i.first] = y[i.second].get(GRB_DoubleAttr_X) - b[i.first];
+		}
+	}
+	catch (GRBException e) {
+		cout << "Error code = " << e.getErrorCode() << endl;
+		cout << e.getMessage() << endl;
+
+	}
+
+	delete[] y;
+	delete[] m;
+	return model.get(GRB_DoubleAttr_ObjVal);
+}
+double gurobi::n_inf(std::set<int64_t>& viscons, std::unordered_map<int, int>& colidx)
+{
+
+	GRBEnv env = GRBEnv();
+	GRBModel model = GRBModel(env);
+	GRBVar* y = model.addVars(colidx.size(), GRB_CONTINUOUS);
+	GRBVar* m = model.addVars(1, GRB_CONTINUOUS);
+	try
+	{
+		GRBLinExpr obj = 0;
+		obj = m[0];
+		m[0].set(GRB_DoubleAttr_Start, 0.166);
+		for (auto i : colidx) {
+			y[i.second].set(GRB_DoubleAttr_Start, x[i.first] + b[i.first]);
+
+			//model.addGenConstrAbs(m[i.second], y[i.second] - b[i.first]);
+			model.addConstr(m[0] - w[i.first]*(y[i.second] - b[i.first]) >= 0);
+			model.addConstr(m[0] + w[i.first]*(y[i.second] - b[i.first]) >= 0);
 		}
 
 

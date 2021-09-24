@@ -4,17 +4,14 @@
 
 admm_square::admm_square(string graph_name, int type) :admm(graph_name, type)
 {
-
-
-
 }
 
 admm_square::~admm_square()
 {
 
 }
-double admm_square::func_p(Eigen::VectorXd x, Eigen::VectorXd w) {
-	return w.cwiseProduct(x).squaredNorm();
+double admm_square::func_p(Eigen::VectorXd x) {
+	return x.squaredNorm();
 }
 
 
@@ -283,11 +280,11 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 			double kkt = std::fmax(kkt_x, true_ku);
 			maxsize = fmax(maxsize, u.size());
 
-			cout << iter_I << "\t" << kkt << "\t" << func_p(sub_x, sub_w) * scale_b * scale_c / 3 << "\t" << sigma << "\t" << u.size() << endl;
+			cout << iter_I << "\t" << kkt << "\t" << func_p(sub_w.cwiseProduct(sub_x)) * scale_b * scale_c / 3 << "\t" << sigma << "\t" << u.size() << endl;
 			if (kkt < 1e-3) {
 
 
-				double pobj = func_p(sub_x, sub_w) * scale_b / 3;
+				double pobj = func_p(sub_w.cwiseProduct(sub_x)) * scale_b / 3;
 				double dobj = 0;
 #pragma omp parallel for reduction(+:dobj)
 				for (int i = 0; i < u.size(); i++) {
@@ -330,7 +327,7 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 						//	w[i->first] = sub_w[i->second];
 						//	v[i->first] = sub_v[i->second];
 						//}
-						finalres = func_p(sub_x, sub_w) * scale_b * scale_c / scale_a;
+						finalres = func_p(sub_w.cwiseProduct(sub_x)) * scale_b * scale_c / scale_a;
 						break;
 					}
 					else {
@@ -366,7 +363,7 @@ double admm_square::run(double tau, double sigma, double scale_b, double scale_c
 
 								}
 							}
-							finalres = func_p(sub_x, sub_w) * scale_b * scale_c / scale_a;
+							finalres = func_p(sub_w.cwiseProduct(sub_x)) * scale_b * scale_c / scale_a;
 							break;
 						}
 

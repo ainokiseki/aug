@@ -182,6 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="admm_class.cpp" />
+    <ClCompile Include="admm_inf.cpp" />
     <ClCompile Include="admm_square.cpp" />
     <ClCompile Include="dknew.cpp" />
     <ClCompile Include="e.cpp">

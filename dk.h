@@ -90,3 +90,39 @@ private:
 
 };
 
+class jk_inf :public project_method {
+
+public:
+
+	jk_inf(string graph_name, int type = 0, double g = 10);
+	~jk_inf();
+	//void multi_triloop2(int threadnum, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction);
+	//void multi_triloop(int threadnum, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction);
+
+
+
+	//void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, atomic_int& home, mutex& mut, vector<queue<pid>>& vc, vector<queue<pid>>& vnc);
+
+	//void worker(std::queue<looplist>& q, condition_variable& cond, atomic_int& ant, atomic_int& home, mutex& mut);
+	//void generator(int threadnum, queue<looplist> q, vector<queue<pid>>& correction, vector<queue<pid>>& next_correction, std::mutex& mut, std::condition_variable& cond);
+	//void triloop(int threadnum, std::queue<pid>& correction, std::queue<pid>& next_correction, mutex* mut);
+
+	//void triloop2(int istart, int iend, int kstart, int blocksize, std::queue<pid>& correction, std::queue<pid>& next_correction);
+
+
+	void biloop();
+	//void multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<std::queue<pid> >& next_correction);
+
+	//void multi_triloop(std::vector<std::queue<pid> >& correction, std::vector<std::queue<pid> >& next_correction, int te);
+
+
+
+
+	//void constrain_check();
+
+	double run(double tol);
+	//void init();
+
+
+
+};

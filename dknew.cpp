@@ -954,3 +954,215 @@ double jk_square::run(double tol)
 
 	return 0.0;
 }
+
+
+
+void jk_inf::biloop()
+{
+
+
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++) {
+			int idx = ij(i, j, n);
+			int idx1, idx2;
+			idx1 = i * n + j;
+			idx2 = j * n + i;
+			double mu;
+
+			y[idx] -= p[idx1];
+			m[0] -= p[idx1];
+			mu = -y[idx]*w[idx] - m[0];
+			if (mu > 0) {
+				y[idx] += mu / (w[idx] +inv_w[idx]);
+				m[0] += mu / (w[idx] + inv_w[idx]);
+				p[idx1] = mu / (w[idx] + inv_w[idx]);
+			}
+			else {
+				p[idx1] = 0;
+			}
+			y[idx] += p[idx2];
+			m[0] -= p[idx2];
+			mu = y[idx] * w[idx] - m[0];
+			if (mu > 0) {
+				y[idx] -= mu / (w[idx] + inv_w[idx]);
+				m[0] += mu / (w[idx] + inv_w[idx]);
+				p[idx2] = mu / (w[idx] + inv_w[idx]);
+			}
+			else {
+				p[idx2] = 0;
+			}
+
+
+
+		}
+	}
+
+
+
+
+}
+
+
+
+jk_inf::jk_inf(string graph_name, int type, double g) : project_method(graph_name, type, g)
+{
+}
+jk_inf::~jk_inf()
+{
+
+}
+
+double jk_inf::run(double tol)
+{
+	m[0] = -gam;
+	inv_w = Eigen::VectorXd::Ones(var_num).cwiseQuotient(w);
+	double pobj = 0.0;
+	double lastobj = 0.0;
+
+
+
+	std::vector<std::queue<pid> >correction(500);
+	std::vector<std::queue<pid> >next_correction(500);
+	auto& c1 = correction;
+	auto& c2 = next_correction;
+
+	kkt_1 = kkt_2 = 0.0;
+	int iter_I;
+	for (iter_I = 0; iter_I < 10000; iter_I++) {
+		kkt_2 = kkt_1 = 0.0;
+		//triloop(c1,c2);
+
+
+
+
+
+		multi_triloop2(mthread, c1, c2);
+
+
+
+
+		//return 0;
+		//triloop(0, c1[0], c2[0], NULL);
+		//return 0;
+		//std::map<int64_t, int>tst;
+		//for (int i = 0; i < n; i++) {
+		//	for (int j = i + 1; j < n; j++) {
+		//		for (int k = j + 1; k < n; k++) {
+		//			tst[static_cast<int64_t>(i) * n * n + j * n + k] = 0;
+		//			//tst[static_cast<int64_t>(i) * n * n + k* n + j] = 0;
+		//			//tst[static_cast<int64_t>(j) * n * n + k * n + i] = 0;
+		//		}
+		//	}
+		//}
+
+
+		//for (int co = 0; co < c2.size(); co++) {
+		//	while (!c2[co].empty()) {
+
+		//		int64_t longindex = c2[co].front().first;
+		//		
+		//		c2[co].pop();
+		//		tst[longindex]++;
+		//		
+		//	}
+		//}
+		//for (auto iter : tst) {
+		//	if (iter.second != 1) {
+
+		//		int64_t longindex = iter.first;
+		//		int i, j, k;
+		//		k = longindex % n;
+		//		j = longindex / n;
+		//		i = j / n;
+		//		j = j % n;
+		//		cout << "i:" << i << " j:" << j << " k:" << k << " num:" << iter.second << endl;
+
+		//	}
+		//}
+		////
+		//return 0.0;
+
+
+		//return 0.0;
+		biloop();
+
+		int tst = 0;
+		int ttt = 0;
+		for (auto i : c1) {
+			tst += i.size();
+		}
+		for (auto i : c2) {
+			ttt += i.size();
+		}
+		cout << tst << "," << ttt << endl;
+
+
+
+		std::swap(c1, c2);
+		pobj = 0.0;
+		int index = 0;
+
+
+		//cout << "====" << endl;
+
+
+		if ((iter_I + 1) % 10 == 0) {
+
+			cout << "=============================\n";
+			pobj = m[0];
+			double wnorm = m[0]*m[0] + y.cwiseProduct(y).cwiseProduct(w).sum();
+
+			lastobj = pobj;
+
+			double dobj = 0;
+#pragma omp parallel for reduction(+:dobj)
+
+			for (int co = 0; co < c1.size(); co++) {
+				while (!c1[co].empty()) {
+
+					int64_t longindex = c1[co].front().first;
+					double mu = c1[co].front().second;
+					c2[co].push(c1[co].front());
+					c1[co].pop();
+					int i, j, k;
+					k = longindex % n;
+					j = longindex / n;
+					i = j / n;
+					j = j % n;
+					int idx[3];
+					idx[0] = ij(i, j, n);
+					idx[1] = ij(i, k, n);
+					idx[2] = ij(j, k, n);
+					double fm = inv_w[idx[0]] + inv_w[idx[1]] + inv_w[idx[2]];
+					dobj += mu * (b[idx[0]] - b[idx[1]] - b[idx[2]]) / fm;
+				}
+			}
+			std::swap(c1, c2);
+			dobj /= gam;
+			dobj -= wnorm / (2 * gam);
+			pobj += wnorm / (2 * gam);
+			std::cout << iter_I << " " << std::setprecision(8) << pobj << "\tdobj:" << dobj << "\twnorm:" << wnorm << std::endl;
+			if (std::fabs((pobj - dobj) / dobj) < 0.01 && mconstrain_check(1e-2))break;
+		}
+
+	}
+	double trueobj = 0.0;
+	auto square = [](double x) {return x * x; };
+	int index = 0;
+	trueobj = m[0];
+
+	int ct = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++) {
+			x[ct] = y[ij(i, j, n)];
+			ct++;
+		}
+	}
+	std::cout << "final res:" << trueobj / (2 * gam) + pobj << "k1:" << kkt_1 << "k2:" << kkt_2 << std::endl;
+	std::cout << "gam:" << gam << "\tobj:" << lastobj << endl;
+
+
+
+
+	return 0.0;
+}
