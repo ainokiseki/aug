@@ -72,38 +72,41 @@ int main() {
 	vector<string>target = {"celegansneural","celegans_metabolic","email","Erdos991","Harvard500","jazz","netscience","polblogs","Roget","SmaGri","SmallW","USAir97"};
 	vector<ppdd>res;
 	timer tm;
-	for (auto i : target) {
-		jk s1(i,0);   
-		admm_basic s2(i,0);
 
-		double a1, a2, a3;
-		double tst = 1;
+	norm_ori s2(string("./flit/celegansneural.txt"));
+	s2.run(1e-3,0,30);
+	//for (auto i : target) {
+	//	norm_ori s1(string("./flit/")+i+string(".txt"));   
+	//	jk s2(string("./flit/")+i+string(".txt"),0);
 
-		//for (int j = 0; j < s1.n * (s1.n - 1) / 2; j++) {
-		//	s1.w[j]  = std::fmax(s1.w[j],1);
-		//}
+	//	double a1, a2, a3;
+	//	double tst = 1;
+
+	//	//for (int j = 0; j < s1.n * (s1.n - 1) / 2; j++) {
+	//	//	s1.w[j]  = std::fmax(s1.w[j],1);
+	//	//}
 
 
-		cout << "tst:" << tst << endl;
-		cout << s1.w.size() << endl;
-		tm.tic();
-		a1=s1.run(1e-3);
-		tm.toc();
-		auto c1 = pdd(a1, tm.blink);
-		auto b1=ppdd(c1,test(s1.x+s1.b,s1.n));
-		res.push_back(b1);
+	//	cout << "tst:" << tst << endl;
+	//	cout << s1.w.size() << endl;
+	//	tm.tic();
+	//	a1=s1.run(0.001,0,30);
+	//	tm.toc();
+	//	auto c1 = pdd(a1, tm.blink);
+	//	auto b1=ppdd(c1,test(s1.x+s1.b,s1.n));
+	//	res.push_back(b1);
 
-		cout << "tst:" << tst << endl;
-		cout << s2.w.size() << endl;
-		tm.tic();
-		a2 = s2.run(1e-3);
-		tm.toc();
-		auto c2 = pdd(a2, tm.blink);
-		auto b2 = ppdd(c2, test(s2.x + s2.b, s2.n));
+	//	cout << "tst:" << tst << endl;
+	//	cout << s2.w.size() << endl;
+	//	tm.tic();
+	//	a2 = s2.run(1e-3);
+	//	tm.toc();
+	//	auto c2 = pdd(a2, tm.blink);
+	//	auto b2 = ppdd(c2, test(s2.x + s2.b, s2.n));
 
-		res.push_back(b2);		//res.push_back(b2);		
+	//	res.push_back(b2);		//res.push_back(b2);		
 
-	}
+	//}
 	//metric m(string("graph14.txt"));
 	//for (int i = 0; i < 7 * 13; i++) {
 	//	cout << m.w[i] << " " << m.b[i] << endl;

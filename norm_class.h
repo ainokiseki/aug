@@ -99,14 +99,14 @@ public:
 
 	//Eigen::VectorXd get_direction(Eigen::SparseMatrix<double>* ata, Eigen::VectorXd rhs, Eigen::VectorXd* diag, int ld, double cst);
 
-	void run(double cst_const, int con_const, int sub_iter);
+	double run(double cst_const, int con_const, int sub_iter);
 
 	//void run(double cst_const=1e-3, int con_const=10);
 
 	inline double func_p(Eigen::VectorXd x);
 	double get_kkt(double sigma);
-	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons);
-	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons, std::unordered_map<int, int>* colidx);
+	double get_kkt(double sigma, double& rp, double& rd, std::vector<int>* cons);
+	double get_kkt(double sigma, double& rp, double& rd, std::vector<int64_t>* cons, std::vector<int>* colidx);
 	double get_step_length(Eigen::VectorXd& direction, double sigma);
 	double get_step_length(Eigen::VectorXd& direction, double sigma, double cst);
 

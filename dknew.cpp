@@ -701,7 +701,7 @@ double jk::run(double tol)
 		for (auto i : c2) {
 			ttt += i.size();
 		}
-		cout << tst << "," << ttt << endl;
+		//cout << tst << "," << ttt << endl;
 
 
 
@@ -713,9 +713,9 @@ double jk::run(double tol)
 		//cout << "====" << endl;
 
 
-		if ((iter_I + 1) % 10 == 0) {
+		if ((iter_I + 1) % 10 == 0||true) {
 
-			cout << "=============================\n";
+			//cout << "=============================\n";
 			pobj = m.cwiseProduct(w).sum();
 			double wnorm = m.cwiseProduct(m).cwiseProduct(w).sum() + y.cwiseProduct(y).cwiseProduct(w).sum();
 

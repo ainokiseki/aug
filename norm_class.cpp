@@ -2,7 +2,7 @@
 #include"norm_class.h"
 #include<iomanip>
 
-void cons_generate(int start, int end, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::unordered_map<int, int>& colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons);
+void cons_generate(int start, int end, int n, int& colidx_num, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::vector<int>& colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons);
 void m_calc_atu(int pnum, Eigen::VectorXd* atu, int n, au_eigen au) {
 	int var_num = atu->size();
 	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
@@ -173,7 +173,7 @@ void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eig
 	delete[]mphi;
 }
 
-void cons_generate(int start, int end, int n, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::unordered_map<int, int>& colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
+void cons_generate(int start, int end, int n , int& colidx_num ,Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::vector<int>& colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
 
 	for (int i = start; i < end; i++) {
 		int64_t index;
@@ -193,10 +193,10 @@ void cons_generate(int start, int end, int n, Eigen::VectorXd& x, Eigen::VectorX
 
 						for (int tp = 0; tp < 3; tp++) {
 							mu[1].lock();
-							if (colidx.find(idx[tp]) == colidx.end()) {
+							if (colidx[idx[tp]] == -1) {
 
-								int tmmp = colidx.size();
-								colidx[idx[tp]] = tmmp;
+								colidx[idx[tp]] = colidx_num;
+								colidx_num++;
 
 							}
 							mu[1].unlock();
@@ -339,7 +339,7 @@ Eigen::VectorXd norm_basic::get_direction(Eigen::SparseMatrix<double>& ata, doub
 
 	
 }
-
+/*
 void norm_basic::run(double cst_const, int con_const, int sub_iter) {
 
 
@@ -406,7 +406,7 @@ void norm_basic::run(double cst_const, int con_const, int sub_iter) {
 				int ta, tb;
 				ta = n - (int)(cbrt((i + 1) * 1.0 / mthread) * n);
 				tb = n - (int)(cbrt(i * 1.0 / mthread) * 1.0 * n);
-				vt.push_back(std::thread(cons_generate, ta, tb, n, std::ref(x), std::ref(b), mu, std::ref(colidx), std::ref(viscons), std::ref(cons)));
+				vt.push_back(std::thread(cons_generate, ta, tb, n, std::ref(x), std::ref(b), mu, std::ref(colidx), std::ref(viscons), std::ref(cons),std::ref(ta)));
 			}
 			for (int i = 0; i < mthread; i++) {
 				vt[i].join();
@@ -707,7 +707,7 @@ void norm_basic::run(double cst_const, int con_const, int sub_iter) {
 	std::cout << "cons generate time is:" << c_t << endl;
 	cout << time1.time() << " " << time2.time() << " " << time3.time() << " " << time4.time() << endl;
 }
-
+*/
 norm_ori::norm_ori(string graph_name) :metric(graph_name)
 {
 	mthread = std::thread::hardware_concurrency();
@@ -806,7 +806,7 @@ double norm_ori::get_kkt(double sigma) {
 
 
 }
-double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*cons,std::unordered_map<int,int>*colidx) {
+double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*cons, std::vector<int>*colidx) {
 
 	double y_norm = 0;
 	double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
@@ -1179,7 +1179,7 @@ Eigen::VectorXd norm_ori::get_direction(Eigen::SparseMatrix<double>* ata, Eigen:
 
 
 
-void norm_ori::run(double cst_const,int con_const,int sub_iter) {
+double norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 
 
@@ -1194,11 +1194,12 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 	//double sigma = 1;
 	double rlim = 1e-4;
 
-
+	int colidx_num = 0;
 	std::vector<int64_t>cons;
 	std::set<int64_t>viscons;
 	double c_t=0;
-	std::unordered_map<int, int>colidx;
+	//std::unordered_map<int, int>colidx;
+	std::vector<int> colidx(var_num, -1);
 	int old_size = viscons.size();
 	timer time1, time2, time3, time4;
 	while (true) {
@@ -1224,9 +1225,11 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 
 							if (viscons.find(index) == viscons.end()) {
 								for (int tp = 0; tp < 3; tp++) {
-									if (colidx.find(idx[tp]) == colidx.end()) {
-										int tmmp = colidx.size();
-										colidx[idx[tp]] = tmmp;
+									if (colidx[idx[tp]] == -1) {
+
+										colidx[idx[tp]] = colidx_num;
+										colidx_num++;
+
 									}
 								}
 									cons.push_back(index);
@@ -1246,7 +1249,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 				int ta, tb;
 				ta = n - (int)(cbrt((i + 1) * 1.0 / mthread) * n);
 				tb = n - (int)(cbrt(i * 1.0 / mthread) * 1.0 * n);
-				vt.push_back(std::thread(cons_generate, ta, tb, n, std::ref(x), std::ref(b), mu,std::ref(colidx), std::ref(viscons), std::ref(cons)));
+				vt.push_back(std::thread(cons_generate, ta, tb, n, std::ref(colidx_num),std::ref(x), std::ref(b), mu,std::ref(colidx), std::ref(viscons), std::ref(cons)));
 			}
 			for (int i = 0; i < mthread; i++) {
 				vt[i].join();
@@ -1275,9 +1278,11 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 							idx[2] = ij(j, k, n);
 
 							for (int tp = 0; tp < 3; tp++) {
-								if (colidx.find(idx[tp]) == colidx.end()) {
-									int tmmp = colidx.size();
-									colidx[idx[tp]] = tmmp;
+								if (colidx[idx[tp]] == -1) {
+
+									colidx[idx[tp]] = colidx_num;
+									colidx_num++;
+
 								}
 							}
 							cons.push_back(index);
@@ -1292,7 +1297,8 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 		
 		std::cout << "size:" << cons.size() << "vis:" << viscons.size() << endl;
 		sigma = 1;
-		std::cout << "total num of variables:" << var_num << " num of current variables:" << colidx.size() << endl;
+		int sub_var = colidx_num;
+		std::cout << "total num of variables:" << var_num << " num of current variables:" << sub_var << endl;
 
 		auto c_end = std::chrono::high_resolution_clock::now();
 		auto c_eld = std::chrono::duration_cast<std::chrono::nanoseconds>(c_end - c_start);
@@ -1307,24 +1313,27 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 		double kkt0 = 1;
 		double kkt = 0.1;
 
-		sub_x = Eigen::VectorXd::Zero(colidx.size());
-		sub_b = Eigen::VectorXd::Zero(colidx.size());
-		sub_w = Eigen::VectorXd::Zero(colidx.size());
-		sub_v = Eigen::VectorXd::Zero(colidx.size());
+		sub_x = Eigen::VectorXd::Zero(colidx_num);
+		sub_b = Eigen::VectorXd::Zero(colidx_num);
+		sub_w = Eigen::VectorXd::Zero(colidx_num);
+		sub_v = Eigen::VectorXd::Zero(colidx_num);
 
 
 
-		for (auto i = colidx.begin(); i != colidx.end(); i++) {
+		for (int i = 0; i < var_num; i++) {
+			if (colidx[i] != -1) {
 
-			sub_x[i->second] = x[i->first];
-			sub_b[i->second] = b[i->first];
-			sub_w[i->second] = w[i->first];
-			sub_v[i->second] = v[i->first];
+
+				sub_x[colidx[i]] = x[i];
+				sub_b[colidx[i]] = b[i];
+				sub_w[colidx[i]] = w[i];
+				sub_v[colidx[i]] = v[i];
+			}
 		}
-		int sub_var = colidx.size();
+
 
 		
-		cout << colidx.size() << endl;
+		cout << sub_var << endl;
 		for (iter_all=0; iter_all < 100; iter_all++) {
 			x0 = sub_x;
 			cst = cst_const / sigma;
@@ -1524,11 +1533,15 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 		}
 		std::cout << "sub_func_value:" << std::setprecision(8) << func_p(sub_x, sub_w) << endl;
 
-		for (auto i = colidx.begin(); i != colidx.end(); i++) {
-			x[i->first] = sub_x[i->second];
-			b[i->first] = sub_b[i->second];
-			w[i->first] = sub_w[i->second];
-			v[i->first] = sub_v[i->second];
+		for (int i = 0; i < var_num; i++) {
+			if (colidx[i] != -1) {
+
+
+				x[i] = sub_x[colidx[i]];
+				b[i] = sub_b[colidx[i]];
+				w[i] = sub_w[colidx[i]];
+				v[i] = sub_v[colidx[i]];
+			}
 		}
 	}
 
@@ -1557,6 +1570,7 @@ void norm_ori::run(double cst_const,int con_const,int sub_iter) {
 	std::cout << "total time is:" << tm << endl;
 	std::cout << "cons generate time is:" << c_t << endl;
 	cout << time1.time() << " " << time2.time() << " " << time3.time() << " " << time4.time() << endl;
+	return func_p(x, w);
 }
 
 void norm_ori::run_dense() {
@@ -2422,7 +2436,7 @@ double norm_basic::get_kkt(double sigma, double& rp, double& rd, std::vector<int
 
 	std::cout << "kkt_u:" << kkt_u << "\tkkt_y:" << kkt_y << endl;
 	Eigen::VectorXd tmp1 = Eigen::VectorXd::Ones(sub_x.size());
-	au_eigen au(n, &u, v, tmp1, cons, colidx);
+	au_eigen au(n, &u, v, tmp1, cons, NULL);
 
 	Eigen::VectorXd atu = Eigen::VectorXd::Zero(sub_x.size());
 	m_calc_atu(mthread, &atu, n, au);
