@@ -148,7 +148,7 @@ void func_eigen_phi::operator()(double axbu, int* idx, int time, int64_t index)
 	//if(alpha==0)
 	//prt_axbu << index<<"\t"<<axbu << "\n";
 }
-func_eigen_y::func_eigen_y(std::map<int64_t, double>* u, double sigma,double*y_norm,double *kkt_y,double*kkt_u) :
+func_eigen_y::func_eigen_y(std::vector< std::pair<int64_t, double> >& u, double sigma,double*y_norm,double *kkt_y,double*kkt_u) :
 	u(u), sigma(sigma),y_norm(y_norm),kkt_y(kkt_y),kkt_u(kkt_u)
 {
 }
@@ -160,19 +160,22 @@ void func_eigen_y::operator()(double axbu, int* idx, int time, int64_t index)
 {
 
 	double axb = axbu;
-	if (u->find(index)!=u->end())
-		axb-= (*u)[index] / sigma;
+	if (u[unum].first == index) {
+		axb -= u[unum].second / sigma;
+
+	}
 
 	double y = (axb < 0 ? axb : 0.0);
 	*y_norm += y * y;
 	*kkt_u += (axb - y) * (axb - y);
 	double y_plus_u;
-	if (u->find(index)==u->end())
+	if (!u[unum].first == index)
 	{
 		y_plus_u = (y > 0 ? y : 0);
 	}
 	else {
-		y_plus_u = (y + (*u)[index] > 0 ? y : -(*u)[index]);
+		y_plus_u = (y + u[unum].second > 0 ? y : -u[unum].second);
+		unum++;
 	}
 
 	*kkt_y += y_plus_u * y_plus_u;
@@ -207,8 +210,8 @@ void func_eigen_rhs::operator()(double axbu, int* idx, int time, int64_t index)
 		(*rhs)(idx[time]) += axbu;
 	}
 }
-func_eigen_u::func_eigen_u(std::map<int64_t, double>* u, double sigma) :
-	u(u), sigma(sigma)
+func_eigen_u::func_eigen_u(std::vector< std::pair<int64_t, double> >& u, double sigma) :
+	u(u), sigma(sigma),unew(unew)
 {
 }
 
@@ -225,10 +228,7 @@ void func_eigen_u::operator()(double axbu, int* idx, int time, int64_t index)
 	double nu = sigma * (axbu - y);
 
 	if (nu != 0)
-		(*u)[index] = nu;
-	else if (u->find(index)!=u->end()){
-		u->erase(index);
-	}
+		u.push_back(std::pair<int64_t, double>(index, nu));
 }
 
 func_eigen_superphi::func_eigen_superphi(double* alpha, Eigen::VectorXd* direction, double* norm, int length) :alpha(alpha), direction(direction), norm(norm), length(length)

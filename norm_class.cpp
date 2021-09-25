@@ -1,6 +1,7 @@
 #include"mytime.h"
 #include"norm_class.h"
 #include<iomanip>
+#include<atomic>
 
 void cons_generate(int start, int end, int n, int& colidx_num, Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::vector<int>& colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons);
 void m_calc_atu(int pnum, Eigen::VectorXd* atu, int n, au_eigen au) {
@@ -36,10 +37,10 @@ void m_calc_superphi(int pnum, axbu_eigen axbu, double* alpha, Eigen::VectorXd* 
 		axbu.set_function(new func_eigen_superphi(alpha, direction, mphi+20*i,20));
 
 		if (i != pnum - 1) {
-			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1)));
+			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1),i));
 		}
 		else {
-			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size()));
+			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size(),i));
 		}
 	}
 	for (int i = 0; i < pnum; i++)
@@ -80,10 +81,10 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 	for (int i = 0; i < pnum; i++) {
 		axbu.set_function(new func_eigen_rhs_aj1_diag(rhs, maj1[i],diag,&(mtrip[i]),mu));
 		if (i != pnum - 1) {
-			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1)));
+			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1),i));
 		}
 		else {
-			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size()));
+			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size(),i));
 		}
 
 	}
@@ -105,72 +106,6 @@ void m_calc_rhs_and_aj1_diag(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj
 	}
 
 	delete[] mu;
-}
-void m_calc_rhs_and_aj1(int pnum, Eigen::VectorXd* rhs, vector<int64_t>* aj1, int n, axbu_eigen axbu) {
-	int var_num = rhs->size();
-	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
-	vector<int64_t>* maj1 = new vector<int64_t>[pnum];
-	for (int i = 0; i < pnum; i++)
-		mrhs[i] = Eigen::VectorXd::Zero(var_num);
-	vector<thread>tv;
-	for (int i = 0; i < pnum; i++) {
-		axbu.set_function(new func_eigen_rhs_aj1(mrhs + i, maj1 + i));
-		tv.push_back(thread(axbu, n - (int)(cbrt((i + 1) * 1.0 / pnum) * n), n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n)));
-	}
-	for (int i = 0; i < pnum; i++)
-		tv[i].join();
-	for (int i = 0; i < pnum; i++)
-		*rhs += mrhs[i];
-	for (int i = 0; i < pnum; i++) {
-		aj1->insert(aj1->end(), maj1[i].begin(), maj1[i].end());
-		maj1[i].~vector();
-	}
-
-	delete[]mrhs;
-	delete[]maj1;
-}
-void m_calc_rhs(int pnum, Eigen::VectorXd* rhs, int n, axbu_eigen axbu) {
-	int var_num = rhs->size();
-	Eigen::VectorXd* mrhs = new Eigen::VectorXd[pnum];
-
-	for (int i = 0; i < pnum; i++)
-		mrhs[i] = Eigen::VectorXd::Zero(var_num);
-	vector<thread>tv;
-	for (int i = 0; i < pnum; i++) {
-		axbu.set_function(new func_eigen_rhs_aj1(mrhs + i, NULL));
-		if (i != pnum - 1) {
-			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1)));
-		}
-		else {
-			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size()));
-		}
-	}
-	for (int i = 0; i < pnum; i++)
-		tv[i].join();
-	for (int i = 0; i < pnum; i++)
-		* rhs += mrhs[i];
-	delete[]mrhs;
-}
-void m_calc_phi(int pnum, double& phi, int n, axbu_eigen axbu, double alpha, Eigen::VectorXd* direction) {
-	int var_num = direction->size();
-	double* mphi = new double[pnum];
-	for (int i = 0; i < pnum; i++)
-		mphi[i] = 0;
-	vector<thread>tv;
-	for (int i = 0; i < pnum; i++) {
-		axbu.set_function(new func_eigen_phi(alpha, direction, mphi + i, i));
-		int a, b;
-		a = n - (int)(cbrt((i + 1) * 1.0 / pnum) * n);
-		b = n - (int)(cbrt(i * 1.0 / pnum) * 1.0 * n);
-		tv.push_back(thread(axbu, a, b));
-
-	}
-	for (int i = 0; i < pnum; i++)
-		tv[i].join();
-	for (int i = 0; i < pnum; i++)
-		phi += mphi[i];
-
-	delete[]mphi;
 }
 
 void cons_generate(int start, int end, int n , int& colidx_num ,Eigen::VectorXd& x, Eigen::VectorXd& b, std::mutex* mu, std::vector<int>& colidx, std::set<int64_t>& viscons, std::vector<int64_t>& cons) {
@@ -712,35 +647,10 @@ norm_ori::norm_ori(string graph_name) :metric(graph_name)
 {
 	mthread = std::thread::hardware_concurrency();
 	iter_all = 0;
+
+	u.resize(mthread);
 }
-norm_ori::norm_ori(string graph_name,string data) : metric(graph_name)
-{
-	ifstream f(data,std::ios::in|std::ios::binary);
-	string s;
-	f >> s;
-	f >> iter_all;
-	f >> n >> var_num >> sigma;
-	double tm;
-	f >> tm;
-	std::cout << "last time:"<<tm << endl;
-	time_record = tm;
-	for (int i = 0; i < var_num; i++) {
-		f >> tm;
-		x[i] = tm;
-	}
-	for (int i = 0; i < var_num; i++) {
-		f >> tm;
-		v[i] = tm;
-	}
-	int unum;
-	f >> unum;
-	int64_t tm2;
-	for (int i = 0; i < unum; i++) {
-		f >> tm2 >> tm;
-		u.insert(pair<int64_t, double>(tm2, tm));
-	}
-	std::cout << "reload succeed\n" << "u:" << u.size() << endl;
-}
+
 norm_ori::~norm_ori()
 {
 }
@@ -811,11 +721,40 @@ double norm_ori::get_kkt(double sigma,double&rp,double&rd,std::vector<int64_t>*c
 	double y_norm = 0;
 	double kkt_y, kkt_u, kkt_x, kkt_z, kkt_v;
 	kkt_x = kkt_y = kkt_u = kkt_v = kkt_z = 0;
-	axbu->set_function(new func_eigen_u(&u, sigma));
-	(*axbu)();
+	int pnum = mthread;
+	vector<thread>tv;
+	vector<vector<pair<int64_t, double>>>tempu(mthread);
+	for (int i = 0; i < pnum; i++) {
+		axbu.set_function(new func_eigen_u(tempu[i], sigma));
 
-	axbu->set_function(new func_eigen_y(&u, sigma, &y_norm, &kkt_y, &kkt_u));
-	(*axbu)();
+		if (i != pnum - 1) {
+			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1), i));
+		}
+		else {
+			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size(), i));
+		}
+	}
+	for (int i = 0; i < pnum; i++)
+		tv[i].join();
+	tv.clear();
+	std::swap(u, tempu);
+	vector<double>vy_norm(mthread,0), vkkt_y(mthread,0), vkkt_u(mthread, 0);
+	for (int i = 0; i < pnum; i++) {
+		axbu.set_function(new func_eigen_y(u[i], sigma, &(vy_norm[i]), &(vkkt_y[i]), &(vkkt_u[i])));
+
+		if (i != pnum - 1) {
+			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size() / pnum * (i + 1), i));
+		}
+		else {
+			tv.push_back(thread(axbu, axbu.cons->size() / pnum * i, axbu.cons->size(), i));
+		}
+	}
+
+	//axbu->set_function(new func_eigen_y(&u, sigma, &y_norm, &kkt_y, &kkt_u));
+	//(*axbu)();
+	kkt_y = std::accumulate(vkkt_y.begin(), vkkt_y.end(), 0.0);
+	y_norm = std::accumulate(vy_norm.begin(), vy_norm.end(), 0.0);
+	kkt_u = std::accumulate(vkkt_u.begin(), vkkt_u.end(), 0.0);
 
 	std::cout << "u:" << u.size() << endl;
 	Eigen::VectorXd z = prox_p(sub_x + sub_v / sigma, sigma,sub_w);
@@ -1360,7 +1299,7 @@ double norm_ori::run(double cst_const,int con_const,int sub_iter) {
 			//}
 
 			std::cout << "start loop "<<iter_all+1<<",sigma=" << sigma << endl;
-			axbu = new axbu_eigen(n, &sub_x, &sub_b, &u, sigma, &cons,&colidx);
+			axbu = new axbu_eigen(n, &sub_x, &sub_b, u, sigma, &cons,&colidx);
 
 			bool flaga = true;
 			int iter_1;

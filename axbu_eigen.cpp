@@ -1,7 +1,7 @@
 #include "axbu_eigen.h"
 #include<iostream>
 
-axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::map<int64_t, double>* u, double sigma, std::vector<int64_t>* cons, std::vector<int>*colidx) :
+axbu_eigen::axbu_eigen(int n, Eigen::VectorXd* x, Eigen::VectorXd* b, std::vector<std::vector< std::pair<int64_t, double> > >& u, double sigma, std::vector<int64_t>* cons, std::vector<int>*colidx) :
 	n(n), x(x), b(b), u(u), sigma(sigma),f(NULL),cons(cons),colidx(colidx)
 {
 }
@@ -10,9 +10,10 @@ axbu_eigen::~axbu_eigen()
 {
 
 }
-void axbu_eigen::operator() (int init,int end){
+void axbu_eigen::operator() (int init,int end,int pnum){
 	if (end < 0)end = cons->size();
-
+	std::vector< std::pair<int64_t, double> >& ut(u[pnum]);
+	int unum=0;
 	//std::cout << init << "\t" << end << "\t" << index << std::endl;
 	for (int istart = init; istart < end; istart++) {
 		int64_t longindex = (*cons)[istart];
@@ -49,8 +50,10 @@ void axbu_eigen::operator() (int init,int end){
 					}
 
 					double axbu2 =0;
-					if (u->find(index) != u->end()) {
-						axbu2 += (*u)[index] / sigma;
+
+					if (ut[unum].first==index) {
+						axbu2 += ut[unum].second / sigma;
+						unum++;
 					}
 					for (int tt = 0; tt < 3; tt++) {
 						if(tt==time)

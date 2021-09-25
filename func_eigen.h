@@ -57,11 +57,12 @@ private:
 class func_eigen_y:public func_eigen
 {
 public:
-	func_eigen_y(std::map<int64_t,double>*,double sigma, double*,double*,double*);
+	func_eigen_y(std::vector< std::pair<int64_t, double> >&,double sigma, double*,double*,double*);
 	~func_eigen_y();
 	void operator()(double axbu, int* idx, int time, int64_t index);
+	int unum = 0;
 private:
-	std::map<int64_t, double>* u;
+	std::vector< std::pair<int64_t, double> >& u;
 	double sigma;
 	double* y_norm;
 	double* kkt_y;
@@ -83,12 +84,13 @@ private:
 class func_eigen_u :public func_eigen
 {
 public:
-
-	func_eigen_u(std::map<int64_t, double>* u, double sigma);
+	int unum = 0;
+	func_eigen_u(std::vector< std::pair<int64_t, double> >& u,  double sigma);
 	~func_eigen_u();
 	void operator()(double axbu, int* idx, int time, int64_t index);
 private:
-	std::map<int64_t, double>* u;
+	std::vector< std::pair<int64_t, double> >& u;
+
 	double sigma;
 };
 

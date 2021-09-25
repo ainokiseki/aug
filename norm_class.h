@@ -117,10 +117,12 @@ public:
 	double cst = 0;
 	int iter_all = 0;
 	double sigma = 1;
-	int mthread = 12;
+	int mthread = 32;
 	ofstream prt_res;
 	Eigen::VectorXd rhs,x0;
-	map<int64_t, double>u;
+
+	std::vector<std::vector< std::pair<int64_t, double> > > u;
+
 	axbu_eigen* axbu;
 	Eigen::VectorXd sub_x;
 	Eigen::VectorXd sub_b;
