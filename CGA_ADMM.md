@@ -8,7 +8,7 @@ This code is the implementation of algorithms in our paper: CGA_ADMM: An efficie
 
 ## Build
 1. Add the directory of Eigen library to the include path.
-2. Add CGA_ADMM.lib to the linker.
+2. Add CGA_ADMM.lib to Linker input.
 3. Switch the option "Use oneMKL" to "Parallel". Note that if MKL library is not installed, add `/D "NO_MKL"` to the compiling command instead, which may get a slower version software.
 3. Compile with MSVC.
 
