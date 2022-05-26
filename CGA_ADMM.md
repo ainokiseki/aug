@@ -13,7 +13,7 @@ This code is the implementation of algorithms in our paper: CGA_ADMM: An efficie
 3. Compile with MSVC.
 
 ## Run
-Make sure CGA_ADMM.dll is in the same directory as the main exe file.
+Make sure CGA_ADMM.dll and CGA_ADMM.exe are in the same directory.
 ```
 SYNOPSIS
         admm <norm> <filename>... [--maxits <max_iter>] [--ikt <inner_kkt_tol>] [--kt <kkt_tol>] [--gt <gaptol>] [--sig <sigma>] [--tau <tau>] [--mxvio] [-i <input directory>]
