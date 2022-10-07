@@ -35,6 +35,9 @@
     <ClInclude Include="gurobi.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="saveload.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="e.cpp">
@@ -62,6 +65,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="gurobi.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="saveload.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

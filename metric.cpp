@@ -1,5 +1,5 @@
 #include"metric.h"
-
+#include"saveload.h"
 
 
 extern inline int ij(int x, int y, int n);
@@ -48,6 +48,28 @@ void metric::matrix_generate(char type)
 	}
 }
 
+void saveHashB(ofstream&fout,metric::hash_b&b) {
+	save4(&b.default_value, fout);
+	saveSet(b.data, fout);
+}
+void saveHashX(ofstream& fout, metric::hash_x& x) {
+	save8(&x.default_value, fout);
+	saveMap(x.data, fout);
+}
+
+void metric::SparseSave(ofstream& fout)
+{
+	save4(&n, fout);
+	saveHashB(fout,sv_b);
+	saveHashX(fout, sv_x);
+	saveHashX(fout, sv_v);
+	saveHashX(fout, sv_w);
+}
+metric::metric(string graph_name, ifstream& fin) :sv_x(sparse_w, 0), sv_v(sparse_w, 0), sv_w(sparse_w, 0), sv_b(sparse_b) {
+
+
+
+}
 
 
 double calc_bnorm(int mthread, Eigen::VectorXd& b, int n) {

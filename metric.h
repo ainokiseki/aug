@@ -48,6 +48,7 @@ inline pair<int, int> rij(int ijvalue, int n) {
 class metric
 {
 public:
+	metric(string graph_name, ifstream& fin);
 	metric(std::string graph_name,int type=0) :sv_x(sparse_w, 0), sv_v(sparse_w, 0), sv_w(sparse_w, 0), sv_b(sparse_b) {
 		ifstream graph(graph_name, ios::in);
 		map<int, set<int> > g;
@@ -310,6 +311,8 @@ public:
 	hash_x sv_x, sv_v, sv_w;
 	bool cgflg = false;
 	std::map<string, double>runhist;
+
+	void SparseSave(ofstream& fout);
 
 };
 double calc_bnorm(int mthread, Eigen::VectorXd& b, int n);
