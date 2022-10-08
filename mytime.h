@@ -20,9 +20,10 @@ public:
 		return tm;
 	}
 	double blink = 0;
+	double tm = 0;
 private:
 	std::chrono::high_resolution_clock::time_point start,end;
-	double tm=0;
+
 
 };
 

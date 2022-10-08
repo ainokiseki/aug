@@ -52,9 +52,18 @@ void saveHashB(ofstream&fout,metric::hash_b&b) {
 	save4(&b.default_value, fout);
 	saveSet(b.data, fout);
 }
+void readHashB(ifstream& fin, metric::hash_b& b) {
+	read4(&b.default_value, fin);
+	readSet(b.data, fin);
+}
+
 void saveHashX(ofstream& fout, metric::hash_x& x) {
 	save8(&x.default_value, fout);
 	saveMap(x.data, fout);
+}
+void readHashX(ifstream& fin, metric::hash_x& x) {
+	read8(&x.default_value, fin);
+	readMap(x.data, fin);
 }
 
 void metric::SparseSave(ofstream& fout)
@@ -66,8 +75,16 @@ void metric::SparseSave(ofstream& fout)
 	saveHashX(fout, sv_w);
 }
 metric::metric(string graph_name, ifstream& fin) :sv_x(sparse_w, 0), sv_v(sparse_w, 0), sv_w(sparse_w, 0), sv_b(sparse_b) {
-
-
+	read4(&n, fin);
+	cout << "n:" << n << endl;
+	var_num = static_cast<int>(static_cast<int64_t>(n) * (n - 1) / 2);
+	readHashB(fin,sv_b);
+	readHashX(fin, sv_x);
+	readHashX(fin, sv_v);
+	readHashX(fin, sv_w);
+	double wrs = 0;
+	for (int i = 0; i < var_num; i++)wrs += sv_w[i];
+	cout << "w:" << wrs << "\nb:" << sparse_b.size() << "\nwdef:" << sv_w.default_value << endl;
 
 }
 

@@ -641,8 +641,11 @@ public:
 	cons_generator_sparse(int n, int mthread) :n(n), mthread(mthread) {
 		int var_num = n * (n - 1) / 2;
 		colidx_num = 0;
-
 	}
+	cons_generator_sparse(int n, int mthread, ifstream& fin);
+
+
+
 	~cons_generator_sparse() = default;
 	timer ava;
 	bool consvio = false;
@@ -1232,4 +1235,9 @@ public:
 		ava.toc();
 		std::cout << "cg time:" << ava.time() << std::endl;
 	}
+
+
+private:
+	void SparseSave(ofstream& fout);
+
 };

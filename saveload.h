@@ -125,3 +125,26 @@ void readMap(unordered_map<T1, T2>& m, ifstream& fin) {
 		m.insert(pair<T1, T2>(tmp1, tmp2));
 	}
 }
+template<typename T1, typename T2>
+void saveMap(concurrency::concurrent_unordered_map<T1, T2>& m, ofstream& fout) {
+	int sz = m.size();
+	fout.write((char*)(&sz), sizeof(int));
+	for (auto i : s) {
+		fout.write((char*)(&i.first), sizeof(T1));
+		fout.write((char*)(&i.second), sizeof(T2));
+	}
+}
+template<typename T1, typename T2>
+void readMap(concurrency::concurrent_unordered_map<T1, T2>& m, ifstream& fin) {
+	int sz;
+	read4(&sz, fin);
+	T1 tmp1; T2 tmp2;
+	for (int i = 0; i < sz; i++) {
+		fin.read((char*)tmp1, sizeof(T1));
+		fin.read((char*)tmp2, sizeof(T2));
+		m.insert(pair<T1, T2>(tmp1, tmp2));
+	}
+}
+
+
+

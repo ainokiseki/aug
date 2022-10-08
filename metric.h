@@ -314,5 +314,6 @@ public:
 
 	void SparseSave(ofstream& fout);
 
+
 };
 double calc_bnorm(int mthread, Eigen::VectorXd& b, int n);

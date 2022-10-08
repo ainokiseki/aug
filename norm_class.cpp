@@ -3,6 +3,7 @@
 #include<iomanip>
 #include<atomic>
 #include"cons_generate.h"
+#include"saveload.h"
 //#define EIGENCG
 //#define SMCG
 #define BDEG
@@ -4250,4 +4251,39 @@ double norm_ori::run_axbu(double cst_const, int con_const, int sub_iter) {
 
 
 
+}
+
+
+
+void cons_generator_sparse::SparseSave(ofstream& fout) {
+	saveVector(data, fout);
+	saveSet(viscons,fout);
+	saveMap(colidx, fout);
+	int cnum = colidx_num;
+	save4(&cnum, fout);
+	fout.write((char*)&initflag, sizeof(bool));
+	fout.write((char*)&consvio, sizeof(bool));
+	save8(&initconsnum, fout);
+
+	save8(&ava.blink, fout);
+	save8(&ava.tm, fout);
+
+}
+
+cons_generator_sparse::cons_generator_sparse(int n, int mthread, ifstream& fin) :n(n), mthread(mthread) {
+	int var_num = n * (n - 1) / 2;
+	readVector(data, fin);
+	readSet(viscons, fin);
+	readMap(colidx, fin);
+	int cnum;
+	read4(&cnum,fin);
+	colidx_num = cnum;
+	bool tmp;
+	fin.read((char*)&tmp, sizeof(bool));
+	initflag = tmp;
+	fin.read((char*)&tmp, sizeof(bool));
+	consvio = tmp;
+	read8(&initconsnum, fin);
+	read8(&ava.blink, fin);
+	read8(&ava.tm, fin);
 }
